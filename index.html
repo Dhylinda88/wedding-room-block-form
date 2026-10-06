@@ -169,17 +169,19 @@
                 <label for="wedding_venue">Wedding / ceremony venue</label>
                 <input id="wedding_venue" name="wedding_venue" type="text" />
               </div>
-              <div class="field">
+              <div class="field" data-field="ceremony_time">
                 <label for="ceremony_time">Ceremony time</label>
-                <input id="ceremony_time" name="ceremony_time" type="time" />
+                <input id="ceremony_time" name="ceremony_time" type="time" data-time-input />
+                <div class="field-error" data-error-for="ceremony_time"></div>
               </div>
               <div class="field">
                 <label for="reception_venue">Reception venue</label>
                 <input id="reception_venue" name="reception_venue" type="text" />
               </div>
-              <div class="field">
+              <div class="field" data-field="reception_time">
                 <label for="reception_time">Reception time</label>
-                <input id="reception_time" name="reception_time" type="time" />
+                <input id="reception_time" name="reception_time" type="time" data-time-input />
+                <div class="field-error" data-error-for="reception_time"></div>
               </div>
               <div class="field" data-field="group_arrival">
                 <label for="group_arrival">Group arrival date</label>
@@ -273,9 +275,10 @@
                     />
                     <div class="field-error" data-error-for="getting_ready_guests"></div>
                   </div>
-                  <div class="field">
+                  <div class="field" data-field="getting_ready_access">
                     <label for="getting_ready_access">Requested access time</label>
-                    <input id="getting_ready_access" name="getting_ready_access" type="time" />
+                    <input id="getting_ready_access" name="getting_ready_access" type="time" data-time-input />
+                    <div class="field-error" data-error-for="getting_ready_access"></div>
                   </div>
                 </div>
               </div>
@@ -299,7 +302,7 @@
                 <label for="transport_company">Transportation company</label>
                 <input id="transport_company" name="transport_company" type="text" />
               </div>
-              <div class="field">
+              <div class="field" data-field="transport_contact">
                 <label for="transport_contact">Company contact / cell</label>
                 <input
                   id="transport_contact"
@@ -309,22 +312,26 @@
                   data-phone-mask
                   maxlength="14"
                 />
+                <div class="field-error" data-error-for="transport_contact"></div>
               </div>
               <div class="field">
                 <label for="transport_vehicles">Number / type of vehicles</label>
                 <input id="transport_vehicles" name="transport_vehicles" type="text" />
               </div>
-              <div class="field">
+              <div class="field" data-field="transport_first_pickup">
                 <label for="transport_first_pickup">First hotel pickup</label>
-                <input id="transport_first_pickup" name="transport_first_pickup" type="text" placeholder="Date and time" />
+                <input id="transport_first_pickup" name="transport_first_pickup" type="datetime-local" data-datetime-input />
+                <div class="field-error" data-error-for="transport_first_pickup"></div>
               </div>
-              <div class="field">
-                <label for="transport_additional">Additional pickup time(s)</label>
-                <input id="transport_additional" name="transport_additional" type="text" />
+              <div class="field" data-field="transport_additional">
+                <label for="transport_additional">Additional pickup time</label>
+                <input id="transport_additional" name="transport_additional" type="time" data-time-input />
+                <div class="field-error" data-error-for="transport_additional"></div>
               </div>
-              <div class="field">
-                <label for="transport_return">Expected return time(s)</label>
-                <input id="transport_return" name="transport_return" type="text" />
+              <div class="field" data-field="transport_return">
+                <label for="transport_return">Expected return time</label>
+                <input id="transport_return" name="transport_return" type="time" data-time-input />
+                <div class="field-error" data-error-for="transport_return"></div>
               </div>
               <div class="field" style="grid-column: 1 / -1">
                 <label for="transport_venue">Wedding venue (for shuttle)</label>
@@ -407,9 +414,10 @@
                   />
                   <div class="field-error" data-error-for="bags_delivery_date"></div>
                 </div>
-                <div class="field">
+                <div class="field" data-field="bags_delivery_time">
                   <label for="bags_delivery_time">Expected delivery time</label>
-                  <input id="bags_delivery_time" name="bags_delivery_time" type="time" />
+                  <input id="bags_delivery_time" name="bags_delivery_time" type="time" data-time-input />
+                  <div class="field-error" data-error-for="bags_delivery_time"></div>
                 </div>
                 <div class="field">
                   <label for="bags_deliverer">Person / vendor delivering</label>
@@ -447,7 +455,7 @@
               <div class="field-grid two">
                 <div class="field" data-field="brunch_datetime">
                   <label for="brunch_datetime">Event date / time</label>
-                  <input id="brunch_datetime" name="brunch_datetime" type="datetime-local" />
+                  <input id="brunch_datetime" name="brunch_datetime" type="datetime-local" data-datetime-input />
                   <div class="field-error" data-error-for="brunch_datetime"></div>
                 </div>
                 <div class="field" data-field="brunch_attendance">
@@ -487,6 +495,7 @@
                   data-date-mask
                   maxlength="10"
                 />
+                <div class="field-error" data-error-for="date_room_cutoff"></div>
               </div>
               <div class="field" data-field="date_menu_due">
                 <label for="date_menu_due">Menu selections due (30 days prior)</label>
@@ -499,6 +508,7 @@
                   data-date-mask
                   maxlength="10"
                 />
+                <div class="field-error" data-error-for="date_menu_due"></div>
               </div>
               <div class="field" data-field="date_vendor_list">
                 <label for="date_vendor_list">Final vendor list due</label>
@@ -511,6 +521,7 @@
                   data-date-mask
                   maxlength="10"
                 />
+                <div class="field-error" data-error-for="date_vendor_list"></div>
               </div>
               <div class="field" data-field="date_gift_bag">
                 <label for="date_gift_bag">Gift bag delivery</label>
@@ -523,6 +534,7 @@
                   data-date-mask
                   maxlength="10"
                 />
+                <div class="field-error" data-error-for="date_gift_bag"></div>
               </div>
               <div class="field" data-field="date_getting_ready">
                 <label for="date_getting_ready">Getting-ready room access</label>
@@ -535,6 +547,7 @@
                   data-date-mask
                   maxlength="10"
                 />
+                <div class="field-error" data-error-for="date_getting_ready"></div>
               </div>
             </div>
           </section>
@@ -562,9 +575,10 @@
             <label>Service</label>
             <input type="text" data-vendor="service" />
           </div>
-          <div class="field" style="grid-column: 1 / -1">
+          <div class="field" style="grid-column: 1 / -1" data-field-vendor-access>
             <label>Date / time of access</label>
-            <input type="text" data-vendor="access" placeholder="e.g. Saturday 2:00 PM" />
+            <input type="datetime-local" data-vendor="access" data-datetime-input />
+            <div class="field-error" data-vendor-access-error></div>
           </div>
         </div>
       </div>

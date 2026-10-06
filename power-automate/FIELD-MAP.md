@@ -1,144 +1,154 @@
-# SharePoint Create / Update — field map
+# SharePoint Create / Update — field map (refined)
 
 List: **Wedding Room Planner**  
-Keep **FormPayload** (Multiple lines of text) as full JSON backup.  
-Flat columns below are for list views / Excel export — map them on **Create** and **Update** for both `saveDraft` and `submitFinal`.
+Keep **FormPayload** (Multiple lines of text) as full JSON backup for resume.  
+Flat columns below are for list views / Excel. Map on **Create** and **Update** for `saveDraft` and `submitFinal`.
 
-After adding columns, open each in List settings and note `Field=` in the URL (internal name). Use **internal names** only in Filter Query / `body(...)?['...']`. In Create/Update UI, pick by **display name**.
+Form payload keys are under `json(triggerBody())?['payload']?['…']`.  
+Dates in payload are ISO `YYYY-MM-DD`. Phones are `(XXX) XXX-XXXX`.
 
-Dates from the form payload are **ISO** `YYYY-MM-DD`. Phones are formatted `(XXX) XXX-XXXX`.
-
----
-
-## Existing / core columns
-
-| Display name | Suggested internal | Expression (payload path) |
-|--------------|--------------------|---------------------------|
-| Title | Title | `json(triggerBody())?['payload']?['couple_name']` |
-| Draft ID | DraftID | `variables('DraftIDFinal')` or `outputs('DraftID')` / Submit: `outputs('DraftID_Submit')` |
-| Status | Status | `draft` or `submitted` |
-| Created at | Createdat | Create: `utcNow()` |
-| Updated at | Updatedat | `utcNow()` |
-| Submitted at | Submittedat | Submit only: `utcNow()` |
-| Couple Name | CoupleName | `json(triggerBody())?['payload']?['couple_name']` |
-| Wedding Date | WeddingDate | `json(triggerBody())?['payload']?['wedding_date']` |
-| Email | Email | `json(triggerBody())?['payload']?['email']` |
-| Phone | Phone | `json(triggerBody())?['payload']?['phone']` |
-| FormPayload | FormPayload | `string(json(triggerBody())?['payload'])` |
-
-Do **not** map the old single-line **Payload** column (255 limit).
+After adding a column, check List settings → column → URL `Field=` for the **internal name**.
 
 ---
 
-## Priority columns (add these first)
+## Core (already have)
 
 | Display name | Type | Expression |
 |--------------|------|------------|
-| Complete By | Date and time (Date only) | `json(triggerBody())?['payload']?['complete_by']` |
-| Gift bags | Single line / Choice Yes/No | `json(triggerBody())?['payload']?['bags_providing']` |
-| Valet needed | Single line / Choice Yes/No | `json(triggerBody())?['payload']?['valet_needed']` |
-| Valet payment | Single line | `json(triggerBody())?['payload']?['valet_payment']` |
+| Title | Single line | `json(triggerBody())?['payload']?['couple_name']` |
+| Draft ID | Single line | Save: `variables('DraftIDFinal')` · Submit: `outputs('DraftID_Submit')` |
+| Status | Single line | `draft` / `submitted` |
+| Created at | Single line (or Date) | Create: `utcNow()` |
+| Updated at | Single line (or Date) | `utcNow()` |
+| Submitted at | Single line (or Date) | Submit: `utcNow()` |
+| Couple Name | Single line | `json(triggerBody())?['payload']?['couple_name']` |
+| Wedding Date | Date only (or Single line) | `json(triggerBody())?['payload']?['wedding_date']` |
+| Email | Single line | `json(triggerBody())?['payload']?['email']` |
+| Phone | Single line | `json(triggerBody())?['payload']?['phone']` |
+| FormPayload | Multiple lines (plain) | `string(json(triggerBody())?['payload'])` |
+| Complete By | Date only | `json(triggerBody())?['payload']?['complete_by']` |
+
+Do **not** map old 255-char **Payload**.
 
 ---
 
-## Flatten — contact & basics
+## Priority / ops columns
 
-| Display name | Type | Expression key under `payload` |
-|--------------|------|--------------------------------|
+| Display name | Type | Choices / notes | Expression |
+|--------------|------|-----------------|------------|
+| Valet needed | **Choice** | `yes`, `no` | `json(triggerBody())?['payload']?['valet_needed']` |
+| Valet payment | **Choice** | `individual`, `hosted`, `master`, `other` (labels in list: Individual guest / Hosted by couple-family / Master account / Other) | `json(triggerBody())?['payload']?['valet_payment']` |
+| Valet vehicles | **Number** | | `json(triggerBody())?['payload']?['valet_vehicles']` |
+| Valet details | Multiple lines | Combine “if other” + billing contact + billing instructions | Compose then map (see below) |
+| Gift bags | **Choice** | `yes`, `no` — ignore quantity column for now if you want; or add Bags quantity later | `json(triggerBody())?['payload']?['bags_providing']` |
+
+**Compose `ValetDetails` (before Create/Update):** use text with dynamics:
+
+```text
+Other: @{json(triggerBody())?['payload']?['valet_other']}
+Billing contact: @{json(triggerBody())?['payload']?['valet_billing_contact']}
+Instructions: @{json(triggerBody())?['payload']?['valet_billing_instructions']}
+```
+
+Map **Valet details** → `outputs('ValetDetails')`.
+
+---
+
+## Wedding basics
+
+| Display name | Type | Expression key |
+|--------------|------|----------------|
 | Wedding venue | Single line | `wedding_venue` |
-| Ceremony time | Single line | `ceremony_time` |
+| Ceremony time | Single line (time from form) | `ceremony_time` |
 | Reception venue | Single line | `reception_venue` |
 | Reception time | Single line | `reception_time` |
-| Group arrival | Date | `group_arrival` |
-| Group departure | Date | `group_departure` |
+| Group arrival | Date only | `group_arrival` |
+| Group departure | Date only | `group_departure` |
 | Weekend contact | Single line | `weekend_contact_name` |
 | Weekend phone | Single line | `weekend_contact_phone` |
 
-## Flatten — rooms / VIP
+Note: form ceremony/reception are **time** inputs (`HH:mm`), not full date/time. Store as Single line text unless you change the form later.
 
-| Display name | Type | Key |
-|--------------|------|-----|
+---
+
+## Rooms / VIP
+
+| Display name | Type | Expression key |
+|--------------|------|----------------|
 | Anticipated rooms | Multiple lines | `anticipated_rooms` |
 | Couple accommodations | Multiple lines | `couple_accommodations` |
-| Getting ready needed | Single line | `getting_ready_needed` |
-| Getting ready date | Date | `getting_ready_date` |
+| Getting ready needed | **Choice** yes/no | `getting_ready_needed` |
+| Getting ready date | Date only | `getting_ready_date` |
 | Getting ready guests | Number | `getting_ready_guests` |
 | Getting ready access | Single line | `getting_ready_access` |
 | VIP names | Multiple lines | `vip_names` |
 | Accessibility | Multiple lines | `accessibility` |
 
-## Flatten — transport / valet / bags / brunch
+---
 
-| Display name | Type | Key |
-|--------------|------|-----|
-| Transport company | Single line | `transport_company` |
-| Transport contact | Single line | `transport_contact` |
-| Transport vehicles | Single line | `transport_vehicles` |
-| Transport first pickup | Single line | `transport_first_pickup` |
-| Transport additional | Single line | `transport_additional` |
-| Transport return | Single line | `transport_return` |
-| Transport venue | Single line | `transport_venue` |
-| Valet other | Single line | `valet_other` |
-| Valet vehicles | Number | `valet_vehicles` |
-| Valet billing contact | Single line | `valet_billing_contact` |
-| Valet billing instructions | Single line | `valet_billing_instructions` |
-| Bags quantity | Number | `bags_quantity` |
-| Bags delivery date | Date | `bags_delivery_date` |
-| Bags delivery time | Single line | `bags_delivery_time` |
-| Bags deliverer | Single line | `bags_deliverer` |
-| Bags distribution | Multiple lines | `bags_distribution` |
-| Brunch hosting | Single line | `brunch_hosting` |
-| Brunch datetime | Single line | `brunch_datetime` |
-| Brunch attendance | Number | `brunch_attendance` |
-| Brunch menu submitted | Single line | `brunch_menu_submitted` |
-| Brunch requests | Multiple lines | `brunch_requests` |
+## Transport (one blob)
 
-## Flatten — staff dates
+| Display name | Type | How to fill |
+|--------------|------|-------------|
+| Transportation | Multiple lines | Compose `TransportBlock` (below) → `outputs('TransportBlock')` |
 
-| Display name | Type | Key |
-|--------------|------|-----|
-| Date room cutoff | Date | `date_room_cutoff` |
-| Date menu due | Date | `date_menu_due` |
-| Date vendor list | Date | `date_vendor_list` |
-| Date gift bag | Date | `date_gift_bag` |
-| Date getting ready | Date | `date_getting_ready` |
+**Compose `TransportBlock` text:**
 
-## Vendors (summary text)
+```text
+Company: @{json(triggerBody())?['payload']?['transport_company']}
+Contact: @{json(triggerBody())?['payload']?['transport_contact']}
+Vehicles: @{json(triggerBody())?['payload']?['transport_vehicles']}
+First pickup: @{json(triggerBody())?['payload']?['transport_first_pickup']}
+Additional: @{json(triggerBody())?['payload']?['transport_additional']}
+Return: @{json(triggerBody())?['payload']?['transport_return']}
+Venue: @{json(triggerBody())?['payload']?['transport_venue']}
+```
+
+---
+
+## Brunch
 
 | Display name | Type | Expression |
 |--------------|------|------------|
-| Vendors | Multiple lines | See Compose below |
+| Brunch hosting | **Choice** yes/no | `json(triggerBody())?['payload']?['brunch_hosting']` |
+| Brunch datetime | **Date and time** (date + time) | `json(triggerBody())?['payload']?['brunch_datetime']` — form sends `YYYY-MM-DDTHH:mm` from `datetime-local` |
+| Brunch attendance | Number | `json(triggerBody())?['payload']?['brunch_attendance']` |
+| Brunch menu submitted | **Choice** yes/no | `json(triggerBody())?['payload']?['brunch_menu_submitted']` |
+| Brunch requests | Multiple lines | `json(triggerBody())?['payload']?['brunch_requests']` |
 
-**Compose `VendorsText` (before Create/Update):**
+If SharePoint rejects the value, wrap in Expression:  
+`if(empty(json(triggerBody())?['payload']?['brunch_datetime']), null, json(triggerBody())?['payload']?['brunch_datetime'])`  
+or append `:00` if needed:  
+`concat(json(triggerBody())?['payload']?['brunch_datetime'], ':00')` only when the value has no seconds.
 
-```text
-join(xpath(xml(concat('<r>', join(json(concat('["', join(json(triggerBody())?['payload']?['vendors'], '","'), '"]')), '</r>')), ...))
-```
+(Only brunch datetime / attendance / menu / requests matter when hosting = yes; empty is fine when no.)
 
-Simpler approach in PA — **Compose** with Expression:
+---
 
-```text
-string(json(triggerBody())?['payload']?['vendors'])
-```
+## Vendors + staff dates
 
-Or build a readable string in a Compose using `join` over an Apply to each — for v1, storing `string(json(...vendors))` is enough for Excel.
+| Display name | Type | Expression |
+|--------------|------|------------|
+| Vendors | Multiple lines | `string(json(triggerBody())?['payload']?['vendors'])` |
+| Date room cutoff | Date only | `…?['date_room_cutoff']` |
+| Date menu due | Date only | `…?['date_menu_due']` |
+| Date vendor list | Date only | `…?['date_vendor_list']` |
+| Date gift bag | Date only | `…?['date_gift_bag']` |
+| Date getting ready | Date only | `…?['date_getting_ready']` |
+
+---
+
+## Gift bags (later — skip for now)
+
+When you come back: Choice **Gift bags** yes/no + optional Number **Bags quantity**. Delivery fields stay staff-side later.
 
 ---
 
 ## Update item Id
 
-```text
-first(body('GetDraftItems')?['value'])?['ID']
-```
+Save: `first(body('GetDraftItems')?['value'])?['ID']`  
+Submit: `first(body('GetSubmitItems')?['value'])?['ID']`
 
-(Submit: `GetSubmitItems`)
+## loadDraft Response
 
----
-
-## loadDraft Response body
-
-Use **FormPayload** and **DraftID** (not `Payload` / `Draft_x0020_ID`):
-
-```text
-json(concat('{"ok":true,"draft_id":"', first(body('GetByDraftID')?['value'])?['DraftID'], '","status":"', first(body('GetByDraftID')?['value'])?['Status'], '","payload":', first(body('GetByDraftID')?['value'])?['FormPayload'], '}'))
-```
+Use `DraftID` + `FormPayload` (not `Draft_x0020_ID` / old `Payload`).

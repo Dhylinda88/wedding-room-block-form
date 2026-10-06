@@ -247,6 +247,44 @@
     return /^\d+$/.test(s);
   }
 
+  function isValidTime(value) {
+    const s = String(value || "").trim();
+    if (!s) return false;
+    const m = s.match(/^(\d{2}):(\d{2})(?::(\d{2}))?$/);
+    if (!m) return false;
+    const hh = Number(m[1]);
+    const mm = Number(m[2]);
+    const ss = m[3] != null ? Number(m[3]) : 0;
+    return hh >= 0 && hh <= 23 && mm >= 0 && mm <= 59 && ss >= 0 && ss <= 59;
+  }
+
+  function isValidDateTimeLocal(value) {
+    const s = String(value || "").trim();
+    if (!s) return false;
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
+    if (!m) return false;
+    const year = Number(m[1]);
+    if (year < 1900 || year > 2100) return false;
+    const isoDate = m[1] + "-" + m[2] + "-" + m[3];
+    if (!normalizeDateToIso(isoDate)) return false;
+    return isValidTime(m[4] + ":" + m[5] + (m[6] != null ? ":" + m[6] : ""));
+  }
+
+  function normalizeDateTimeLocal(value) {
+    const s = String(value || "").trim();
+    if (!s) return "";
+    if (isValidDateTimeLocal(s)) {
+      return s.length === 16 ? s : s.slice(0, 16);
+    }
+    /* Accept ISO date + time fragments from older payloads */
+    const iso = normalizeDateToIso(s.slice(0, 10));
+    const timePart = s.includes("T") ? s.split("T")[1] : s.includes(" ") ? s.split(" ")[1] : "";
+    if (iso && timePart && isValidTime(timePart.slice(0, 8))) {
+      return iso + "T" + timePart.slice(0, 5);
+    }
+    return "";
+  }
+
   function setStatus(message, kind) {
     els.saveStatus.textContent = message;
     els.saveStatus.classList.remove("is-error", "is-ok");
@@ -261,6 +299,9 @@
 
   function clearFieldErrors() {
     document.querySelectorAll(".field-error").forEach((el) => {
+      el.textContent = "";
+    });
+    document.querySelectorAll("[data-vendor-access-error]").forEach((el) => {
       el.textContent = "";
     });
     document.querySelectorAll(".field.is-invalid").forEach((el) => {
@@ -310,20 +351,72 @@
       ["group_departure", "group departure"],
       ["getting_ready_date", "getting-ready date"],
       ["bags_delivery_date", "gift bag delivery date"],
+      ["date_room_cutoff", "guest room cutoff"],
+      ["date_menu_due", "menu selections due"],
+      ["date_vendor_list", "final vendor list due"],
+      ["date_gift_bag", "gift bag delivery"],
+      ["date_getting_ready", "getting-ready room access date"],
     ];
     optionalDates.forEach(([name, label]) => {
       const raw = dateDisplayOf(name);
       if (raw && !dateIsoOf(name)) errors[name] = "Enter a valid " + label + " (MM/DD/YYYY).";
     });
 
-    const phoneOpt = valueOf("weekend_contact_phone");
-    if (phoneOpt && !isValidPhone(phoneOpt)) {
-      errors.weekend_contact_phone = "Enter a 10-digit phone number.";
-    }
+    [
+      ["weekend_contact_phone", "weekend contact phone"],
+      ["transport_contact", "transport contact phone"],
+    ].forEach(([name, label]) => {
+      const v = valueOf(name);
+      if (v && !isValidPhone(v)) errors[name] = "Enter a valid 10-digit " + label + ".";
+    });
+
+    [
+      ["ceremony_time", "ceremony time"],
+      ["reception_time", "reception time"],
+      ["getting_ready_access", "getting-ready access time"],
+      ["bags_delivery_time", "gift bag delivery time"],
+      ["transport_additional", "additional pickup time"],
+      ["transport_return", "return time"],
+    ].forEach(([name, label]) => {
+      const v = valueOf(name);
+      if (v && !isValidTime(v)) errors[name] = "Enter a valid " + label + ".";
+    });
+
+    [
+      ["transport_first_pickup", "first hotel pickup"],
+      ["brunch_datetime", "brunch date and time"],
+    ].forEach(([name, label]) => {
+      const v = valueOf(name);
+      if (v && !isValidDateTimeLocal(v) && !normalizeDateTimeLocal(v)) {
+        errors[name] = "Enter a valid " + label + ".";
+      }
+    });
 
     ["getting_ready_guests", "valet_vehicles", "bags_quantity", "brunch_attendance"].forEach((name) => {
       const v = valueOf(name);
       if (v && !isValidNumeric(v, true)) errors[name] = "Enter numbers only.";
+    });
+
+    if (valueOf("brunch_hosting") === "yes") {
+      const brunch = normalizeDateTimeLocal(valueOf("brunch_datetime")) || valueOf("brunch_datetime");
+      if (!brunch || !isValidDateTimeLocal(brunch)) {
+        errors.brunch_datetime = "Enter a valid brunch date and time.";
+      }
+    }
+
+    document.querySelectorAll("[data-vendor-row]").forEach((row, idx) => {
+      const access = row.querySelector('[data-vendor="access"]');
+      const errEl = row.querySelector("[data-vendor-access-error]");
+      if (!access) return;
+      const raw = String(access.value || "").trim();
+      if (raw && !isValidDateTimeLocal(raw) && !normalizeDateTimeLocal(raw)) {
+        errors["vendor_access_" + idx] = "invalid";
+        if (errEl) errEl.textContent = "Enter a valid access date and time.";
+        const wrap = access.closest(".field");
+        if (wrap) wrap.classList.add("is-invalid");
+      } else if (errEl) {
+        errEl.textContent = "";
+      }
     });
 
     const arrival = dateIsoOf("group_arrival");
@@ -341,20 +434,18 @@
     if (data.wedding_date && gr && compareIso(gr, data.wedding_date) > 0) {
       errors.getting_ready_date = "Getting-ready date is after the wedding.";
     }
-    const brunchRaw = valueOf("brunch_datetime");
-    if (brunchRaw && data.wedding_date && valueOf("brunch_hosting") === "yes") {
-      const brunchIso = normalizeDateToIso(brunchRaw.slice(0, 10)) || (brunchRaw.match(/^(\d{4}-\d{2}-\d{2})/) || [])[1];
+    const brunchNorm = normalizeDateTimeLocal(valueOf("brunch_datetime"));
+    if (brunchNorm && data.wedding_date && valueOf("brunch_hosting") === "yes") {
+      const brunchIso = brunchNorm.slice(0, 10);
       if (brunchIso && compareIso(brunchIso, data.wedding_date) < 0) {
         errors.brunch_datetime = "Brunch date is before the wedding date.";
-        const brunchField = document.querySelector('[data-field="brunch_datetime"]') || document.getElementById("brunch_datetime");
-        if (brunchField && brunchField.closest) {
-          const wrap = brunchField.closest(".field");
-          if (wrap) wrap.classList.add("is-invalid");
-        }
       }
     }
 
-    Object.keys(errors).forEach((key) => showFieldError(key, errors[key]));
+    Object.keys(errors).forEach((key) => {
+      if (key.indexOf("vendor_access_") === 0) return;
+      showFieldError(key, errors[key]);
+    });
     return { ok: Object.keys(errors).length === 0, data, errors };
   }
 
@@ -389,15 +480,27 @@
       el.value = formatPhoneDisplay(value);
       return;
     }
+    if (el.type === "datetime-local" || (el.hasAttribute && el.hasAttribute("data-datetime-input"))) {
+      el.value = normalizeDateTimeLocal(value) || "";
+      return;
+    }
+    if (el.type === "time" || (el.hasAttribute && el.hasAttribute("data-time-input"))) {
+      const t = String(value || "").trim();
+      el.value = isValidTime(t) ? t.slice(0, 5) : "";
+      return;
+    }
     el.value = value;
   }
 
   function collectVendors() {
-    return Array.from(els.vendorRows.querySelectorAll("[data-vendor-row]")).map((row) => ({
-      company: row.querySelector('[data-vendor="company"]').value.trim(),
-      service: row.querySelector('[data-vendor="service"]').value.trim(),
-      access: row.querySelector('[data-vendor="access"]').value.trim(),
-    }));
+    return Array.from(els.vendorRows.querySelectorAll("[data-vendor-row]")).map((row) => {
+      const accessRaw = row.querySelector('[data-vendor="access"]').value.trim();
+      return {
+        company: row.querySelector('[data-vendor="company"]').value.trim(),
+        service: row.querySelector('[data-vendor="service"]').value.trim(),
+        access: normalizeDateTimeLocal(accessRaw) || accessRaw,
+      };
+    });
   }
 
   function addVendorRow(data) {
@@ -406,7 +509,8 @@
     if (data) {
       row.querySelector('[data-vendor="company"]').value = data.company || "";
       row.querySelector('[data-vendor="service"]').value = data.service || "";
-      row.querySelector('[data-vendor="access"]').value = data.access || "";
+      const accessEl = row.querySelector('[data-vendor="access"]');
+      accessEl.value = normalizeDateTimeLocal(data.access) || "";
     }
     row.querySelector("[data-remove-vendor]").addEventListener("click", () => {
       row.remove();
@@ -414,6 +518,7 @@
     });
     row.querySelectorAll("input").forEach((input) => {
       input.addEventListener("input", markDirty);
+      input.addEventListener("change", markDirty);
     });
     els.vendorRows.appendChild(row);
   }
@@ -480,6 +585,19 @@
       if (name === "phone" || name === "weekend_contact_phone" || name === "transport_contact") {
         const d = digitsOnly(v, 10);
         v = d.length === 10 ? formatPhoneDisplay(d) : v;
+      }
+      if (name === "brunch_datetime" || name === "transport_first_pickup") {
+        v = normalizeDateTimeLocal(v) || v;
+      }
+      if (
+        name === "ceremony_time" ||
+        name === "reception_time" ||
+        name === "getting_ready_access" ||
+        name === "bags_delivery_time" ||
+        name === "transport_additional" ||
+        name === "transport_return"
+      ) {
+        v = isValidTime(v) ? v.slice(0, 5) : v;
       }
       payload[name] = v;
     });
@@ -828,6 +946,15 @@
         }
         markDirty();
       });
+      input.addEventListener("blur", () => {
+        const raw = input.value.trim();
+        if (raw && !isValidPhone(raw)) {
+          input.classList.add("is-invalid");
+        } else {
+          input.classList.remove("is-invalid");
+          if (raw) input.value = formatPhoneDisplay(raw);
+        }
+      });
     });
 
     document.querySelectorAll("[data-date-mask]").forEach((input) => {
@@ -845,6 +972,8 @@
         } else if (iso) {
           input.value = isoToUs(iso);
           input.classList.remove("is-invalid");
+        } else {
+          input.classList.remove("is-invalid");
         }
         updateBeyond30Warning();
       });
@@ -853,6 +982,24 @@
     document.querySelectorAll("[data-numeric]").forEach((input) => {
       input.addEventListener("input", () => {
         input.value = digitsOnly(input.value);
+        markDirty();
+      });
+    });
+
+    document.querySelectorAll("[data-time-input]").forEach((input) => {
+      input.addEventListener("change", () => {
+        const v = input.value.trim();
+        if (v && !isValidTime(v)) input.classList.add("is-invalid");
+        else input.classList.remove("is-invalid");
+        markDirty();
+      });
+    });
+
+    document.querySelectorAll("[data-datetime-input]").forEach((input) => {
+      input.addEventListener("change", () => {
+        const v = input.value.trim();
+        if (v && !isValidDateTimeLocal(v)) input.classList.add("is-invalid");
+        else input.classList.remove("is-invalid");
         markDirty();
       });
     });
