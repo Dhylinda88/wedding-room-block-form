@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wedding Guest Room Block Details | The LaSalle Chicago</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="gate" class="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+      <div class="gate-card">
+        <img src="assets/logo.png" alt="The LaSalle Chicago, Autograph Collection" width="160" />
+        <h1 id="gate-title">Access the form</h1>
+        <p>Enter the access code from your coordinator to continue.</p>
+        <form id="unlock-form" novalidate>
+          <div class="field" data-field="password">
+            <label for="access-password">Access code</label>
+            <input id="access-password" name="password" type="password" autocomplete="current-password" required />
+            <div class="field-error" data-error-for="password"></div>
+          </div>
+          <div class="gate-actions">
+            <button type="submit" class="btn btn-gold" id="unlock-btn">Unlock</button>
+          </div>
+        </form>
+        <div class="gate-secondary">
+          <button type="button" id="show-resume">Already started? Resume with email</button>
+        </div>
+        <div id="resume-panel" class="resume-panel" hidden>
+          <form id="resume-form" novalidate>
+            <div class="field" data-field="resume_email">
+              <label for="resume-email">Email used on the form</label>
+              <input id="resume-email" type="email" autocomplete="email" />
+              <div class="field-error" data-error-for="resume_email"></div>
+            </div>
+            <div class="field" data-field="resume_wedding_date">
+              <label for="resume-wedding-date">Wedding date</label>
+              <input id="resume-wedding-date" type="date" />
+              <div class="field-error" data-error-for="resume_wedding_date"></div>
+            </div>
+            <button type="submit" class="btn btn-secondary" id="resume-btn">Find my draft</button>
+          </form>
+        </div>
+        <p id="gate-status" class="status-text" style="margin-top: 1rem" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <div id="thanks" class="thanks app" hidden>
+      <img src="assets/logo.png" alt="" width="180" style="margin: 0 auto 1.5rem" />
+      <h2>Thank you</h2>
+      <p>
+        We received your room block details. Your coordinator will follow up if
+        anything is missing.
+      </p>
+      <p id="thanks-draft" class="hint"></p>
+    </div>
+
+    <main id="app" class="app is-locked" hidden>
+      <header class="brand">
+        <img src="assets/logo.png" alt="The LaSalle Chicago, Autograph Collection" />
+        <h1 id="form-title">Wedding Guest Room Block Details</h1>
+        <p class="intro">
+          <span id="intro-before">Please complete by</span>
+          <label class="sr-only" for="complete_by">Complete-by date</label>
+          <input
+            class="intro-date"
+            id="complete_by"
+            name="complete_by"
+            type="date"
+            required
+            aria-required="true"
+          />
+          <span id="intro-after"
+            >. We’ll use this for your room block and weekend logistics.</span
+          >
+        </p>
+      </header>
+
+      <div class="status-bar">
+        <div id="save-status" class="status-text" aria-live="polite">Not saved yet — click Save progress to keep your work</div>
+        <div class="status-actions">
+          <button type="button" class="btn btn-secondary" id="save-btn">Save progress</button>
+          <button type="button" class="btn btn-gold" id="submit-btn">Submit final</button>
+        </div>
+      </div>
+
+      <div id="form-wrap" class="form-wrap">
+        <form id="wedding-form" novalidate>
+          <input type="hidden" id="draft_id" name="draft_id" value="" />
+
+          <section class="section" aria-labelledby="sec-contact">
+            <h2 id="sec-contact">Your contact details</h2>
+            <p class="section-lead">Required before you can save progress.</p>
+            <div class="field-grid two">
+              <div class="field" data-field="couple_name">
+                <label for="couple_name">Couple / party name</label>
+                <input id="couple_name" name="couple_name" type="text" autocomplete="organization" required />
+                <div class="field-error" data-error-for="couple_name"></div>
+              </div>
+              <div class="field" data-field="wedding_date">
+                <label for="wedding_date">Wedding date</label>
+                <input id="wedding_date" name="wedding_date" type="date" required />
+                <div class="field-error" data-error-for="wedding_date"></div>
+              </div>
+              <div class="field" data-field="email">
+                <label for="email">Your email</label>
+                <input id="email" name="email" type="email" autocomplete="email" required />
+                <div class="field-error" data-error-for="email"></div>
+              </div>
+              <div class="field" data-field="phone">
+                <label for="phone">Your phone</label>
+                <input id="phone" name="phone" type="tel" autocomplete="tel" required placeholder="(312) 555-0100" />
+                <div class="field-error" data-error-for="phone"></div>
+              </div>
+            </div>
+            <div class="field-error" data-error-for="complete_by" id="complete_by_error" style="margin-top: 0.75rem"></div>
+          </section>
+
+          <hr class="rule" />
+
+          <section class="section" aria-labelledby="sec-basics">
+            <h2 id="sec-basics">Wedding basics</h2>
+            <div class="field-grid two">
+              <div class="field">
+                <label for="wedding_venue">Wedding / ceremony venue</label>
+                <input id="wedding_venue" name="wedding_venue" type="text" />
+              </div>
+              <div class="field">
+                <label for="ceremony_time">Ceremony time</label>
+                <input id="ceremony_time" name="ceremony_time" type="time" />
+              </div>
+              <div class="field">
+                <label for="reception_venue">Reception venue</label>
+                <input id="reception_venue" name="reception_venue" type="text" />
+              </div>
+              <div class="field">
+                <label for="reception_time">Reception time</label>
+                <input id="reception_time" name="reception_time" type="time" />
+              </div>
+              <div class="field">
+                <label for="group_arrival">Group arrival date</label>
+                <input id="group_arrival" name="group_arrival" type="date" />
+              </div>
+              <div class="field">
+                <label for="group_departure">Group departure date</label>
+                <input id="group_departure" name="group_departure" type="date" />
+              </div>
+              <div class="field">
+                <label for="weekend_contact_name">Primary wedding-weekend contact</label>
+                <input id="weekend_contact_name" name="weekend_contact_name" type="text" />
+              </div>
+              <div class="field">
+                <label for="weekend_contact_phone">Weekend contact phone</label>
+                <input id="weekend_contact_phone" name="weekend_contact_phone" type="tel" />
+              </div>
+            </div>
+          </section>
+
+          <hr class="rule" />
+
+          <section class="section" aria-labelledby="sec-rooms">
+            <h2 id="sec-rooms">Rooms &amp; VIP</h2>
+            <div class="field-grid">
+              <div class="field">
+                <label for="anticipated_rooms">Anticipated room needs / pickup notes</label>
+                <textarea id="anticipated_rooms" name="anticipated_rooms"></textarea>
+              </div>
+              <div class="field">
+                <label for="couple_accommodations">Accommodations for the wedding couple</label>
+                <textarea id="couple_accommodations" name="couple_accommodations"></textarea>
+              </div>
+              <div class="field">
+                <label>Getting-ready room or suite needed?</label>
+                <div class="choice-row">
+                  <label><input type="radio" name="getting_ready_needed" value="yes" /> Yes</label>
+                  <label><input type="radio" name="getting_ready_needed" value="no" /> No</label>
+                </div>
+              </div>
+              <div id="getting-ready-details" class="conditional" hidden>
+                <div class="field-grid two">
+                  <div class="field">
+                    <label for="getting_ready_date">Getting-ready date</label>
+                    <input id="getting_ready_date" name="getting_ready_date" type="date" />
+                  </div>
+                  <div class="field">
+                    <label for="getting_ready_guests">Estimated number of guests</label>
+                    <input id="getting_ready_guests" name="getting_ready_guests" type="number" min="0" />
+                  </div>
+                  <div class="field">
+                    <label for="getting_ready_access">Requested access time</label>
+                    <input id="getting_ready_access" name="getting_ready_access" type="time" />
+                  </div>
+                </div>
+              </div>
+              <div class="field">
+                <label for="vip_names">VIP / family names for special attention</label>
+                <textarea id="vip_names" name="vip_names" placeholder="Names and any upgrade or attention notes"></textarea>
+              </div>
+              <div class="field">
+                <label for="accessibility">Accessibility needs or special guest requests</label>
+                <textarea id="accessibility" name="accessibility"></textarea>
+              </div>
+            </div>
+          </section>
+
+          <hr class="rule" />
+
+          <section class="section" aria-labelledby="sec-transport">
+            <h2 id="sec-transport">Transportation / shuttles</h2>
+            <div class="field-grid two">
+              <div class="field">
+                <label for="transport_company">Transportation company</label>
+                <input id="transport_company" name="transport_company" type="text" />
+              </div>
+              <div class="field">
+                <label for="transport_contact">Company contact / cell</label>
+                <input id="transport_contact" name="transport_contact" type="text" />
+              </div>
+              <div class="field">
+                <label for="transport_vehicles">Number / type of vehicles</label>
+                <input id="transport_vehicles" name="transport_vehicles" type="text" />
+              </div>
+              <div class="field">
+                <label for="transport_first_pickup">First hotel pickup</label>
+                <input id="transport_first_pickup" name="transport_first_pickup" type="text" placeholder="Date and time" />
+              </div>
+              <div class="field">
+                <label for="transport_additional">Additional pickup time(s)</label>
+                <input id="transport_additional" name="transport_additional" type="text" />
+              </div>
+              <div class="field">
+                <label for="transport_return">Expected return time(s)</label>
+                <input id="transport_return" name="transport_return" type="text" />
+              </div>
+              <div class="field" style="grid-column: 1 / -1">
+                <label for="transport_venue">Wedding venue (for shuttle)</label>
+                <input id="transport_venue" name="transport_venue" type="text" />
+              </div>
+            </div>
+          </section>
+
+          <hr class="rule" />
+
+          <section class="section" aria-labelledby="sec-valet">
+            <h2 id="sec-valet">Valet parking</h2>
+            <div class="field">
+              <label>Will valet parking be needed for wedding guests or visitors?</label>
+              <div class="choice-row">
+                <label><input type="radio" name="valet_needed" value="yes" /> Yes</label>
+                <label><input type="radio" name="valet_needed" value="no" /> No</label>
+              </div>
+            </div>
+            <div id="valet-details" class="conditional" hidden>
+              <div class="field">
+                <label>Parking arrangement</label>
+                <div class="choice-row">
+                  <label><input type="radio" name="valet_payment" value="individual" /> Individual guest payment</label>
+                  <label><input type="radio" name="valet_payment" value="hosted" /> Hosted by couple/family</label>
+                  <label><input type="radio" name="valet_payment" value="master" /> Master account</label>
+                  <label><input type="radio" name="valet_payment" value="other" /> Other</label>
+                </div>
+              </div>
+              <div class="field-grid two">
+                <div class="field">
+                  <label for="valet_other">If other, describe</label>
+                  <input id="valet_other" name="valet_other" type="text" />
+                </div>
+                <div class="field">
+                  <label for="valet_vehicles">Estimated number of vehicles</label>
+                  <input id="valet_vehicles" name="valet_vehicles" type="number" min="0" />
+                </div>
+                <div class="field">
+                  <label for="valet_billing_contact">Authorized billing contact</label>
+                  <input id="valet_billing_contact" name="valet_billing_contact" type="text" />
+                </div>
+                <div class="field">
+                  <label for="valet_billing_instructions">Billing instructions</label>
+                  <input id="valet_billing_instructions" name="valet_billing_instructions" type="text" />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <hr class="rule" />
+
+          <section class="section" aria-labelledby="sec-bags">
+            <h2 id="sec-bags">Welcome / gift bags</h2>
+            <div class="field">
+              <label>Will you provide welcome bags or gifts for guests?</label>
+              <div class="choice-row">
+                <label><input type="radio" name="bags_providing" value="yes" /> Yes</label>
+                <label><input type="radio" name="bags_providing" value="no" /> No</label>
+              </div>
+            </div>
+            <div id="bags-details" class="conditional" hidden>
+              <div class="field-grid two">
+                <div class="field">
+                  <label for="bags_quantity">Estimated quantity</label>
+                  <input id="bags_quantity" name="bags_quantity" type="number" min="0" />
+                </div>
+                <div class="field">
+                  <label for="bags_delivery_date">Expected delivery date</label>
+                  <input id="bags_delivery_date" name="bags_delivery_date" type="date" />
+                </div>
+                <div class="field">
+                  <label for="bags_delivery_time">Expected delivery time</label>
+                  <input id="bags_delivery_time" name="bags_delivery_time" type="time" />
+                </div>
+                <div class="field">
+                  <label for="bags_deliverer">Person / vendor delivering</label>
+                  <input id="bags_deliverer" name="bags_deliverer" type="text" />
+                </div>
+                <div class="field" style="grid-column: 1 / -1">
+                  <label for="bags_distribution">Distribution instructions</label>
+                  <textarea id="bags_distribution" name="bags_distribution"></textarea>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <hr class="rule" />
+
+          <section class="section" aria-labelledby="sec-vendors">
+            <h2 id="sec-vendors">Vendor access</h2>
+            <p class="section-lead">Add each vendor who needs hotel access.</p>
+            <div id="vendor-rows" class="rows"></div>
+            <button type="button" class="btn btn-secondary btn-add" id="add-vendor">Add vendor</button>
+          </section>
+
+          <hr class="rule" />
+
+          <section class="section" aria-labelledby="sec-brunch">
+            <h2 id="sec-brunch">Post-wedding brunch</h2>
+            <div class="field">
+              <label>Will you host a post-wedding brunch at The LaSalle?</label>
+              <div class="choice-row">
+                <label><input type="radio" name="brunch_hosting" value="yes" /> Yes</label>
+                <label><input type="radio" name="brunch_hosting" value="no" /> No</label>
+              </div>
+            </div>
+            <div id="brunch-details" class="conditional" hidden>
+              <div class="field-grid two">
+                <div class="field">
+                  <label for="brunch_datetime">Event date / time</label>
+                  <input id="brunch_datetime" name="brunch_datetime" type="datetime-local" />
+                </div>
+                <div class="field">
+                  <label for="brunch_attendance">Estimated attendance</label>
+                  <input id="brunch_attendance" name="brunch_attendance" type="number" min="0" />
+                </div>
+                <div class="field">
+                  <label>Menu selection submitted?</label>
+                  <div class="choice-row">
+                    <label><input type="radio" name="brunch_menu_submitted" value="yes" /> Yes</label>
+                    <label><input type="radio" name="brunch_menu_submitted" value="no" /> No</label>
+                  </div>
+                </div>
+                <div class="field" style="grid-column: 1 / -1">
+                  <label for="brunch_requests">Special requests</label>
+                  <textarea id="brunch_requests" name="brunch_requests"></textarea>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <hr class="rule" />
+
+          <section class="section" aria-labelledby="sec-dates">
+            <h2 id="sec-dates">Important dates at a glance</h2>
+            <div class="field-grid two">
+              <div class="field">
+                <label for="date_room_cutoff">Guest room cutoff (30 days prior)</label>
+                <input id="date_room_cutoff" name="date_room_cutoff" type="date" />
+              </div>
+              <div class="field">
+                <label for="date_menu_due">Menu selections due (30 days prior)</label>
+                <input id="date_menu_due" name="date_menu_due" type="date" />
+              </div>
+              <div class="field">
+                <label for="date_vendor_list">Final vendor list due</label>
+                <input id="date_vendor_list" name="date_vendor_list" type="date" />
+              </div>
+              <div class="field">
+                <label for="date_gift_bag">Gift bag delivery</label>
+                <input id="date_gift_bag" name="date_gift_bag" type="date" />
+              </div>
+              <div class="field">
+                <label for="date_getting_ready">Getting-ready room access</label>
+                <input id="date_getting_ready" name="date_getting_ready" type="date" />
+              </div>
+              <div class="field">
+                <label for="date_shuttle">Wedding shuttle departure</label>
+                <input id="date_shuttle" name="date_shuttle" type="text" placeholder="Date and time" />
+              </div>
+              <div class="field">
+                <label for="date_brunch">Post-wedding brunch</label>
+                <input id="date_brunch" name="date_brunch" type="text" placeholder="Date and time" />
+              </div>
+            </div>
+          </section>
+
+          <div class="footer-actions">
+            <button type="button" class="btn btn-secondary" id="save-btn-footer">Save progress</button>
+            <button type="button" class="btn btn-gold" id="submit-btn-footer">Submit final</button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <template id="vendor-row-template">
+      <div class="row-card" data-vendor-row>
+        <div class="row-card-header">
+          <span>Vendor</span>
+          <button type="button" class="btn-link" data-remove-vendor>Remove</button>
+        </div>
+        <div class="field-grid two">
+          <div class="field">
+            <label>Vendor / company</label>
+            <input type="text" data-vendor="company" />
+          </div>
+          <div class="field">
+            <label>Service</label>
+            <input type="text" data-vendor="service" />
+          </div>
+          <div class="field" style="grid-column: 1 / -1">
+            <label>Date / time of access</label>
+            <input type="text" data-vendor="access" placeholder="e.g. Saturday 2:00 PM" />
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
