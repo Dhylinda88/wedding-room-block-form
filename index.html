@@ -40,15 +40,7 @@
             </div>
             <div class="field" data-field="resume_wedding_date">
               <label for="resume-wedding-date">Wedding date</label>
-              <input
-                id="resume-wedding-date"
-                type="text"
-                inputmode="numeric"
-                autocomplete="off"
-                placeholder="MM/DD/YYYY"
-                data-date-mask
-                maxlength="10"
-              />
+              <input id="resume-wedding-date" type="date" data-date-field autocomplete="off" />
               <div class="field-error" data-error-for="resume_wedding_date"></div>
             </div>
             <button type="submit" class="btn btn-secondary" id="resume-btn">Find my draft</button>
@@ -75,20 +67,7 @@
         <p class="intro">
           <span id="intro-before">Please complete by</span>
           <label class="sr-only" for="complete_by">Complete-by date</label>
-          <input
-            class="intro-date"
-            id="complete_by"
-            name="complete_by"
-            type="text"
-            inputmode="numeric"
-            autocomplete="off"
-            placeholder="MM/DD/YYYY"
-            data-date-mask
-            maxlength="10"
-            required
-            aria-required="true"
-            readonly
-          />
+          <input class="intro-date" id="complete_by" name="complete_by" type="date" data-date-field autocomplete="off" readonly />
           <span id="intro-after"
             >. We’ll use this for your room block and weekend logistics.</span
           >
@@ -115,7 +94,9 @@
 
           <section class="section" aria-labelledby="sec-contact">
             <h2 id="sec-contact">Your contact details</h2>
-            <p class="section-lead">Required before you can save progress.</p>
+            <p class="section-lead">
+              Couple / party name and wedding date are required to save. Guests also need an email for the resume link.
+            </p>
             <div class="field-grid two">
               <div class="field" data-field="couple_name">
                 <label for="couple_name">Couple / party name</label>
@@ -124,22 +105,12 @@
               </div>
               <div class="field" data-field="wedding_date">
                 <label for="wedding_date">Wedding date</label>
-                <input
-                  id="wedding_date"
-                  name="wedding_date"
-                  type="text"
-                  inputmode="numeric"
-                  autocomplete="off"
-                  placeholder="MM/DD/YYYY"
-                  data-date-mask
-                  maxlength="10"
-                  required
-                />
+                <input id="wedding_date" name="wedding_date" type="date" data-date-field autocomplete="off" required />
                 <div class="field-error" data-error-for="wedding_date"></div>
               </div>
               <div class="field" data-field="email">
                 <label for="email">Your email</label>
-                <input id="email" name="email" type="email" autocomplete="email" required />
+                <input id="email" name="email" type="email" autocomplete="email" />
                 <div class="field-error" data-error-for="email"></div>
               </div>
               <div class="field" data-field="phone">
@@ -149,7 +120,6 @@
                   name="phone"
                   type="tel"
                   autocomplete="tel"
-                  required
                   placeholder="(312) 555-0100"
                   data-phone-mask
                   maxlength="14"
@@ -165,18 +135,20 @@
           <section class="section" aria-labelledby="sec-basics">
             <h2 id="sec-basics">Wedding basics</h2>
             <div class="field-grid two">
-              <div class="field">
+              <div class="field" data-field="wedding_venue">
                 <label for="wedding_venue">Wedding / ceremony venue</label>
                 <input id="wedding_venue" name="wedding_venue" type="text" />
+                <div class="field-error" data-error-for="wedding_venue"></div>
               </div>
               <div class="field" data-field="ceremony_time">
                 <label for="ceremony_time">Ceremony time</label>
                 <input id="ceremony_time" name="ceremony_time" type="time" data-time-input />
                 <div class="field-error" data-error-for="ceremony_time"></div>
               </div>
-              <div class="field">
+              <div class="field" data-field="reception_venue">
                 <label for="reception_venue">Reception venue</label>
                 <input id="reception_venue" name="reception_venue" type="text" />
+                <div class="field-error" data-error-for="reception_venue"></div>
               </div>
               <div class="field" data-field="reception_time">
                 <label for="reception_time">Reception time</label>
@@ -185,33 +157,18 @@
               </div>
               <div class="field" data-field="group_arrival">
                 <label for="group_arrival">Group arrival date</label>
-                <input
-                  id="group_arrival"
-                  name="group_arrival"
-                  type="text"
-                  inputmode="numeric"
-                  placeholder="MM/DD/YYYY"
-                  data-date-mask
-                  maxlength="10"
-                />
+                <input id="group_arrival" name="group_arrival" type="date" data-date-field />
                 <div class="field-error" data-error-for="group_arrival"></div>
               </div>
               <div class="field" data-field="group_departure">
                 <label for="group_departure">Group departure date</label>
-                <input
-                  id="group_departure"
-                  name="group_departure"
-                  type="text"
-                  inputmode="numeric"
-                  placeholder="MM/DD/YYYY"
-                  data-date-mask
-                  maxlength="10"
-                />
+                <input id="group_departure" name="group_departure" type="date" data-date-field />
                 <div class="field-error" data-error-for="group_departure"></div>
               </div>
-              <div class="field">
+              <div class="field" data-field="weekend_contact_name">
                 <label for="weekend_contact_name">Primary wedding-weekend contact</label>
                 <input id="weekend_contact_name" name="weekend_contact_name" type="text" />
+                <div class="field-error" data-error-for="weekend_contact_name"></div>
               </div>
               <div class="field" data-field="weekend_contact_phone">
                 <label for="weekend_contact_phone">Weekend contact phone</label>
@@ -235,47 +192,45 @@
             <div class="field-grid">
               <div class="field" data-field="guests">
                 <label for="guests">Guest rooms (room block count)</label>
-                <input id="guests" name="guests" type="text" inputmode="numeric" data-numeric min="0" required />
+                <input id="guests" name="guests" type="number" min="0" step="1" inputmode="numeric" data-numeric />
                 <div class="field-error" data-error-for="guests"></div>
               </div>
               <div class="field" data-field="anticipated_rooms">
                 <label for="anticipated_rooms">Guest notes (room needs / pickup notes)</label>
                 <textarea id="anticipated_rooms" name="anticipated_rooms"></textarea>
+                <div class="field-error" data-error-for="anticipated_rooms"></div>
               </div>
-              <div class="field">
+              <div class="field" data-field="couple_accommodations">
                 <label for="couple_accommodations">Accommodations for the wedding couple</label>
                 <textarea id="couple_accommodations" name="couple_accommodations"></textarea>
+                <div class="field-error" data-error-for="couple_accommodations"></div>
               </div>
-              <div class="field">
+              <div class="field" data-field="getting_ready_needed">
                 <label>Getting-ready room or suite needed?</label>
                 <div class="choice-row">
                   <label><input type="radio" name="getting_ready_needed" value="yes" /> Yes</label>
                   <label><input type="radio" name="getting_ready_needed" value="no" /> No</label>
                 </div>
+                <div class="field-error" data-error-for="getting_ready_needed"></div>
               </div>
               <div id="getting-ready-details" class="conditional" hidden>
                 <div class="field-grid two">
                   <div class="field" data-field="getting_ready_guests">
                     <label for="getting_ready_guests">Ready room guests (estimated)</label>
-                    <input
-                      id="getting_ready_guests"
-                      name="getting_ready_guests"
-                      type="text"
-                      inputmode="numeric"
-                      data-numeric
-                      min="0"
-                    />
+                    <input id="getting_ready_guests" name="getting_ready_guests" type="number" min="0" step="1" inputmode="numeric" data-numeric />
                     <div class="field-error" data-error-for="getting_ready_guests"></div>
                   </div>
                 </div>
               </div>
-              <div class="field">
+              <div class="field" data-field="vip_names">
                 <label for="vip_names">VIP / family names for special attention</label>
                 <textarea id="vip_names" name="vip_names" placeholder="Names and any upgrade or attention notes"></textarea>
+                <div class="field-error" data-error-for="vip_names"></div>
               </div>
-              <div class="field">
+              <div class="field" data-field="accessibility">
                 <label for="accessibility">Accessibility needs or special guest requests</label>
                 <textarea id="accessibility" name="accessibility"></textarea>
+                <div class="field-error" data-error-for="accessibility"></div>
               </div>
             </div>
           </section>
@@ -285,9 +240,10 @@
           <section class="section" aria-labelledby="sec-transport">
             <h2 id="sec-transport">Transportation / shuttles</h2>
             <div class="field-grid two">
-              <div class="field">
+              <div class="field" data-field="transport_company">
                 <label for="transport_company">Transportation company</label>
                 <input id="transport_company" name="transport_company" type="text" />
+                <div class="field-error" data-error-for="transport_company"></div>
               </div>
               <div class="field" data-field="transport_contact">
                 <label for="transport_contact">Company contact / cell</label>
@@ -301,9 +257,10 @@
                 />
                 <div class="field-error" data-error-for="transport_contact"></div>
               </div>
-              <div class="field">
+              <div class="field" data-field="transport_vehicles">
                 <label for="transport_vehicles">Number / type of vehicles</label>
                 <input id="transport_vehicles" name="transport_vehicles" type="text" />
+                <div class="field-error" data-error-for="transport_vehicles"></div>
               </div>
               <div class="field" data-field="transport_first_pickup">
                 <label for="transport_first_pickup">First hotel pickup</label>
@@ -320,9 +277,10 @@
                 <input id="transport_return" name="transport_return" type="time" data-time-input />
                 <div class="field-error" data-error-for="transport_return"></div>
               </div>
-              <div class="field" style="grid-column: 1 / -1">
+              <div class="field" data-field="transport_venue" style="grid-column: 1 / -1">
                 <label for="transport_venue">Wedding venue (for shuttle)</label>
                 <input id="transport_venue" name="transport_venue" type="text" />
+                <div class="field-error" data-error-for="transport_venue"></div>
               </div>
             </div>
           </section>
@@ -331,15 +289,16 @@
 
           <section class="section" aria-labelledby="sec-valet">
             <h2 id="sec-valet">Valet parking</h2>
-            <div class="field">
+            <div class="field" data-field="valet_needed">
               <label>Will valet parking be needed for wedding guests or visitors?</label>
               <div class="choice-row">
                 <label><input type="radio" name="valet_needed" value="yes" /> Yes</label>
                 <label><input type="radio" name="valet_needed" value="no" /> No</label>
               </div>
+              <div class="field-error" data-error-for="valet_needed"></div>
             </div>
             <div id="valet-details" class="conditional" hidden>
-              <div class="field">
+              <div class="field" data-field="valet_payment">
                 <label>Parking arrangement</label>
                 <div class="choice-row">
                   <label><input type="radio" name="valet_payment" value="individual" /> Individual guest payment</label>
@@ -347,24 +306,28 @@
                   <label><input type="radio" name="valet_payment" value="master" /> Master account</label>
                   <label><input type="radio" name="valet_payment" value="other" /> Other</label>
                 </div>
+                <div class="field-error" data-error-for="valet_payment"></div>
               </div>
               <div class="field-grid two">
-                <div class="field">
+                <div class="field" data-field="valet_other">
                   <label for="valet_other">If other, describe</label>
                   <input id="valet_other" name="valet_other" type="text" />
+                  <div class="field-error" data-error-for="valet_other"></div>
                 </div>
                 <div class="field" data-field="valet_vehicles">
                   <label for="valet_vehicles">Estimated number of vehicles</label>
-                  <input id="valet_vehicles" name="valet_vehicles" type="text" inputmode="numeric" data-numeric />
+                  <input id="valet_vehicles" name="valet_vehicles" type="number" min="0" step="1" inputmode="numeric" data-numeric />
                   <div class="field-error" data-error-for="valet_vehicles"></div>
                 </div>
-                <div class="field">
+                <div class="field" data-field="valet_billing_contact">
                   <label for="valet_billing_contact">Authorized billing contact</label>
                   <input id="valet_billing_contact" name="valet_billing_contact" type="text" />
+                  <div class="field-error" data-error-for="valet_billing_contact"></div>
                 </div>
-                <div class="field">
+                <div class="field" data-field="valet_billing_instructions">
                   <label for="valet_billing_instructions">Billing instructions</label>
                   <input id="valet_billing_instructions" name="valet_billing_instructions" type="text" />
+                  <div class="field-error" data-error-for="valet_billing_instructions"></div>
                 </div>
               </div>
             </div>
@@ -374,31 +337,24 @@
 
           <section class="section" aria-labelledby="sec-bags">
             <h2 id="sec-bags">Welcome / gift bags</h2>
-            <div class="field">
+            <div class="field" data-field="bags_providing">
               <label>Will you provide welcome bags or gifts for guests?</label>
               <div class="choice-row">
                 <label><input type="radio" name="bags_providing" value="yes" /> Yes</label>
                 <label><input type="radio" name="bags_providing" value="no" /> No</label>
               </div>
+              <div class="field-error" data-error-for="bags_providing"></div>
             </div>
             <div id="bags-details" class="conditional" hidden>
               <div class="field-grid two">
                 <div class="field" data-field="bags_quantity">
                   <label for="bags_quantity">Estimated quantity</label>
-                  <input id="bags_quantity" name="bags_quantity" type="text" inputmode="numeric" data-numeric />
+                  <input id="bags_quantity" name="bags_quantity" type="number" min="0" step="1" inputmode="numeric" data-numeric />
                   <div class="field-error" data-error-for="bags_quantity"></div>
                 </div>
                 <div class="field" data-field="bags_delivery_date">
                   <label for="bags_delivery_date">Expected delivery date</label>
-                  <input
-                    id="bags_delivery_date"
-                    name="bags_delivery_date"
-                    type="text"
-                    inputmode="numeric"
-                    placeholder="MM/DD/YYYY"
-                    data-date-mask
-                    maxlength="10"
-                  />
+                  <input id="bags_delivery_date" name="bags_delivery_date" type="date" data-date-field />
                   <div class="field-error" data-error-for="bags_delivery_date"></div>
                 </div>
                 <div class="field" data-field="bags_delivery_time">
@@ -406,13 +362,15 @@
                   <input id="bags_delivery_time" name="bags_delivery_time" type="time" data-time-input />
                   <div class="field-error" data-error-for="bags_delivery_time"></div>
                 </div>
-                <div class="field">
+                <div class="field" data-field="bags_deliverer">
                   <label for="bags_deliverer">Person / vendor delivering</label>
                   <input id="bags_deliverer" name="bags_deliverer" type="text" />
+                  <div class="field-error" data-error-for="bags_deliverer"></div>
                 </div>
-                <div class="field" style="grid-column: 1 / -1">
+                <div class="field" data-field="bags_distribution" style="grid-column: 1 / -1">
                   <label for="bags_distribution">Distribution instructions</label>
                   <textarea id="bags_distribution" name="bags_distribution"></textarea>
+                  <div class="field-error" data-error-for="bags_distribution"></div>
                 </div>
               </div>
             </div>
@@ -422,7 +380,8 @@
 
           <section class="section" aria-labelledby="sec-vendors">
             <h2 id="sec-vendors">Vendor access</h2>
-            <p class="section-lead">Add each vendor who needs hotel access.</p>
+            <p class="section-lead">Add each vendor who needs hotel access. Enter N/A in company if none.</p>
+            <div class="field" data-field="vendors"><div class="field-error" data-error-for="vendors"></div></div>
             <div id="vendor-rows" class="rows"></div>
             <button type="button" class="btn btn-secondary btn-add" id="add-vendor">Add vendor</button>
           </section>
@@ -431,12 +390,13 @@
 
           <section class="section" aria-labelledby="sec-brunch">
             <h2 id="sec-brunch">Post-wedding brunch</h2>
-            <div class="field">
+            <div class="field" data-field="brunch_hosting">
               <label>Will you host a post-wedding brunch at The LaSalle?</label>
               <div class="choice-row">
                 <label><input type="radio" name="brunch_hosting" value="yes" /> Yes</label>
                 <label><input type="radio" name="brunch_hosting" value="no" /> No</label>
               </div>
+              <div class="field-error" data-error-for="brunch_hosting"></div>
             </div>
             <div id="brunch-details" class="conditional" hidden>
               <div class="field-grid two">
@@ -447,19 +407,21 @@
                 </div>
                 <div class="field" data-field="brunch_attendance">
                   <label for="brunch_attendance">Estimated attendance</label>
-                  <input id="brunch_attendance" name="brunch_attendance" type="text" inputmode="numeric" data-numeric />
+                  <input id="brunch_attendance" name="brunch_attendance" type="number" min="0" step="1" inputmode="numeric" data-numeric />
                   <div class="field-error" data-error-for="brunch_attendance"></div>
                 </div>
-                <div class="field">
+                <div class="field" data-field="brunch_menu_submitted">
                   <label>Menu selection submitted?</label>
                   <div class="choice-row">
                     <label><input type="radio" name="brunch_menu_submitted" value="yes" /> Yes</label>
                     <label><input type="radio" name="brunch_menu_submitted" value="no" /> No</label>
                   </div>
+                  <div class="field-error" data-error-for="brunch_menu_submitted"></div>
                 </div>
-                <div class="field" style="grid-column: 1 / -1">
+                <div class="field" data-field="brunch_requests" style="grid-column: 1 / -1">
                   <label for="brunch_requests">Special requests</label>
                   <textarea id="brunch_requests" name="brunch_requests"></textarea>
+                  <div class="field-error" data-error-for="brunch_requests"></div>
                 </div>
               </div>
             </div>
@@ -473,67 +435,27 @@
             <div class="field-grid two">
               <div class="field" data-field="date_room_cutoff">
                 <label for="date_room_cutoff">Guest room cutoff (30 days prior)</label>
-                <input
-                  id="date_room_cutoff"
-                  name="date_room_cutoff"
-                  type="text"
-                  inputmode="numeric"
-                  placeholder="MM/DD/YYYY"
-                  data-date-mask
-                  maxlength="10"
-                />
+                <input id="date_room_cutoff" name="date_room_cutoff" type="date" data-date-field />
                 <div class="field-error" data-error-for="date_room_cutoff"></div>
               </div>
               <div class="field" data-field="date_menu_due">
                 <label for="date_menu_due">Menu selections due (30 days prior)</label>
-                <input
-                  id="date_menu_due"
-                  name="date_menu_due"
-                  type="text"
-                  inputmode="numeric"
-                  placeholder="MM/DD/YYYY"
-                  data-date-mask
-                  maxlength="10"
-                />
+                <input id="date_menu_due" name="date_menu_due" type="date" data-date-field />
                 <div class="field-error" data-error-for="date_menu_due"></div>
               </div>
               <div class="field" data-field="date_vendor_list">
-                <label for="date_vendor_list">Final vendor list due</label>
-                <input
-                  id="date_vendor_list"
-                  name="date_vendor_list"
-                  type="text"
-                  inputmode="numeric"
-                  placeholder="MM/DD/YYYY"
-                  data-date-mask
-                  maxlength="10"
-                />
+                <label for="date_vendor_list">Final vendor list due (14 days prior)</label>
+                <input id="date_vendor_list" name="date_vendor_list" type="date" data-date-field />
                 <div class="field-error" data-error-for="date_vendor_list"></div>
               </div>
               <div class="field" data-field="date_gift_bag">
-                <label for="date_gift_bag">Gift bag delivery</label>
-                <input
-                  id="date_gift_bag"
-                  name="date_gift_bag"
-                  type="text"
-                  inputmode="numeric"
-                  placeholder="MM/DD/YYYY"
-                  data-date-mask
-                  maxlength="10"
-                />
+                <label for="date_gift_bag">Gift bag delivery (day before)</label>
+                <input id="date_gift_bag" name="date_gift_bag" type="date" data-date-field />
                 <div class="field-error" data-error-for="date_gift_bag"></div>
               </div>
               <div class="field" data-field="date_getting_ready">
                 <label for="date_getting_ready">Getting-ready room access</label>
-                <input
-                  id="date_getting_ready"
-                  name="date_getting_ready"
-                  type="text"
-                  inputmode="numeric"
-                  placeholder="MM/DD/YYYY"
-                  data-date-mask
-                  maxlength="10"
-                />
+                <input id="date_getting_ready" name="date_getting_ready" type="date" data-date-field />
                 <div class="field-error" data-error-for="date_getting_ready"></div>
               </div>
             </div>

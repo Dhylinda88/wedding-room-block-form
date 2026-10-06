@@ -26,39 +26,87 @@ json(concat('{"ok":true,"staff":', if(equals(json(triggerBody())?['password'], o
 
 ## 2. Invite URL (coordinator)
 
+Live form (GitHub Pages):
+
 ```text
-https://Dhylinda88.github.io/wedding-room-block-form/?wedding_date=2026-06-15&complete_by=2026-05-16
+https://dhylinda88.github.io/wedding-room-block-form/?wedding_date=2026-06-15&complete_by=2026-05-16
 ```
 
-- `wedding_date` / `complete_by`: `YYYY-MM-DD` or `MM/DD/YYYY`
-- If `complete_by` omitted, form sets wedding − 30 days
-- Add `&draft=...` when resuming an existing draft
+Resume an existing draft (dates optional but useful for staff/invite links):
+
+```text
+https://dhylinda88.github.io/wedding-room-block-form/?draft=4ba53f80&wedding_date=2026-06-15&complete_by=2026-05-16
+```
+
+| Query param | Purpose |
+|-------------|---------|
+| `wedding_date` | Prefills wedding date (`YYYY-MM-DD` or `MM/DD/YYYY`) |
+| `complete_by` | Prefills complete-by (guest field is read-only; staff can edit) |
+| `draft` | Loads that SharePoint draft after unlock |
+
+- If `complete_by` is omitted but `wedding_date` is set, the form defaults complete-by to wedding − 30 days.
+- Join params with `&`. Do not put spaces in the URL (use `2026-06-15`).
 
 ---
 
-## 3. Flatten SharePoint columns
+## 3. Silent staff edits (no email)
+
+The form sends `"staff": true` when unlocked with the staff password. Branch on that so staff never trigger Outlook.
+
+### SaveDraft (staff)
+
+After Create/Update item succeeds, wrap the **file + email** steps in a Condition:
+
+- Left: `json(triggerBody())?['staff']`
+- Operator: **is equal to**
+- Right: `true` (boolean) — or Expression `true`
+
+| Branch | Actions |
+|--------|---------|
+| **True** (staff) | Skip Create file Draft / Convert Draft / customer email. Go straight to **200 SaveDraft**. List row still updates. |
+| **False** (guest) | Existing path: DraftHTML → Create file → Convert → Send email (customer resume) → **200** |
+
+### SubmitFinal (staff)
+
+Same idea after Create/Update:
+
+| Branch | Actions |
+|--------|---------|
+| **True** (staff) | Keep SubmitHTML → Create file → Convert PDF (overwrite/update the submitted PDF). **Skip** Send email (V2) Submit. Then **200 Submit**. |
+| **False** (guest) | Full path: HTML → file → PDF → staff email → **200** |
+
+**200** on both paths: Configure run after Succeeded / Failed / Timed out / Skipped on the last optional step (email or Convert) so the form still gets `{ "ok": true }`.
+
+Result:
+
+- Staff **Save progress** → SharePoint draft columns only (no email, no Drafts file churn).
+- Staff **Submit** after a customer already submitted → list + PDF refresh only (no second staff/customer email).
+
+---
+
+## 4. Flatten SharePoint columns
 
 See [FIELD-MAP.md](FIELD-MAP.md). Add priority columns first (Complete By, Gift bags, Valet needed, Valet payment), then remapping Create/Update. Re-add Create/Update after new columns so the connector schema refreshes.
 
 ---
 
-## 4. PDF attachment on `submitFinal`
+## 5. PDF attachment on `submitFinal`
 
-After SharePoint Create/Update succeeds, **before** staff email:
+After SharePoint Create/Update succeeds (guest path), **before** staff email:
 
-1. **Compose** `SubmitHtml` — HTML summary (sections + key fields from `json(triggerBody())?['payload']`).
-2. **Create file** (OneDrive): folder e.g. `/WeddingRoomBlock`, name `@{outputs('DraftID_Submit')}.html`, body = Compose output.
+1. **Compose** `SubmitHTML` — HTML summary (sections + key fields from `json(triggerBody())?['payload']`).
+2. **Create file** (OneDrive Submitted folder): name with couple + `DraftID_Submit` + `submitted.html`.
 3. **Convert file** (OneDrive): target PDF.
-4. **Send an email (V2) Submit**: attach the PDF content from Convert file; keep existing To/Subject/Body.
-5. **200 Submit** → **Configure run after**: Succeeded / Failed / Timed out / Skipped on the email step so the couple still gets `{ "ok": true }` if Outlook/PDF fails.
+4. **Send an email (V2) Submit** (guest only — see §3): attach PDF; To = work address.
+5. **200 Submit** → run after Succeeded / Failed / Timed out / Skipped on email (or Convert for staff).
 
-Guest save email: no PDF required.
+Guest save email: resume link, no PDF required.
 
 ---
 
-## 5. Frontend config
+## 6. Frontend config
 
 In `config.js`:
 
-- `STAFF_PASSWORD` — live staff code (change from `CHANGE_ME_STAFF`)
 - `MOCK_STAFF_PASSWORD` — mock only (`staff` by default)
+- Live staff code lives **only** in Power Automate Compose **StaffPassword** (not in this repo)

@@ -8,6 +8,38 @@ Branded, password-gated form for The LaSalle Chicago wedding room-block logistic
 
 Customers get one shared link and an access code. They **Save progress** (list draft + resume email) or **Submit final** (your work email alert). Cloud autosave is off on purpose.
 
+**Live form:** [https://dhylinda88.github.io/wedding-room-block-form/](https://dhylinda88.github.io/wedding-room-block-form/)
+
+Staff unlock (staff password in Power Automate) edits the list without emails; staff resubmit refreshes the PDF only. Details: [power-automate/STAFF-PDF.md](power-automate/STAFF-PDF.md).
+
+## Invite / resume links
+
+Prefill dates for a new couple (coordinator sends this + guest access code):
+
+```text
+https://dhylinda88.github.io/wedding-room-block-form/?wedding_date=2026-06-15&complete_by=2026-05-16
+```
+
+Open an existing draft:
+
+```text
+https://dhylinda88.github.io/wedding-room-block-form/?draft=4ba53f80
+```
+
+Draft + dates together:
+
+```text
+https://dhylinda88.github.io/wedding-room-block-form/?draft=4ba53f80&wedding_date=2026-06-15&complete_by=2026-05-16
+```
+
+| Param | Example | Notes |
+|-------|---------|--------|
+| `wedding_date` | `2026-06-15` | Also accepts `MM/DD/YYYY` |
+| `complete_by` | `2026-05-16` | If omitted with `wedding_date`, form uses wedding − 30 days |
+| `draft` | `4ba53f80` | Loads that list row after unlock |
+
+Append with `?` then `&` between params. No spaces.
+
 ## What’s included
 
 | Path | Purpose |
@@ -52,24 +84,29 @@ Billing / master account / concessions stay off the customer form (track in the 
 ## How save / resume works
 
 ```text
-Unlock with password
+Unlock with password (guest or staff)
   → Fill required identity fields
   → Click Save progress
-  → SharePoint list upsert (status=draft) + Outlook resume email (?draft=ID)
+  → Guest: SharePoint draft + OneDrive Drafts file + resume email (?draft=ID)
+  → Staff: SharePoint draft only (no email / no Drafts file)
   → Reopen link + password → continue
-  → Submit final → status=submitted + your work email
+  → Submit final
+  → Guest: status=submitted + OneDrive PDF + staff email
+  → Staff: status=submitted + PDF update only (no email)
 ```
 
 Fallback: lock screen → **Already started? Resume with email**.
 
-## Validation (save & submit)
+## Validation
 
-- Couple / party name — required  
-- Wedding date / complete-by — valid dates  
-- Email — basic format  
-- Phone — at least 10 digits  
+- **Save progress (staff):** couple / party name + wedding date  
+- **Save progress (guest):** also email (for the resume link)  
+- **Submit final (guest):** all guest sections required (yes/no answers + details when Yes; transport company `N/A` skips shuttle fields; vendor company `N/A` if none)  
+- **Submit final (staff):** couple name + wedding date (+ complete-by) 
+- Dates use the browser calendar picker (`type="date"`)  
+- Counts use +/- steppers  
 
-Enforced in the browser before save/submit.
+Important dates (staff): room cutoff & menu due = complete-by (wedding − 30); vendor list = wedding − 14; gift bag = wedding − 1; getting-ready left blank.
 
 ## Maintenance
 

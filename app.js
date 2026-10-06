@@ -324,8 +324,139 @@
     return normalizeDateToIso(dateDisplayOf(name));
   }
 
-  function validateIdentity() {
+  function requireFilled(errors, name, message) {
+    if (!valueOf(name)) errors[name] = message;
+  }
+
+  function requireRadio(errors, name, message) {
+    if (!valueOf(name)) errors[name] = message;
+  }
+
+  function isNaAnswer(value) {
+    return /^(n\/?a|none|no|n\.a\.?)$/i.test(String(value || "").trim());
+  }
+
+  function validateGuestSubmitFull(errors, data) {
+    if (!data.complete_by) {
+      errors.complete_by = "Complete-by date is missing. Ask your coordinator for a link with the deadline.";
+    }
+    if (!isValidEmail(data.email)) errors.email = "Enter a valid email address.";
+    if (!isValidPhone(data.phone)) errors.phone = "Enter a 10-digit phone number.";
+
+    requireFilled(errors, "wedding_venue", "Enter the ceremony venue.");
+    requireFilled(errors, "ceremony_time", "Enter the ceremony time.");
+    requireFilled(errors, "reception_venue", "Enter the reception venue.");
+    requireFilled(errors, "reception_time", "Enter the reception time.");
+    if (!dateIsoOf("group_arrival")) errors.group_arrival = "Select the group arrival date.";
+    if (!dateIsoOf("group_departure")) errors.group_departure = "Select the group departure date.";
+    requireFilled(errors, "weekend_contact_name", "Enter the weekend contact name.");
+    if (!isValidPhone(valueOf("weekend_contact_phone"))) {
+      errors.weekend_contact_phone = "Enter a valid weekend contact phone.";
+    }
+
+    const guests = valueOf("guests");
+    if (!guests || !isValidNumeric(guests, false)) {
+      errors.guests = "Enter the guest room block count.";
+    }
+    requireFilled(errors, "couple_accommodations", "Describe accommodations for the couple.");
+    requireFilled(errors, "anticipated_rooms", "Enter guest notes (or N/A).");
+    requireFilled(errors, "vip_names", "Enter VIP names (or N/A).");
+    requireFilled(errors, "accessibility", "Enter accessibility notes (or N/A).");
+
+    requireRadio(errors, "getting_ready_needed", "Select whether a getting-ready room is needed.");
+    if (valueOf("getting_ready_needed") === "yes") {
+      const rr = valueOf("getting_ready_guests");
+      if (!rr || !isValidNumeric(rr, false)) {
+        errors.getting_ready_guests = "Enter ready room guest count.";
+      }
+    }
+
+    requireFilled(errors, "transport_company", "Enter the transportation company (or N/A).");
+    const transportNa = isNaAnswer(valueOf("transport_company"));
+    if (!transportNa) {
+      if (!isValidPhone(valueOf("transport_contact"))) {
+        errors.transport_contact = "Enter a valid transport contact phone.";
+      }
+      requireFilled(errors, "transport_vehicles", "Enter number / type of vehicles.");
+      if (!normalizeDateTimeLocal(valueOf("transport_first_pickup"))) {
+        errors.transport_first_pickup = "Enter the first hotel pickup date/time.";
+      }
+      if (!isValidTime(valueOf("transport_additional"))) {
+        errors.transport_additional = "Enter the additional pickup time.";
+      }
+      if (!isValidTime(valueOf("transport_return"))) {
+        errors.transport_return = "Enter the expected return time.";
+      }
+      requireFilled(errors, "transport_venue", "Enter the wedding venue for shuttle.");
+    }
+
+    requireRadio(errors, "valet_needed", "Select whether valet is needed.");
+    if (valueOf("valet_needed") === "yes") {
+      requireRadio(errors, "valet_payment", "Select a parking arrangement.");
+      if (valueOf("valet_payment") === "other") {
+        requireFilled(errors, "valet_other", "Describe the other parking arrangement.");
+      }
+      const vv = valueOf("valet_vehicles");
+      if (!vv || !isValidNumeric(vv, false)) errors.valet_vehicles = "Enter estimated vehicles.";
+      requireFilled(errors, "valet_billing_contact", "Enter the billing contact.");
+      requireFilled(errors, "valet_billing_instructions", "Enter billing instructions.");
+    }
+
+    requireRadio(errors, "bags_providing", "Select whether you will provide gift bags.");
+    if (valueOf("bags_providing") === "yes") {
+      const bq = valueOf("bags_quantity");
+      if (!bq || !isValidNumeric(bq, false)) errors.bags_quantity = "Enter estimated bag quantity.";
+      if (!dateIsoOf("bags_delivery_date")) errors.bags_delivery_date = "Select gift bag delivery date.";
+      if (!isValidTime(valueOf("bags_delivery_time"))) {
+        errors.bags_delivery_time = "Enter gift bag delivery time.";
+      }
+      requireFilled(errors, "bags_deliverer", "Enter who is delivering the bags.");
+      requireFilled(errors, "bags_distribution", "Enter distribution instructions.");
+    }
+
+    requireRadio(errors, "brunch_hosting", "Select whether you will host a brunch.");
+    if (valueOf("brunch_hosting") === "yes") {
+      const brunch = normalizeDateTimeLocal(valueOf("brunch_datetime")) || valueOf("brunch_datetime");
+      if (!brunch || !isValidDateTimeLocal(brunch)) {
+        errors.brunch_datetime = "Enter brunch date and time.";
+      }
+      const ba = valueOf("brunch_attendance");
+      if (!ba || !isValidNumeric(ba, false)) errors.brunch_attendance = "Enter estimated attendance.";
+      requireRadio(errors, "brunch_menu_submitted", "Select whether the brunch menu was submitted.");
+      requireFilled(errors, "brunch_requests", "Enter brunch special requests (or N/A).");
+    }
+
+    let vendorOk = false;
+    document.querySelectorAll("[data-vendor-row]").forEach((row, idx) => {
+      const company = row.querySelector('[data-vendor="company"]').value.trim();
+      const service = row.querySelector('[data-vendor="service"]').value.trim();
+      const access = row.querySelector('[data-vendor="access"]');
+      const accessRaw = access ? String(access.value || "").trim() : "";
+      const errEl = row.querySelector("[data-vendor-access-error]");
+      if (!company && !service && !accessRaw) return;
+      if (isNaAnswer(company)) {
+        vendorOk = true;
+        if (errEl) errEl.textContent = "";
+        return;
+      }
+      vendorOk = true;
+      if (!company || !service || !accessRaw || (!isValidDateTimeLocal(accessRaw) && !normalizeDateTimeLocal(accessRaw))) {
+        errors["vendor_access_" + idx] = "invalid";
+        if (errEl) errEl.textContent = "Complete company, service, and access date/time (or put N/A in company).";
+        const wrap = access && access.closest(".field");
+        if (wrap) wrap.classList.add("is-invalid");
+      } else if (errEl) {
+        errEl.textContent = "";
+      }
+    });
+    if (!vendorOk) {
+      errors.vendors = "Add at least one vendor, or enter N/A in the vendor company field.";
+    }
+  }
+
+  function validateIdentity(mode) {
     clearFieldErrors();
+    syncDerivedDates();
     const data = {
       couple_name: valueOf("couple_name"),
       wedding_date: dateIsoOf("wedding_date"),
@@ -336,14 +467,24 @@
     const errors = {};
 
     if (!data.couple_name) errors.couple_name = "Enter the couple or party name.";
-    if (!data.wedding_date) errors.wedding_date = "Enter a valid wedding date (MM/DD/YYYY).";
-    if (!data.complete_by) errors.complete_by = "Complete-by date is missing. Ask your coordinator for a link with the deadline.";
-    if (!isValidEmail(data.email)) errors.email = "Enter a valid email address.";
-    if (!isValidPhone(data.phone)) errors.phone = "Enter a 10-digit phone number.";
+    if (!data.wedding_date) errors.wedding_date = "Select a wedding date.";
 
-    const guests = valueOf("guests");
-    if (!guests || !isValidNumeric(guests, false)) {
-      errors.guests = "Enter the guest room block count (numbers only).";
+    if (mode === "submit") {
+      if (staffMode) {
+        if (!data.complete_by) {
+          errors.complete_by = "Complete-by date is missing.";
+        }
+        if (data.email && !isValidEmail(data.email)) errors.email = "Enter a valid email address.";
+        if (data.phone && !isValidPhone(data.phone)) errors.phone = "Enter a 10-digit phone number.";
+      } else {
+        validateGuestSubmitFull(errors, data);
+      }
+    } else if (staffMode) {
+      if (data.email && !isValidEmail(data.email)) errors.email = "Enter a valid email address.";
+      if (data.phone && !isValidPhone(data.phone)) errors.phone = "Enter a 10-digit phone number.";
+    } else {
+      if (!isValidEmail(data.email)) errors.email = "Enter your email so we can send a resume link.";
+      if (data.phone && !isValidPhone(data.phone)) errors.phone = "Enter a 10-digit phone number.";
     }
 
     const optionalDates = [
@@ -358,71 +499,59 @@
     ];
     optionalDates.forEach(([name, label]) => {
       const raw = dateDisplayOf(name);
-      if (raw && !dateIsoOf(name)) errors[name] = "Enter a valid " + label + " (MM/DD/YYYY).";
+      if (raw && !dateIsoOf(name)) errors[name] = "Select a valid " + label + ".";
     });
 
-    [
-      ["weekend_contact_phone", "weekend contact phone"],
-      ["transport_contact", "transport contact phone"],
-    ].forEach(([name, label]) => {
-      const v = valueOf(name);
-      if (v && !isValidPhone(v)) errors[name] = "Enter a valid 10-digit " + label + ".";
-    });
+    if (!(mode === "submit" && !staffMode)) {
+      [
+        ["weekend_contact_phone", "weekend contact phone"],
+        ["transport_contact", "transport contact phone"],
+      ].forEach(([name, label]) => {
+        const v = valueOf(name);
+        if (v && !isValidPhone(v)) errors[name] = "Enter a valid 10-digit " + label + ".";
+      });
 
-    [
-      ["ceremony_time", "ceremony time"],
-      ["reception_time", "reception time"],
-      ["bags_delivery_time", "gift bag delivery time"],
-      ["transport_additional", "additional pickup time"],
-      ["transport_return", "return time"],
-    ].forEach(([name, label]) => {
-      const v = valueOf(name);
-      if (v && !isValidTime(v)) errors[name] = "Enter a valid " + label + ".";
-    });
+      [
+        ["ceremony_time", "ceremony time"],
+        ["reception_time", "reception time"],
+        ["bags_delivery_time", "gift bag delivery time"],
+        ["transport_additional", "additional pickup time"],
+        ["transport_return", "return time"],
+      ].forEach(([name, label]) => {
+        const v = valueOf(name);
+        if (v && !isValidTime(v)) errors[name] = "Enter a valid " + label + ".";
+      });
 
-    [
-      ["transport_first_pickup", "first hotel pickup"],
-      ["brunch_datetime", "brunch date and time"],
-    ].forEach(([name, label]) => {
-      const v = valueOf(name);
-      if (v && !isValidDateTimeLocal(v) && !normalizeDateTimeLocal(v)) {
-        errors[name] = "Enter a valid " + label + ".";
-      }
-    });
+      [
+        ["transport_first_pickup", "first hotel pickup"],
+        ["brunch_datetime", "brunch date and time"],
+      ].forEach(([name, label]) => {
+        const v = valueOf(name);
+        if (v && !isValidDateTimeLocal(v) && !normalizeDateTimeLocal(v)) {
+          errors[name] = "Enter a valid " + label + ".";
+        }
+      });
 
-    ["guests", "getting_ready_guests", "valet_vehicles", "bags_quantity", "brunch_attendance"].forEach((name) => {
-      const v = valueOf(name);
-      if (v && !isValidNumeric(v, true)) errors[name] = "Enter numbers only.";
-    });
+      ["guests", "getting_ready_guests", "valet_vehicles", "bags_quantity", "brunch_attendance"].forEach((name) => {
+        const v = valueOf(name);
+        if (v && !isValidNumeric(v, true)) errors[name] = "Enter numbers only.";
+      });
 
-    if (valueOf("getting_ready_needed") === "yes") {
-      const rr = valueOf("getting_ready_guests");
-      if (!rr || !isValidNumeric(rr, false)) {
-        errors.getting_ready_guests = "Enter ready room guest count (numbers only).";
-      }
+      document.querySelectorAll("[data-vendor-row]").forEach((row, idx) => {
+        const access = row.querySelector('[data-vendor="access"]');
+        const errEl = row.querySelector("[data-vendor-access-error]");
+        if (!access) return;
+        const raw = String(access.value || "").trim();
+        if (raw && !isValidDateTimeLocal(raw) && !normalizeDateTimeLocal(raw)) {
+          errors["vendor_access_" + idx] = "invalid";
+          if (errEl) errEl.textContent = "Enter a valid access date and time.";
+          const wrap = access.closest(".field");
+          if (wrap) wrap.classList.add("is-invalid");
+        } else if (errEl) {
+          errEl.textContent = "";
+        }
+      });
     }
-
-    if (valueOf("brunch_hosting") === "yes") {
-      const brunch = normalizeDateTimeLocal(valueOf("brunch_datetime")) || valueOf("brunch_datetime");
-      if (!brunch || !isValidDateTimeLocal(brunch)) {
-        errors.brunch_datetime = "Enter a valid brunch date and time.";
-      }
-    }
-
-    document.querySelectorAll("[data-vendor-row]").forEach((row, idx) => {
-      const access = row.querySelector('[data-vendor="access"]');
-      const errEl = row.querySelector("[data-vendor-access-error]");
-      if (!access) return;
-      const raw = String(access.value || "").trim();
-      if (raw && !isValidDateTimeLocal(raw) && !normalizeDateTimeLocal(raw)) {
-        errors["vendor_access_" + idx] = "invalid";
-        if (errEl) errEl.textContent = "Enter a valid access date and time.";
-        const wrap = access.closest(".field");
-        if (wrap) wrap.classList.add("is-invalid");
-      } else if (errEl) {
-        errEl.textContent = "";
-      }
-    });
 
     const arrival = dateIsoOf("group_arrival");
     const departure = dateIsoOf("group_departure");
@@ -473,6 +602,10 @@
     const el = name === "complete_by" ? els.completeBy : els.form.elements.namedItem(name);
     if (!el || el instanceof RadioNodeList) return;
 
+    if (el.type === "date" || (el.hasAttribute && el.hasAttribute("data-date-field"))) {
+      el.value = normalizeDateToIso(value) || "";
+      return;
+    }
     if (el.hasAttribute && el.hasAttribute("data-date-mask")) {
       el.value = isoToUs(normalizeDateToIso(value) || value) || (parseUsDateParts(value) ? formatDateDisplay(value) : "");
       return;
@@ -616,6 +749,12 @@
     if (vendors.length === 0) addVendorRow();
     else vendors.forEach((v) => addVendorRow(v));
     syncConditionals();
+    const wedding = dateIsoOf("wedding_date");
+    const expectedComplete = wedding ? addDaysIso(wedding, -30) : "";
+    autoCompleteBy = !dateIsoOf("complete_by") || dateIsoOf("complete_by") === expectedComplete;
+    if (!dateIsoOf("date_room_cutoff") || !dateIsoOf("date_menu_due") || !dateIsoOf("date_vendor_list") || !dateIsoOf("date_gift_bag")) {
+      syncImportantDates();
+    }
     updateBeyond30Warning();
     dirty = false;
   }
@@ -661,10 +800,28 @@
       return;
     }
     if (!els.completeBy.value.trim() || autoCompleteBy) {
-      els.completeBy.value = isoToUs(addDaysIso(wedding, -30));
+      els.completeBy.value = addDaysIso(wedding, -30);
       autoCompleteBy = true;
     }
     updateBeyond30Warning();
+  }
+
+  function syncImportantDates() {
+    const wedding = dateIsoOf("wedding_date");
+    const complete = dateIsoOf("complete_by");
+    if (complete) {
+      setValue("date_room_cutoff", complete);
+      setValue("date_menu_due", complete);
+    }
+    if (wedding) {
+      setValue("date_vendor_list", addDaysIso(wedding, -14));
+      setValue("date_gift_bag", addDaysIso(wedding, -1));
+    }
+  }
+
+  function syncDerivedDates() {
+    maybeAutoCompleteBy();
+    syncImportantDates();
   }
 
   function applyStaffUi() {
@@ -698,11 +855,22 @@
         setValue("complete_by", iso);
         autoCompleteBy = false;
       }
+      syncImportantDates();
     } else if (wedding) {
       autoCompleteBy = true;
-      maybeAutoCompleteBy();
+      syncDerivedDates();
     }
     updateBeyond30Warning();
+  }
+
+  function syncUrlDraftParams(draftId) {
+    const url = new URL(window.location.href);
+    if (draftId) url.searchParams.set("draft", draftId);
+    const wd = dateIsoOf("wedding_date");
+    const cb = dateIsoOf("complete_by");
+    if (wd) url.searchParams.set("wedding_date", wd);
+    if (cb) url.searchParams.set("complete_by", cb);
+    window.history.replaceState({}, "", url.toString());
   }
 
   async function api(action, body) {
@@ -803,6 +971,7 @@
       });
       els.draftId.value = data.draft_id || draftId;
       applyPayload(data.payload);
+      syncUrlDraftParams(data.draft_id || draftId);
       setStatus("Loaded saved progress", "is-ok");
       dirty = false;
     } catch (err) {
@@ -828,7 +997,7 @@
       ok = false;
     }
     if (!wedding_date) {
-      showFieldError("resume_wedding_date", "Enter a valid wedding date (MM/DD/YYYY).");
+      showFieldError("resume_wedding_date", "Select a valid wedding date.");
       ok = false;
     }
     if (!ok) return;
@@ -850,11 +1019,7 @@
       unlockUi();
       els.draftId.value = data.draft_id || "";
       applyPayload(data.payload);
-      if (data.draft_id) {
-        const url = new URL(window.location.href);
-        url.searchParams.set("draft", data.draft_id);
-        window.history.replaceState({}, "", url.toString());
-      }
+      if (data.draft_id) syncUrlDraftParams(data.draft_id);
       setStatus("Loaded saved progress", "is-ok");
     } catch (err) {
       setGateStatus(err.message, "is-error");
@@ -864,7 +1029,7 @@
   async function saveDraft() {
     if (saving) return null;
     updateBeyond30Warning();
-    const validation = validateIdentity();
+    const validation = validateIdentity("save");
     if (!validation.ok) {
       setStatus("Fix the highlighted fields before saving.", "is-error");
       const first = document.querySelector(".field.is-invalid, .intro-date.is-invalid");
@@ -885,14 +1050,14 @@
       });
       els.draftId.value = data.draft_id;
       dirty = false;
-      const url = new URL(window.location.href);
-      url.searchParams.set("draft", data.draft_id);
-      window.history.replaceState({}, "", url.toString());
+      syncUrlDraftParams(data.draft_id);
       const when = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
       setStatus(
         mockMode()
           ? `Saved ${when} (mock mode — this browser only).`
-          : `Saved ${when}. Check your email for a resume link.`,
+          : staffMode
+            ? `Saved ${when} (staff — list only, no email).`
+            : `Saved ${when}. Check your email for a resume link.`,
         "is-ok"
       );
       return data;
@@ -906,7 +1071,7 @@
 
   async function submitFinal() {
     updateBeyond30Warning();
-    const validation = validateIdentity();
+    const validation = validateIdentity("submit");
     if (!validation.ok) {
       setStatus("Fix the highlighted fields before submitting.", "is-error");
       const first = document.querySelector(".field.is-invalid, .intro-date.is-invalid");
@@ -937,7 +1102,44 @@
     }
   }
 
+  function enhanceNumberSteppers() {
+    document.querySelectorAll("input[data-numeric]").forEach((input) => {
+      if (input.closest(".number-stepper")) return;
+      input.type = "number";
+      if (!input.min) input.min = "0";
+      if (!input.step) input.step = "1";
+      const wrap = document.createElement("div");
+      wrap.className = "number-stepper";
+      const dec = document.createElement("button");
+      dec.type = "button";
+      dec.className = "number-stepper-btn";
+      dec.setAttribute("aria-label", "Decrease");
+      dec.textContent = "−";
+      const inc = document.createElement("button");
+      inc.type = "button";
+      inc.className = "number-stepper-btn";
+      inc.setAttribute("aria-label", "Increase");
+      inc.textContent = "+";
+      input.parentNode.insertBefore(wrap, input);
+      wrap.appendChild(dec);
+      wrap.appendChild(input);
+      wrap.appendChild(inc);
+      const stepBy = (delta) => {
+        const min = Number(input.min || 0);
+        const cur = input.value === "" ? min : Number(input.value);
+        const next = Math.max(min, (Number.isFinite(cur) ? cur : min) + delta);
+        input.value = String(next);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        markDirty();
+      };
+      dec.addEventListener("click", () => stepBy(-1));
+      inc.addEventListener("click", () => stepBy(1));
+    });
+  }
+
   function wireMasks() {
+    enhanceNumberSteppers();
+
     document.querySelectorAll("[data-phone-mask]").forEach((input) => {
       input.addEventListener("input", () => {
         const start = input.selectionStart;
@@ -965,11 +1167,26 @@
       });
     });
 
+    document.querySelectorAll("input[type='date'], [data-date-field]").forEach((input) => {
+      input.addEventListener("change", () => {
+        if (input === els.completeBy) {
+          autoCompleteBy = false;
+          syncImportantDates();
+          updateBeyond30Warning();
+        } else if (input.id === "wedding_date") {
+          syncDerivedDates();
+        } else {
+          updateBeyond30Warning();
+        }
+        markDirty();
+      });
+    });
+
     document.querySelectorAll("[data-date-mask]").forEach((input) => {
       input.addEventListener("input", () => {
         input.value = formatDateDisplay(input.value);
         if (input === els.completeBy) autoCompleteBy = false;
-        if (input.id === "wedding_date") maybeAutoCompleteBy();
+        if (input.id === "wedding_date") syncDerivedDates();
         else updateBeyond30Warning();
         markDirty();
       });
@@ -989,6 +1206,10 @@
 
     document.querySelectorAll("[data-numeric]").forEach((input) => {
       input.addEventListener("input", () => {
+        if (input.type === "number") {
+          markDirty();
+          return;
+        }
         input.value = digitsOnly(input.value);
         markDirty();
       });
@@ -1026,7 +1247,7 @@
 
   function wireDirtyTracking() {
     els.form.addEventListener("input", (e) => {
-      if (e.target && (e.target.hasAttribute("data-phone-mask") || e.target.hasAttribute("data-date-mask") || e.target.hasAttribute("data-numeric"))) {
+      if (e.target && (e.target.hasAttribute("data-phone-mask") || e.target.hasAttribute("data-date-mask") || e.target.hasAttribute("data-date-field") || e.target.hasAttribute("data-numeric"))) {
         return;
       }
       markDirty();
