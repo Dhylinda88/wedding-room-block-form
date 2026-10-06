@@ -784,15 +784,34 @@
     }
   }
 
+  function todayIso() {
+    const d = new Date();
+    return (
+      d.getFullYear() +
+      "-" +
+      String(d.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(d.getDate()).padStart(2, "0")
+    );
+  }
+
   function updateBeyond30Warning() {
     const wedding = dateIsoOf("wedding_date");
-    const complete = dateIsoOf("complete_by");
-    if (!wedding || !complete || !els.beyond30) {
+    if (!wedding || !els.beyond30) {
       if (els.beyond30) els.beyond30.hidden = true;
       return;
     }
     const cutoff = addDaysIso(wedding, -30);
-    els.beyond30.hidden = !(cutoff && compareIso(complete, cutoff) > 0);
+    if (!cutoff) {
+      els.beyond30.hidden = true;
+      return;
+    }
+    const today = todayIso();
+    const complete = dateIsoOf("complete_by");
+    /* Warn if today is inside the 30-day window (or later), or complete-by is after that cutoff. */
+    const withinThirtyOfWedding = compareIso(today, cutoff) > 0;
+    const completeAfterCutoff = complete && compareIso(complete, cutoff) > 0;
+    els.beyond30.hidden = !(withinThirtyOfWedding || completeAfterCutoff);
   }
 
   function setCompleteByIso(iso) {
