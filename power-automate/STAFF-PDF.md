@@ -92,15 +92,13 @@ See [FIELD-MAP.md](FIELD-MAP.md). Add priority columns first (Complete By, Gift 
 
 ## 5. PDF attachment on `submitFinal`
 
-After SharePoint Create/Update succeeds (guest path), **before** staff email:
+HTML must look like the **form**, not a JSON dump.
 
-1. **Compose** `SubmitHTML` — HTML summary (sections + key fields from `json(triggerBody())?['payload']`).
-2. **Create file** (OneDrive Submitted folder): name with couple + `DraftID_Submit` + `submitted.html`.
-3. **Convert file** (OneDrive): target PDF.
-4. **Send an email (V2) Submit** (guest only — see §3): attach PDF; To = work address.
-5. **200 Submit** → run after Succeeded / Failed / Timed out / Skipped on email (or Convert for staff).
-
-Guest save email: resume link, no PDF required.
+1. Replace Compose **SubmitHTML** / **DraftHTML** using [FORM-PDF-HTML.md](FORM-PDF-HTML.md). **Delete** any `<pre>` / `string(payload)` block.
+2. **Create file** (OneDrive Submitted / Drafts folder): couple + draft id + `submitted.html` / `draft.html`.
+3. **Convert file** → PDF.
+4. **Send an email (V2) Submit** (guest only — see §3): attach PDF.
+5. **200 Submit** → run after Succeeded / Failed / Timed out / Skipped.
 
 ---
 
