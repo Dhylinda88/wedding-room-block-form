@@ -342,7 +342,7 @@
     return /^(n\/?a|none|no|n\.a\.?)$/i.test(String(value || "").trim());
   }
 
-  function validateGuestSubmitFull(errors, data) {
+  function validateSubmitFull(errors, data) {
     if (!data.complete_by) {
       errors.complete_by = "Complete-by date is missing. Ask your coordinator for a link with the deadline.";
     }
@@ -350,9 +350,9 @@
     if (!isValidPhone(data.phone)) errors.phone = "Enter a 10-digit phone number.";
 
     requireFilled(errors, "wedding_venue", "Enter the ceremony venue.");
-    requireFilled(errors, "ceremony_time", "Enter the ceremony time.");
+    if (!isValidTime(valueOf("ceremony_time"))) errors.ceremony_time = "Enter the ceremony time.";
     requireFilled(errors, "reception_venue", "Enter the reception venue.");
-    requireFilled(errors, "reception_time", "Enter the reception time.");
+    if (!isValidTime(valueOf("reception_time"))) errors.reception_time = "Enter the reception time.";
     if (!dateIsoOf("group_arrival")) errors.group_arrival = "Select the group arrival date.";
     if (!dateIsoOf("group_departure")) errors.group_departure = "Select the group departure date.";
     requireFilled(errors, "weekend_contact_name", "Enter the weekend contact name.");
@@ -361,7 +361,7 @@
     }
 
     const guests = valueOf("guests");
-    if (!guests || !isValidNumeric(guests, false)) {
+    if (guests === "" || !isValidNumeric(guests, false)) {
       errors.guests = "Enter the guest room block count.";
     }
     requireFilled(errors, "couple_accommodations", "Describe accommodations for the couple.");
@@ -372,14 +372,13 @@
     requireRadio(errors, "getting_ready_needed", "Select whether a getting-ready room is needed.");
     if (valueOf("getting_ready_needed") === "yes") {
       const rr = valueOf("getting_ready_guests");
-      if (!rr || !isValidNumeric(rr, false)) {
+      if (rr === "" || !isValidNumeric(rr, false)) {
         errors.getting_ready_guests = "Enter ready room guest count.";
       }
     }
 
     requireFilled(errors, "transport_company", "Enter the transportation company (or N/A).");
-    const transportNa = isNaAnswer(valueOf("transport_company"));
-    if (!transportNa) {
+    if (!isNaAnswer(valueOf("transport_company"))) {
       if (!isValidPhone(valueOf("transport_contact"))) {
         errors.transport_contact = "Enter a valid transport contact phone.";
       }
@@ -403,7 +402,7 @@
         requireFilled(errors, "valet_other", "Describe the other parking arrangement.");
       }
       const vv = valueOf("valet_vehicles");
-      if (!vv || !isValidNumeric(vv, false)) errors.valet_vehicles = "Enter estimated vehicles.";
+      if (vv === "" || !isValidNumeric(vv, false)) errors.valet_vehicles = "Enter estimated vehicles.";
       requireFilled(errors, "valet_billing_contact", "Enter the billing contact.");
       requireFilled(errors, "valet_billing_instructions", "Enter billing instructions.");
     }
@@ -411,7 +410,7 @@
     requireRadio(errors, "bags_providing", "Select whether you will provide gift bags.");
     if (valueOf("bags_providing") === "yes") {
       const bq = valueOf("bags_quantity");
-      if (!bq || !isValidNumeric(bq, false)) errors.bags_quantity = "Enter estimated bag quantity.";
+      if (bq === "" || !isValidNumeric(bq, false)) errors.bags_quantity = "Enter estimated bag quantity.";
       if (!dateIsoOf("bags_delivery_date")) errors.bags_delivery_date = "Select gift bag delivery date.";
       if (!isValidTime(valueOf("bags_delivery_time"))) {
         errors.bags_delivery_time = "Enter gift bag delivery time.";
@@ -427,7 +426,7 @@
         errors.brunch_datetime = "Enter brunch date and time.";
       }
       const ba = valueOf("brunch_attendance");
-      if (!ba || !isValidNumeric(ba, false)) errors.brunch_attendance = "Enter estimated attendance.";
+      if (ba === "" || !isValidNumeric(ba, false)) errors.brunch_attendance = "Enter estimated attendance.";
       requireRadio(errors, "brunch_menu_submitted", "Select whether the brunch menu was submitted.");
       requireFilled(errors, "brunch_requests", "Enter brunch special requests (or N/A).");
     }
@@ -458,6 +457,14 @@
     if (!vendorOk) {
       errors.vendors = "Add at least one vendor, or enter N/A in the vendor company field.";
     }
+
+    /* Staff important dates only. Staff Task List is list-only — never required here. */
+    if (staffMode) {
+      if (!dateIsoOf("date_room_cutoff")) errors.date_room_cutoff = "Guest room cutoff is required.";
+      if (!dateIsoOf("date_menu_due")) errors.date_menu_due = "Menu selections due is required.";
+      if (!dateIsoOf("date_vendor_list")) errors.date_vendor_list = "Final vendor list due is required.";
+      if (!dateIsoOf("date_gift_bag")) errors.date_gift_bag = "Gift bag delivery date is required.";
+    }
   }
 
   function validateIdentity(mode) {
@@ -476,15 +483,7 @@
     if (!data.wedding_date) errors.wedding_date = "Select a wedding date.";
 
     if (mode === "submit") {
-      if (staffMode) {
-        if (!data.complete_by) {
-          errors.complete_by = "Complete-by date is missing.";
-        }
-        if (data.email && !isValidEmail(data.email)) errors.email = "Enter a valid email address.";
-        if (data.phone && !isValidPhone(data.phone)) errors.phone = "Enter a 10-digit phone number.";
-      } else {
-        validateGuestSubmitFull(errors, data);
-      }
+      validateSubmitFull(errors, data);
     } else if (staffMode) {
       if (data.email && !isValidEmail(data.email)) errors.email = "Enter a valid email address.";
       if (data.phone && !isValidPhone(data.phone)) errors.phone = "Enter a 10-digit phone number.";
@@ -493,7 +492,7 @@
       if (data.phone && !isValidPhone(data.phone)) errors.phone = "Enter a 10-digit phone number.";
     }
 
-    const optionalDates = [
+    [
       ["group_arrival", "group arrival"],
       ["group_departure", "group departure"],
       ["bags_delivery_date", "gift bag delivery date"],
@@ -502,13 +501,12 @@
       ["date_vendor_list", "final vendor list due"],
       ["date_gift_bag", "gift bag delivery"],
       ["date_getting_ready", "getting-ready room access date"],
-    ];
-    optionalDates.forEach(([name, label]) => {
+    ].forEach(([name, label]) => {
       const raw = dateDisplayOf(name);
       if (raw && !dateIsoOf(name)) errors[name] = "Select a valid " + label + ".";
     });
 
-    if (!(mode === "submit" && !staffMode)) {
+    if (mode !== "submit") {
       [
         ["weekend_contact_phone", "weekend contact phone"],
         ["transport_contact", "transport contact phone"],

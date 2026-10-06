@@ -23,8 +23,8 @@ Rename Staff Task List choice **Total Rooms** → **Guest Rooms** in SharePoint 
 | **Guests** | Number | **`guests`** (room block count) |
 | **Guest Notes** | Note | **`anticipated_rooms`** |
 | **Accommodations** | Note | **`couple_accommodations`** |
-| Group Arrival | DateOnly | `group_arrival` |
-| Group Departure | DateOnly | `group_departure` |
+| Group Arrival | DateOnly | `group_arrival` — Create/Update: `if(empty(...), null, ...)` so blank saves don’t send `""` |
+| Group Departure | DateOnly | same null-if-empty |
 | Wedding Venue | Text | `wedding_venue` |
 | Ceremony Time | Text | `ceremony_time` |
 | Reception Venue | Text | `reception_venue` |
@@ -36,7 +36,7 @@ Rename Staff Task List choice **Total Rooms** → **Guest Rooms** in SharePoint 
 | Valet Details | Note | Compose ValetDetails |
 | Brunch | Choice yes/no | `brunch_hosting` |
 | Menu Selected | Choice yes/no | `brunch_menu_submitted` |
-| Brunch Time | DateTime | `brunch_datetime` |
+| Brunch Time | DateTime | `brunch_datetime` — null-if-empty; UI only requires when brunch = yes |
 | Brunch Attendance | Number | `brunch_attendance` |
 | Brunch Requests | Note | `brunch_requests` |
 | Vendors | Note | `string(...vendors)` |

@@ -99,14 +99,12 @@ Fallback: lock screen → **Already started? Resume with email**.
 
 ## Validation
 
-- **Save progress (staff):** couple / party name + wedding date  
-- **Save progress (guest):** also email (for the resume link)  
-- **Submit final (guest):** all guest sections required (yes/no answers + details when Yes; transport company `N/A` skips shuttle fields; vendor company `N/A` if none)  
-- **Submit final (staff):** couple name + wedding date (+ complete-by) 
-- Dates use the browser calendar picker (`type="date"`)  
-- Counts use +/- steppers  
+| Action | Staff | Guest |
+|--------|-------|-------|
+| **Save** | Couple name + wedding date | Those + email |
+| **Submit** | Full form + staff important dates (cutoff, menu, vendor list, gift bag). Getting-ready access optional. **No** Staff Task List checkboxes. | Full form. Skip brunch/valet/bags/getting-ready **details** only when that answer is No. Ceremony/reception times + group arrival/departure always required. |
 
-Important dates (staff): room cutoff & menu due = complete-by (wedding − 30); vendor list = wedding − 14; gift bag = wedding − 1; getting-ready left blank.
+Dates use the browser calendar; counts use +/- steppers. Important dates auto from wedding / complete-by.
 
 ## Maintenance
 
