@@ -346,10 +346,14 @@
     if (!isValidEmail(data.email)) errors.email = "Enter a valid email address.";
     if (!isValidPhone(data.phone)) errors.phone = "Enter a 10-digit phone number.";
 
+    const guests = valueOf("guests");
+    if (!guests || !isValidNumeric(guests, false)) {
+      errors.guests = "Enter the guest room block count (numbers only).";
+    }
+
     const optionalDates = [
       ["group_arrival", "group arrival"],
       ["group_departure", "group departure"],
-      ["getting_ready_date", "getting-ready date"],
       ["bags_delivery_date", "gift bag delivery date"],
       ["date_room_cutoff", "guest room cutoff"],
       ["date_menu_due", "menu selections due"],
@@ -373,7 +377,6 @@
     [
       ["ceremony_time", "ceremony time"],
       ["reception_time", "reception time"],
-      ["getting_ready_access", "getting-ready access time"],
       ["bags_delivery_time", "gift bag delivery time"],
       ["transport_additional", "additional pickup time"],
       ["transport_return", "return time"],
@@ -392,10 +395,17 @@
       }
     });
 
-    ["getting_ready_guests", "valet_vehicles", "bags_quantity", "brunch_attendance"].forEach((name) => {
+    ["guests", "getting_ready_guests", "valet_vehicles", "bags_quantity", "brunch_attendance"].forEach((name) => {
       const v = valueOf(name);
       if (v && !isValidNumeric(v, true)) errors[name] = "Enter numbers only.";
     });
+
+    if (valueOf("getting_ready_needed") === "yes") {
+      const rr = valueOf("getting_ready_guests");
+      if (!rr || !isValidNumeric(rr, false)) {
+        errors.getting_ready_guests = "Enter ready room guest count (numbers only).";
+      }
+    }
 
     if (valueOf("brunch_hosting") === "yes") {
       const brunch = normalizeDateTimeLocal(valueOf("brunch_datetime")) || valueOf("brunch_datetime");
@@ -429,10 +439,6 @@
     }
     if (data.wedding_date && departure && compareIso(departure, data.wedding_date) < 0) {
       errors.group_departure = "Departure is before the wedding date.";
-    }
-    const gr = dateIsoOf("getting_ready_date");
-    if (data.wedding_date && gr && compareIso(gr, data.wedding_date) > 0) {
-      errors.getting_ready_date = "Getting-ready date is after the wedding.";
     }
     const brunchNorm = normalizeDateTimeLocal(valueOf("brunch_datetime"));
     if (brunchNorm && data.wedding_date && valueOf("brunch_hosting") === "yes") {
@@ -534,11 +540,11 @@
       "reception_time",
       "weekend_contact_name",
       "weekend_contact_phone",
+      "guests",
       "anticipated_rooms",
       "couple_accommodations",
       "getting_ready_needed",
       "getting_ready_guests",
-      "getting_ready_access",
       "vip_names",
       "accessibility",
       "transport_company",
@@ -571,7 +577,6 @@
       wedding_date: dateIsoOf("wedding_date"),
       group_arrival: dateIsoOf("group_arrival"),
       group_departure: dateIsoOf("group_departure"),
-      getting_ready_date: dateIsoOf("getting_ready_date"),
       bags_delivery_date: dateIsoOf("bags_delivery_date"),
       date_room_cutoff: dateIsoOf("date_room_cutoff"),
       date_menu_due: dateIsoOf("date_menu_due"),
@@ -592,7 +597,6 @@
       if (
         name === "ceremony_time" ||
         name === "reception_time" ||
-        name === "getting_ready_access" ||
         name === "bags_delivery_time" ||
         name === "transport_additional" ||
         name === "transport_return"

@@ -233,8 +233,13 @@
           <section class="section" aria-labelledby="sec-rooms">
             <h2 id="sec-rooms">Rooms &amp; VIP</h2>
             <div class="field-grid">
-              <div class="field">
-                <label for="anticipated_rooms">Anticipated room needs / pickup notes</label>
+              <div class="field" data-field="guests">
+                <label for="guests">Guest rooms (room block count)</label>
+                <input id="guests" name="guests" type="text" inputmode="numeric" data-numeric min="0" required />
+                <div class="field-error" data-error-for="guests"></div>
+              </div>
+              <div class="field" data-field="anticipated_rooms">
+                <label for="anticipated_rooms">Guest notes (room needs / pickup notes)</label>
                 <textarea id="anticipated_rooms" name="anticipated_rooms"></textarea>
               </div>
               <div class="field">
@@ -250,21 +255,8 @@
               </div>
               <div id="getting-ready-details" class="conditional" hidden>
                 <div class="field-grid two">
-                  <div class="field" data-field="getting_ready_date">
-                    <label for="getting_ready_date">Getting-ready date</label>
-                    <input
-                      id="getting_ready_date"
-                      name="getting_ready_date"
-                      type="text"
-                      inputmode="numeric"
-                      placeholder="MM/DD/YYYY"
-                      data-date-mask
-                      maxlength="10"
-                    />
-                    <div class="field-error" data-error-for="getting_ready_date"></div>
-                  </div>
                   <div class="field" data-field="getting_ready_guests">
-                    <label for="getting_ready_guests">Estimated number of guests</label>
+                    <label for="getting_ready_guests">Ready room guests (estimated)</label>
                     <input
                       id="getting_ready_guests"
                       name="getting_ready_guests"
@@ -274,11 +266,6 @@
                       min="0"
                     />
                     <div class="field-error" data-error-for="getting_ready_guests"></div>
-                  </div>
-                  <div class="field" data-field="getting_ready_access">
-                    <label for="getting_ready_access">Requested access time</label>
-                    <input id="getting_ready_access" name="getting_ready_access" type="time" data-time-input />
-                    <div class="field-error" data-error-for="getting_ready_access"></div>
                   </div>
                 </div>
               </div>
