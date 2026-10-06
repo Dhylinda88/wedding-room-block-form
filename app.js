@@ -54,12 +54,8 @@
     return cfg.MOCK_MODE === true;
   }
 
-  function staffPasswordConfigured() {
-    return "";
-  }
-
   function isStaffPassword(password) {
-    /* Live staff detection = Power Automate unlock/loadDraft response { staff: true } only.
+    /* Live staff detection = Power Automate unlock response { staff: true } only.
        Never store the live staff code in this public frontend. */
     if (mockMode() && String(password) === String(cfg.MOCK_STAFF_PASSWORD || "staff")) return true;
     return false;
