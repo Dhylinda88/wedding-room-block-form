@@ -6,10 +6,21 @@
 2. Change the top **Condition** from password equals FormPassword to **OR**:
    - `json(triggerBody())?['password']` **is equal to** `outputs('FormPassword')`
    - **OR** `json(triggerBody())?['password']` **is equal to** `outputs('StaffPassword')`
-3. Optional: Unlock **200** body:
-   ```text
-   { "ok": true, "staff": @{equals(json(triggerBody())?['password'], outputs('StaffPassword'))} }
-   ```
+3. Unlock **200** body must return whether the password was staff (frontend no longer stores staff code):
+
+```text
+{
+  "ok": true,
+  "staff": @{equals(json(triggerBody())?['password'], outputs('StaffPassword'))}
+}
+```
+
+Or as Expression body:
+```text
+json(concat('{"ok":true,"staff":', if(equals(json(triggerBody())?['password'], outputs('StaffPassword')), 'true', 'false'), '}'))
+```
+
+**Rotate StaffPassword** in the flow to a new secret (the old one was in public GitHub history). Do not put it in `config.js`.
 
 ---
 

@@ -55,12 +55,12 @@
   }
 
   function staffPasswordConfigured() {
-    return String(cfg.STAFF_PASSWORD || "").trim();
+    return "";
   }
 
   function isStaffPassword(password) {
-    const live = staffPasswordConfigured();
-    if (live && String(password) === live) return true;
+    /* Live staff detection = Power Automate unlock/loadDraft response { staff: true } only.
+       Never store the live staff code in this public frontend. */
     if (mockMode() && String(password) === String(cfg.MOCK_STAFF_PASSWORD || "staff")) return true;
     return false;
   }
@@ -91,8 +91,7 @@
     const mockStaff = cfg.MOCK_STAFF_PASSWORD || "staff";
     const okPw =
       String(body.password) === String(mockPassword) ||
-      String(body.password) === String(mockStaff) ||
-      (staffPasswordConfigured() && String(body.password) === staffPasswordConfigured());
+      String(body.password) === String(mockStaff);
 
     if (action === "unlock") {
       if (!okPw) {
@@ -789,7 +788,7 @@
       const data = await api("unlock", { password });
       sessionPassword = password;
       sessionStorage.setItem(PASSWORD_KEY, password);
-      setStaffMode(data.staff === true || isStaffPassword(password));
+      setStaffMode(data.staff === true);
       unlockUi();
       const params = new URLSearchParams(window.location.search);
       const draft = params.get("draft");
@@ -842,7 +841,16 @@
       const data = await api("loadDraft", { password, email, wedding_date });
       sessionPassword = password;
       sessionStorage.setItem(PASSWORD_KEY, password);
-      setStaffMode(isStaffPassword(password));
+      let staff = data.staff === true;
+      if (!staff) {
+        try {
+          const unlockData = await api("unlock", { password });
+          staff = unlockData.staff === true;
+        } catch {
+          staff = false;
+        }
+      }
+      setStaffMode(staff);
       unlockUi();
       els.draftId.value = data.draft_id || "";
       applyPayload(data.payload);
@@ -1081,7 +1089,7 @@
 
     const already = sessionStorage.getItem(SESSION_KEY) === "1" && sessionPassword;
     if (already) {
-      setStaffMode(sessionStorage.getItem(STAFF_KEY) === "1" || isStaffPassword(sessionPassword));
+      setStaffMode(sessionStorage.getItem(STAFF_KEY) === "1");
       unlockUi();
       const draft = new URLSearchParams(window.location.search).get("draft");
       if (draft) loadDraftById(draft);
