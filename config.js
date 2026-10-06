@@ -7,6 +7,12 @@ window.FORM_CONFIG = {
      Set false before you go live. */
   MOCK_MODE: false,
   MOCK_PASSWORD: "preview",
+  /* Staff unlock (mock). Live staff code must also be accepted in Power Automate FormPassword / Condition. */
+  MOCK_STAFF_PASSWORD: "staff",
+
+  /* Live staff access code — same page unlock; shows employee-only Important dates.
+     Must match StaffPassword Compose in Power Automate (guest OR staff may unlock). */
+  STAFF_PASSWORD: "LasalleStaff2026",
 
   /* After Power Automate deploy: paste the HTTP POST URL from
      "When an HTTP request is received".

@@ -200,11 +200,45 @@ textarea {
   border-bottom-color: var(--error);
 }
 
+.intro-date.is-readonly,
+.intro-date[readonly] {
+  cursor: default;
+  opacity: 0.85;
+  border-bottom-style: dotted;
+}
+
+.staff-badge {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.banner-warn {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--error);
+  border-left-width: 4px;
+  background: #f8ecec;
+  color: var(--error);
+  font-size: 0.92rem;
+}
+
+.banner-warn[hidden] {
+  display: none;
+}
+
 .rule {
   height: 1px;
   border: 0;
   margin: 2rem 0;
   background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.rule[hidden] {
+  display: none;
 }
 
 /* —— Status bar —— */

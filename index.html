@@ -40,7 +40,15 @@
             </div>
             <div class="field" data-field="resume_wedding_date">
               <label for="resume-wedding-date">Wedding date</label>
-              <input id="resume-wedding-date" type="date" />
+              <input
+                id="resume-wedding-date"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="MM/DD/YYYY"
+                data-date-mask
+                maxlength="10"
+              />
               <div class="field-error" data-error-for="resume_wedding_date"></div>
             </div>
             <button type="submit" class="btn btn-secondary" id="resume-btn">Find my draft</button>
@@ -71,15 +79,27 @@
             class="intro-date"
             id="complete_by"
             name="complete_by"
-            type="date"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="MM/DD/YYYY"
+            data-date-mask
+            maxlength="10"
             required
             aria-required="true"
+            readonly
           />
           <span id="intro-after"
             >. We’ll use this for your room block and weekend logistics.</span
           >
         </p>
+        <p id="staff-badge" class="staff-badge" hidden>Staff mode — employee fields unlocked</p>
       </header>
+
+      <div id="beyond-30-warning" class="banner-warn" hidden role="status">
+        Beyond 30 days! Requests cannot be assured at this point. Please complete
+        the form as soon as possible and reach out to your manager to confirm.
+      </div>
 
       <div class="status-bar">
         <div id="save-status" class="status-text" aria-live="polite">Not saved yet — click Save progress to keep your work</div>
@@ -104,7 +124,17 @@
               </div>
               <div class="field" data-field="wedding_date">
                 <label for="wedding_date">Wedding date</label>
-                <input id="wedding_date" name="wedding_date" type="date" required />
+                <input
+                  id="wedding_date"
+                  name="wedding_date"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  placeholder="MM/DD/YYYY"
+                  data-date-mask
+                  maxlength="10"
+                  required
+                />
                 <div class="field-error" data-error-for="wedding_date"></div>
               </div>
               <div class="field" data-field="email">
@@ -114,7 +144,16 @@
               </div>
               <div class="field" data-field="phone">
                 <label for="phone">Your phone</label>
-                <input id="phone" name="phone" type="tel" autocomplete="tel" required placeholder="(312) 555-0100" />
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  autocomplete="tel"
+                  required
+                  placeholder="(312) 555-0100"
+                  data-phone-mask
+                  maxlength="14"
+                />
                 <div class="field-error" data-error-for="phone"></div>
               </div>
             </div>
@@ -142,21 +181,47 @@
                 <label for="reception_time">Reception time</label>
                 <input id="reception_time" name="reception_time" type="time" />
               </div>
-              <div class="field">
+              <div class="field" data-field="group_arrival">
                 <label for="group_arrival">Group arrival date</label>
-                <input id="group_arrival" name="group_arrival" type="date" />
+                <input
+                  id="group_arrival"
+                  name="group_arrival"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="MM/DD/YYYY"
+                  data-date-mask
+                  maxlength="10"
+                />
+                <div class="field-error" data-error-for="group_arrival"></div>
               </div>
-              <div class="field">
+              <div class="field" data-field="group_departure">
                 <label for="group_departure">Group departure date</label>
-                <input id="group_departure" name="group_departure" type="date" />
+                <input
+                  id="group_departure"
+                  name="group_departure"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="MM/DD/YYYY"
+                  data-date-mask
+                  maxlength="10"
+                />
+                <div class="field-error" data-error-for="group_departure"></div>
               </div>
               <div class="field">
                 <label for="weekend_contact_name">Primary wedding-weekend contact</label>
                 <input id="weekend_contact_name" name="weekend_contact_name" type="text" />
               </div>
-              <div class="field">
+              <div class="field" data-field="weekend_contact_phone">
                 <label for="weekend_contact_phone">Weekend contact phone</label>
-                <input id="weekend_contact_phone" name="weekend_contact_phone" type="tel" />
+                <input
+                  id="weekend_contact_phone"
+                  name="weekend_contact_phone"
+                  type="tel"
+                  placeholder="(312) 555-0100"
+                  data-phone-mask
+                  maxlength="14"
+                />
+                <div class="field-error" data-error-for="weekend_contact_phone"></div>
               </div>
             </div>
           </section>
@@ -183,13 +248,30 @@
               </div>
               <div id="getting-ready-details" class="conditional" hidden>
                 <div class="field-grid two">
-                  <div class="field">
+                  <div class="field" data-field="getting_ready_date">
                     <label for="getting_ready_date">Getting-ready date</label>
-                    <input id="getting_ready_date" name="getting_ready_date" type="date" />
+                    <input
+                      id="getting_ready_date"
+                      name="getting_ready_date"
+                      type="text"
+                      inputmode="numeric"
+                      placeholder="MM/DD/YYYY"
+                      data-date-mask
+                      maxlength="10"
+                    />
+                    <div class="field-error" data-error-for="getting_ready_date"></div>
                   </div>
-                  <div class="field">
+                  <div class="field" data-field="getting_ready_guests">
                     <label for="getting_ready_guests">Estimated number of guests</label>
-                    <input id="getting_ready_guests" name="getting_ready_guests" type="number" min="0" />
+                    <input
+                      id="getting_ready_guests"
+                      name="getting_ready_guests"
+                      type="text"
+                      inputmode="numeric"
+                      data-numeric
+                      min="0"
+                    />
+                    <div class="field-error" data-error-for="getting_ready_guests"></div>
                   </div>
                   <div class="field">
                     <label for="getting_ready_access">Requested access time</label>
@@ -219,7 +301,14 @@
               </div>
               <div class="field">
                 <label for="transport_contact">Company contact / cell</label>
-                <input id="transport_contact" name="transport_contact" type="text" />
+                <input
+                  id="transport_contact"
+                  name="transport_contact"
+                  type="tel"
+                  placeholder="(312) 555-0100"
+                  data-phone-mask
+                  maxlength="14"
+                />
               </div>
               <div class="field">
                 <label for="transport_vehicles">Number / type of vehicles</label>
@@ -270,9 +359,10 @@
                   <label for="valet_other">If other, describe</label>
                   <input id="valet_other" name="valet_other" type="text" />
                 </div>
-                <div class="field">
+                <div class="field" data-field="valet_vehicles">
                   <label for="valet_vehicles">Estimated number of vehicles</label>
-                  <input id="valet_vehicles" name="valet_vehicles" type="number" min="0" />
+                  <input id="valet_vehicles" name="valet_vehicles" type="text" inputmode="numeric" data-numeric />
+                  <div class="field-error" data-error-for="valet_vehicles"></div>
                 </div>
                 <div class="field">
                   <label for="valet_billing_contact">Authorized billing contact</label>
@@ -299,13 +389,23 @@
             </div>
             <div id="bags-details" class="conditional" hidden>
               <div class="field-grid two">
-                <div class="field">
+                <div class="field" data-field="bags_quantity">
                   <label for="bags_quantity">Estimated quantity</label>
-                  <input id="bags_quantity" name="bags_quantity" type="number" min="0" />
+                  <input id="bags_quantity" name="bags_quantity" type="text" inputmode="numeric" data-numeric />
+                  <div class="field-error" data-error-for="bags_quantity"></div>
                 </div>
-                <div class="field">
+                <div class="field" data-field="bags_delivery_date">
                   <label for="bags_delivery_date">Expected delivery date</label>
-                  <input id="bags_delivery_date" name="bags_delivery_date" type="date" />
+                  <input
+                    id="bags_delivery_date"
+                    name="bags_delivery_date"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="MM/DD/YYYY"
+                    data-date-mask
+                    maxlength="10"
+                  />
+                  <div class="field-error" data-error-for="bags_delivery_date"></div>
                 </div>
                 <div class="field">
                   <label for="bags_delivery_time">Expected delivery time</label>
@@ -345,13 +445,15 @@
             </div>
             <div id="brunch-details" class="conditional" hidden>
               <div class="field-grid two">
-                <div class="field">
+                <div class="field" data-field="brunch_datetime">
                   <label for="brunch_datetime">Event date / time</label>
                   <input id="brunch_datetime" name="brunch_datetime" type="datetime-local" />
+                  <div class="field-error" data-error-for="brunch_datetime"></div>
                 </div>
-                <div class="field">
+                <div class="field" data-field="brunch_attendance">
                   <label for="brunch_attendance">Estimated attendance</label>
-                  <input id="brunch_attendance" name="brunch_attendance" type="number" min="0" />
+                  <input id="brunch_attendance" name="brunch_attendance" type="text" inputmode="numeric" data-numeric />
+                  <div class="field-error" data-error-for="brunch_attendance"></div>
                 </div>
                 <div class="field">
                   <label>Menu selection submitted?</label>
@@ -368,38 +470,71 @@
             </div>
           </section>
 
-          <hr class="rule" />
+          <hr class="rule" data-staff-only hidden />
 
-          <section class="section" aria-labelledby="sec-dates">
+          <section class="section" id="staff-dates-section" aria-labelledby="sec-dates" data-staff-only hidden>
             <h2 id="sec-dates">Important dates at a glance</h2>
+            <p class="section-lead">Employee only — not shown to couples.</p>
             <div class="field-grid two">
-              <div class="field">
+              <div class="field" data-field="date_room_cutoff">
                 <label for="date_room_cutoff">Guest room cutoff (30 days prior)</label>
-                <input id="date_room_cutoff" name="date_room_cutoff" type="date" />
+                <input
+                  id="date_room_cutoff"
+                  name="date_room_cutoff"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="MM/DD/YYYY"
+                  data-date-mask
+                  maxlength="10"
+                />
               </div>
-              <div class="field">
+              <div class="field" data-field="date_menu_due">
                 <label for="date_menu_due">Menu selections due (30 days prior)</label>
-                <input id="date_menu_due" name="date_menu_due" type="date" />
+                <input
+                  id="date_menu_due"
+                  name="date_menu_due"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="MM/DD/YYYY"
+                  data-date-mask
+                  maxlength="10"
+                />
               </div>
-              <div class="field">
+              <div class="field" data-field="date_vendor_list">
                 <label for="date_vendor_list">Final vendor list due</label>
-                <input id="date_vendor_list" name="date_vendor_list" type="date" />
+                <input
+                  id="date_vendor_list"
+                  name="date_vendor_list"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="MM/DD/YYYY"
+                  data-date-mask
+                  maxlength="10"
+                />
               </div>
-              <div class="field">
+              <div class="field" data-field="date_gift_bag">
                 <label for="date_gift_bag">Gift bag delivery</label>
-                <input id="date_gift_bag" name="date_gift_bag" type="date" />
+                <input
+                  id="date_gift_bag"
+                  name="date_gift_bag"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="MM/DD/YYYY"
+                  data-date-mask
+                  maxlength="10"
+                />
               </div>
-              <div class="field">
+              <div class="field" data-field="date_getting_ready">
                 <label for="date_getting_ready">Getting-ready room access</label>
-                <input id="date_getting_ready" name="date_getting_ready" type="date" />
-              </div>
-              <div class="field">
-                <label for="date_shuttle">Wedding shuttle departure</label>
-                <input id="date_shuttle" name="date_shuttle" type="text" placeholder="Date and time" />
-              </div>
-              <div class="field">
-                <label for="date_brunch">Post-wedding brunch</label>
-                <input id="date_brunch" name="date_brunch" type="text" placeholder="Date and time" />
+                <input
+                  id="date_getting_ready"
+                  name="date_getting_ready"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="MM/DD/YYYY"
+                  data-date-mask
+                  maxlength="10"
+                />
               </div>
             </div>
           </section>

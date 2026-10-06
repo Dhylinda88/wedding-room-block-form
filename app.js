@@ -4,6 +4,7 @@
   const cfg = window.FORM_CONFIG || {};
   const SESSION_KEY = "lasalle_form_unlocked";
   const PASSWORD_KEY = "lasalle_form_password";
+  const STAFF_KEY = "lasalle_form_staff";
 
   const els = {
     gate: document.getElementById("gate"),
@@ -30,11 +31,16 @@
     formTitle: document.getElementById("form-title"),
     introBefore: document.getElementById("intro-before"),
     introAfter: document.getElementById("intro-after"),
+    staffBadge: document.getElementById("staff-badge"),
+    beyond30: document.getElementById("beyond-30-warning"),
+    staffDatesSection: document.getElementById("staff-dates-section"),
   };
 
   let dirty = false;
   let saving = false;
   let sessionPassword = sessionStorage.getItem(PASSWORD_KEY) || "";
+  let staffMode = sessionStorage.getItem(STAFF_KEY) === "1";
+  let autoCompleteBy = true;
 
   function apiConfigured() {
     return (
@@ -46,6 +52,17 @@
 
   function mockMode() {
     return cfg.MOCK_MODE === true;
+  }
+
+  function staffPasswordConfigured() {
+    return String(cfg.STAFF_PASSWORD || "").trim();
+  }
+
+  function isStaffPassword(password) {
+    const live = staffPasswordConfigured();
+    if (live && String(password) === live) return true;
+    if (mockMode() && String(password) === String(cfg.MOCK_STAFF_PASSWORD || "staff")) return true;
+    return false;
   }
 
   function mockStoreKey() {
@@ -71,15 +88,20 @@
 
   async function mockApi(action, body) {
     const mockPassword = cfg.MOCK_PASSWORD || "preview";
+    const mockStaff = cfg.MOCK_STAFF_PASSWORD || "staff";
+    const okPw =
+      String(body.password) === String(mockPassword) ||
+      String(body.password) === String(mockStaff) ||
+      (staffPasswordConfigured() && String(body.password) === staffPasswordConfigured());
 
     if (action === "unlock") {
-      if (String(body.password) !== String(mockPassword)) {
+      if (!okPw) {
         throw new Error("Invalid access code. (Mock mode password is in config.js)");
       }
-      return { ok: true };
+      return { ok: true, staff: isStaffPassword(body.password) };
     }
 
-    if (String(body.password) !== String(mockPassword)) {
+    if (!okPw) {
       throw new Error("Invalid access code.");
     }
 
@@ -105,13 +127,11 @@
         record = store[body.draft_id];
       } else if (body.email && body.wedding_date) {
         const email = String(body.email).trim().toLowerCase();
-        const wedding = String(body.wedding_date).trim();
+        const wedding = normalizeDateToIso(body.wedding_date) || String(body.wedding_date).trim();
         Object.keys(store).forEach((id) => {
           const row = store[id];
-          if (
-            String(row.email || "").toLowerCase() === email &&
-            String(row.wedding_date || "") === wedding
-          ) {
+          const rowWedding = normalizeDateToIso(row.wedding_date) || String(row.wedding_date || "");
+          if (String(row.email || "").toLowerCase() === email && rowWedding === wedding) {
             record = row;
           }
         });
@@ -121,6 +141,110 @@
     }
 
     throw new Error("Unknown action.");
+  }
+
+  /* —— Date helpers (UI MM/DD/YYYY, payload YYYY-MM-DD) —— */
+
+  function digitsOnly(value, max) {
+    const d = String(value || "").replace(/\D/g, "");
+    return max ? d.slice(0, max) : d;
+  }
+
+  function formatPhoneDisplay(value) {
+    const d = digitsOnly(value, 10);
+    if (d.length <= 3) return d;
+    if (d.length <= 6) return "(" + d.slice(0, 3) + ") " + d.slice(3);
+    return "(" + d.slice(0, 3) + ") " + d.slice(3, 6) + "-" + d.slice(6);
+  }
+
+  function formatDateDisplay(value) {
+    const d = digitsOnly(value, 8);
+    if (d.length <= 2) return d;
+    if (d.length <= 4) return d.slice(0, 2) + "/" + d.slice(2);
+    return d.slice(0, 2) + "/" + d.slice(2, 4) + "/" + d.slice(4);
+  }
+
+  function parseUsDateParts(display) {
+    const m = String(display || "")
+      .trim()
+      .match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (!m) return null;
+    const month = Number(m[1]);
+    const day = Number(m[2]);
+    const year = Number(m[3]);
+    if (month < 1 || month > 12 || day < 1 || day > 31 || year < 1900 || year > 2100) return null;
+    const dt = new Date(year, month - 1, day);
+    if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) return null;
+    return { year, month, day, date: dt };
+  }
+
+  function usToIso(display) {
+    const p = parseUsDateParts(display);
+    if (!p) return "";
+    return (
+      String(p.year) +
+      "-" +
+      String(p.month).padStart(2, "0") +
+      "-" +
+      String(p.day).padStart(2, "0")
+    );
+  }
+
+  function isoToUs(iso) {
+    if (!iso) return "";
+    const m = String(iso).trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return m[2] + "/" + m[3] + "/" + m[1];
+    if (parseUsDateParts(iso)) return formatDateDisplay(iso);
+    return "";
+  }
+
+  function normalizeDateToIso(value) {
+    if (!value) return "";
+    const s = String(value).trim();
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+      const us = isoToUs(s);
+      return usToIso(us) || s.slice(0, 10);
+    }
+    return usToIso(s);
+  }
+
+  function isValidDateValue(value) {
+    return Boolean(normalizeDateToIso(value));
+  }
+
+  function addDaysIso(iso, days) {
+    const p = parseUsDateParts(isoToUs(iso));
+    if (!p) return "";
+    const d = new Date(p.date.getTime());
+    d.setDate(d.getDate() + days);
+    return (
+      d.getFullYear() +
+      "-" +
+      String(d.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(d.getDate()).padStart(2, "0")
+    );
+  }
+
+  function compareIso(a, b) {
+    if (!a || !b) return 0;
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
+  }
+
+  function isValidEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
+  }
+
+  function isValidPhone(value) {
+    return digitsOnly(value, 15).length === 10;
+  }
+
+  function isValidNumeric(value, allowEmpty) {
+    const s = String(value || "").trim();
+    if (!s) return !!allowEmpty;
+    return /^\d+$/.test(s);
   }
 
   function setStatus(message, kind) {
@@ -153,38 +277,82 @@
     if (name === "complete_by") els.completeBy.classList.add("is-invalid");
   }
 
-  function isValidEmail(value) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
+  function dateDisplayOf(name) {
+    if (name === "complete_by") return els.completeBy.value.trim();
+    const el = els.form.elements.namedItem(name);
+    if (!el || el instanceof RadioNodeList) return "";
+    return String(el.value || "").trim();
   }
 
-  function isValidPhone(value) {
-    const digits = String(value).replace(/\D/g, "");
-    if (digits.length < 10 || digits.length > 15) return false;
-    return /^[+]?[\d\s().-]{10,20}$/.test(String(value).trim());
-  }
-
-  function isValidDate(value) {
-    if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-    const d = new Date(value + "T00:00:00");
-    return !Number.isNaN(d.getTime());
+  function dateIsoOf(name) {
+    return normalizeDateToIso(dateDisplayOf(name));
   }
 
   function validateIdentity() {
     clearFieldErrors();
     const data = {
       couple_name: valueOf("couple_name"),
-      wedding_date: valueOf("wedding_date"),
-      complete_by: els.completeBy.value.trim(),
+      wedding_date: dateIsoOf("wedding_date"),
+      complete_by: dateIsoOf("complete_by"),
       email: valueOf("email"),
       phone: valueOf("phone"),
     };
     const errors = {};
 
     if (!data.couple_name) errors.couple_name = "Enter the couple or party name.";
-    if (!isValidDate(data.wedding_date)) errors.wedding_date = "Enter a valid wedding date.";
-    if (!isValidDate(data.complete_by)) errors.complete_by = "Enter a valid complete-by date in the intro.";
+    if (!data.wedding_date) errors.wedding_date = "Enter a valid wedding date (MM/DD/YYYY).";
+    if (!data.complete_by) errors.complete_by = "Complete-by date is missing. Ask your coordinator for a link with the deadline.";
     if (!isValidEmail(data.email)) errors.email = "Enter a valid email address.";
-    if (!isValidPhone(data.phone)) errors.phone = "Enter a valid phone number (at least 10 digits).";
+    if (!isValidPhone(data.phone)) errors.phone = "Enter a 10-digit phone number.";
+
+    const optionalDates = [
+      ["group_arrival", "group arrival"],
+      ["group_departure", "group departure"],
+      ["getting_ready_date", "getting-ready date"],
+      ["bags_delivery_date", "gift bag delivery date"],
+    ];
+    optionalDates.forEach(([name, label]) => {
+      const raw = dateDisplayOf(name);
+      if (raw && !dateIsoOf(name)) errors[name] = "Enter a valid " + label + " (MM/DD/YYYY).";
+    });
+
+    const phoneOpt = valueOf("weekend_contact_phone");
+    if (phoneOpt && !isValidPhone(phoneOpt)) {
+      errors.weekend_contact_phone = "Enter a 10-digit phone number.";
+    }
+
+    ["getting_ready_guests", "valet_vehicles", "bags_quantity", "brunch_attendance"].forEach((name) => {
+      const v = valueOf(name);
+      if (v && !isValidNumeric(v, true)) errors[name] = "Enter numbers only.";
+    });
+
+    const arrival = dateIsoOf("group_arrival");
+    const departure = dateIsoOf("group_departure");
+    if (arrival && departure && compareIso(departure, arrival) < 0) {
+      errors.group_departure = "Departure cannot be before arrival.";
+    }
+    if (data.wedding_date && arrival && compareIso(arrival, data.wedding_date) > 0) {
+      errors.group_arrival = "Arrival is after the wedding date.";
+    }
+    if (data.wedding_date && departure && compareIso(departure, data.wedding_date) < 0) {
+      errors.group_departure = "Departure is before the wedding date.";
+    }
+    const gr = dateIsoOf("getting_ready_date");
+    if (data.wedding_date && gr && compareIso(gr, data.wedding_date) > 0) {
+      errors.getting_ready_date = "Getting-ready date is after the wedding.";
+    }
+    const brunchRaw = valueOf("brunch_datetime");
+    if (brunchRaw && data.wedding_date && valueOf("brunch_hosting") === "yes") {
+      const brunchIso = normalizeDateToIso(brunchRaw.slice(0, 10)) || (brunchRaw.match(/^(\d{4}-\d{2}-\d{2})/) || [])[1];
+      if (brunchIso && compareIso(brunchIso, data.wedding_date) < 0) {
+        errors.brunch_datetime = "Brunch date is before the wedding date.";
+        const brunchField = document.querySelector('[data-field="brunch_datetime"]') || document.getElementById("brunch_datetime");
+        if (brunchField && brunchField.closest) {
+          const wrap = brunchField.closest(".field");
+          if (wrap) wrap.classList.add("is-invalid");
+        }
+      }
+    }
 
     Object.keys(errors).forEach((key) => showFieldError(key, errors[key]));
     return { ok: Object.keys(errors).length === 0, data, errors };
@@ -210,8 +378,18 @@
       radios[0].dispatchEvent(new Event("change", { bubbles: true }));
       return;
     }
-    const el = els.form.elements.namedItem(name);
-    if (el) el.value = value;
+    const el = name === "complete_by" ? els.completeBy : els.form.elements.namedItem(name);
+    if (!el || el instanceof RadioNodeList) return;
+
+    if (el.hasAttribute && el.hasAttribute("data-date-mask")) {
+      el.value = isoToUs(normalizeDateToIso(value) || value) || (parseUsDateParts(value) ? formatDateDisplay(value) : "");
+      return;
+    }
+    if (el.hasAttribute && el.hasAttribute("data-phone-mask")) {
+      el.value = formatPhoneDisplay(value);
+      return;
+    }
+    el.value = value;
   }
 
   function collectVendors() {
@@ -243,21 +421,17 @@
   function collectPayload() {
     const fields = [
       "couple_name",
-      "wedding_date",
       "email",
       "phone",
       "wedding_venue",
       "ceremony_time",
       "reception_venue",
       "reception_time",
-      "group_arrival",
-      "group_departure",
       "weekend_contact_name",
       "weekend_contact_phone",
       "anticipated_rooms",
       "couple_accommodations",
       "getting_ready_needed",
-      "getting_ready_date",
       "getting_ready_guests",
       "getting_ready_access",
       "vip_names",
@@ -277,7 +451,6 @@
       "valet_billing_instructions",
       "bags_providing",
       "bags_quantity",
-      "bags_delivery_date",
       "bags_delivery_time",
       "bags_deliverer",
       "bags_distribution",
@@ -286,18 +459,29 @@
       "brunch_attendance",
       "brunch_menu_submitted",
       "brunch_requests",
-      "date_room_cutoff",
-      "date_menu_due",
-      "date_vendor_list",
-      "date_gift_bag",
-      "date_getting_ready",
-      "date_shuttle",
-      "date_brunch",
     ];
 
-    const payload = { complete_by: els.completeBy.value.trim() };
+    const payload = {
+      complete_by: dateIsoOf("complete_by"),
+      wedding_date: dateIsoOf("wedding_date"),
+      group_arrival: dateIsoOf("group_arrival"),
+      group_departure: dateIsoOf("group_departure"),
+      getting_ready_date: dateIsoOf("getting_ready_date"),
+      bags_delivery_date: dateIsoOf("bags_delivery_date"),
+      date_room_cutoff: dateIsoOf("date_room_cutoff"),
+      date_menu_due: dateIsoOf("date_menu_due"),
+      date_vendor_list: dateIsoOf("date_vendor_list"),
+      date_gift_bag: dateIsoOf("date_gift_bag"),
+      date_getting_ready: dateIsoOf("date_getting_ready"),
+    };
+
     fields.forEach((name) => {
-      payload[name] = valueOf(name);
+      let v = valueOf(name);
+      if (name === "phone" || name === "weekend_contact_phone" || name === "transport_contact") {
+        const d = digitsOnly(v, 10);
+        v = d.length === 10 ? formatPhoneDisplay(d) : v;
+      }
+      payload[name] = v;
     });
     payload.vendors = collectVendors();
     return payload;
@@ -305,12 +489,9 @@
 
   function applyPayload(payload) {
     if (!payload || typeof payload !== "object") return;
+    autoCompleteBy = false;
     Object.keys(payload).forEach((key) => {
       if (key === "vendors") return;
-      if (key === "complete_by") {
-        els.completeBy.value = payload.complete_by || "";
-        return;
-      }
       setValue(key, payload[key]);
     });
     els.vendorRows.innerHTML = "";
@@ -318,6 +499,7 @@
     if (vendors.length === 0) addVendorRow();
     else vendors.forEach((v) => addVendorRow(v));
     syncConditionals();
+    updateBeyond30Warning();
     dirty = false;
   }
 
@@ -338,6 +520,72 @@
     if (els.saveStatus.textContent === "All changes saved" || els.saveStatus.classList.contains("is-ok")) {
       setStatus("Unsaved changes", null);
     }
+  }
+
+  function updateBeyond30Warning() {
+    const wedding = dateIsoOf("wedding_date");
+    const complete = dateIsoOf("complete_by");
+    if (!wedding || !complete || !els.beyond30) {
+      if (els.beyond30) els.beyond30.hidden = true;
+      return;
+    }
+    const cutoff = addDaysIso(wedding, -30);
+    els.beyond30.hidden = !(cutoff && compareIso(complete, cutoff) > 0);
+  }
+
+  function maybeAutoCompleteBy() {
+    if (!autoCompleteBy && els.completeBy.value.trim()) {
+      updateBeyond30Warning();
+      return;
+    }
+    const wedding = dateIsoOf("wedding_date");
+    if (!wedding) {
+      updateBeyond30Warning();
+      return;
+    }
+    if (!els.completeBy.value.trim() || autoCompleteBy) {
+      els.completeBy.value = isoToUs(addDaysIso(wedding, -30));
+      autoCompleteBy = true;
+    }
+    updateBeyond30Warning();
+  }
+
+  function applyStaffUi() {
+    document.querySelectorAll("[data-staff-only]").forEach((el) => {
+      el.hidden = !staffMode;
+    });
+    if (els.staffBadge) els.staffBadge.hidden = !staffMode;
+    if (els.completeBy) {
+      els.completeBy.readOnly = !staffMode;
+      els.completeBy.classList.toggle("is-readonly", !staffMode);
+    }
+  }
+
+  function setStaffMode(on) {
+    staffMode = !!on;
+    sessionStorage.setItem(STAFF_KEY, staffMode ? "1" : "0");
+    applyStaffUi();
+  }
+
+  function applyInviteParams() {
+    const params = new URLSearchParams(window.location.search);
+    const wedding = params.get("wedding_date");
+    const complete = params.get("complete_by");
+    if (wedding) {
+      const iso = normalizeDateToIso(wedding);
+      if (iso) setValue("wedding_date", iso);
+    }
+    if (complete) {
+      const iso = normalizeDateToIso(complete);
+      if (iso) {
+        setValue("complete_by", iso);
+        autoCompleteBy = false;
+      }
+    } else if (wedding) {
+      autoCompleteBy = true;
+      maybeAutoCompleteBy();
+    }
+    updateBeyond30Warning();
   }
 
   async function api(action, body) {
@@ -395,6 +643,8 @@
     els.gate.hidden = true;
     els.app.hidden = false;
     els.app.classList.remove("is-locked");
+    applyStaffUi();
+    applyInviteParams();
   }
 
   function showThanks(draftId) {
@@ -414,9 +664,10 @@
     }
     els.unlockForm.querySelector('[data-error-for="password"]').textContent = "";
     try {
-      await api("unlock", { password });
+      const data = await api("unlock", { password });
       sessionPassword = password;
       sessionStorage.setItem(PASSWORD_KEY, password);
+      setStaffMode(data.staff === true || isStaffPassword(password));
       unlockUi();
       const params = new URLSearchParams(window.location.search);
       const draft = params.get("draft");
@@ -447,7 +698,8 @@
     setGateStatus("");
     const password = els.accessPassword.value;
     const email = document.getElementById("resume-email").value.trim();
-    const wedding_date = document.getElementById("resume-wedding-date").value;
+    const weddingRaw = document.getElementById("resume-wedding-date").value;
+    const wedding_date = normalizeDateToIso(weddingRaw);
 
     let ok = true;
     if (!password) {
@@ -458,8 +710,8 @@
       showFieldError("resume_email", "Enter a valid email.");
       ok = false;
     }
-    if (!isValidDate(wedding_date)) {
-      showFieldError("resume_wedding_date", "Enter a valid wedding date.");
+    if (!wedding_date) {
+      showFieldError("resume_wedding_date", "Enter a valid wedding date (MM/DD/YYYY).");
       ok = false;
     }
     if (!ok) return;
@@ -468,6 +720,7 @@
       const data = await api("loadDraft", { password, email, wedding_date });
       sessionPassword = password;
       sessionStorage.setItem(PASSWORD_KEY, password);
+      setStaffMode(isStaffPassword(password));
       unlockUi();
       els.draftId.value = data.draft_id || "";
       applyPayload(data.payload);
@@ -484,6 +737,7 @@
 
   async function saveDraft() {
     if (saving) return null;
+    updateBeyond30Warning();
     const validation = validateIdentity();
     if (!validation.ok) {
       setStatus("Fix the highlighted fields before saving.", "is-error");
@@ -501,6 +755,7 @@
         draft_id: els.draftId.value || undefined,
         payload,
         form_url: window.location.origin + window.location.pathname,
+        staff: staffMode,
       });
       els.draftId.value = data.draft_id;
       dirty = false;
@@ -524,6 +779,7 @@
   }
 
   async function submitFinal() {
+    updateBeyond30Warning();
     const validation = validateIdentity();
     if (!validation.ok) {
       setStatus("Fix the highlighted fields before submitting.", "is-error");
@@ -544,6 +800,7 @@
         draft_id: els.draftId.value || undefined,
         payload,
         form_url: window.location.origin + window.location.pathname,
+        staff: staffMode,
       });
       dirty = false;
       showThanks(data.draft_id);
@@ -552,6 +809,53 @@
     } finally {
       saving = false;
     }
+  }
+
+  function wireMasks() {
+    document.querySelectorAll("[data-phone-mask]").forEach((input) => {
+      input.addEventListener("input", () => {
+        const start = input.selectionStart;
+        const before = input.value;
+        input.value = formatPhoneDisplay(input.value);
+        if (document.activeElement === input && typeof start === "number") {
+          const diff = input.value.length - before.length;
+          const pos = Math.max(0, start + diff);
+          try {
+            input.setSelectionRange(pos, pos);
+          } catch {
+            /* ignore */
+          }
+        }
+        markDirty();
+      });
+    });
+
+    document.querySelectorAll("[data-date-mask]").forEach((input) => {
+      input.addEventListener("input", () => {
+        input.value = formatDateDisplay(input.value);
+        if (input === els.completeBy) autoCompleteBy = false;
+        if (input.id === "wedding_date") maybeAutoCompleteBy();
+        else updateBeyond30Warning();
+        markDirty();
+      });
+      input.addEventListener("blur", () => {
+        const iso = normalizeDateToIso(input.value);
+        if (input.value.trim() && !iso) {
+          input.classList.add("is-invalid");
+        } else if (iso) {
+          input.value = isoToUs(iso);
+          input.classList.remove("is-invalid");
+        }
+        updateBeyond30Warning();
+      });
+    });
+
+    document.querySelectorAll("[data-numeric]").forEach((input) => {
+      input.addEventListener("input", () => {
+        input.value = digitsOnly(input.value);
+        markDirty();
+      });
+    });
   }
 
   function wireConditionals() {
@@ -566,10 +870,13 @@
   }
 
   function wireDirtyTracking() {
-    els.form.addEventListener("input", markDirty);
+    els.form.addEventListener("input", (e) => {
+      if (e.target && (e.target.hasAttribute("data-phone-mask") || e.target.hasAttribute("data-date-mask") || e.target.hasAttribute("data-numeric"))) {
+        return;
+      }
+      markDirty();
+    });
     els.form.addEventListener("change", markDirty);
-    els.completeBy.addEventListener("input", markDirty);
-    els.completeBy.addEventListener("change", markDirty);
   }
 
   function applyConfigCopy() {
@@ -586,10 +893,16 @@
     addVendorRow();
     wireConditionals();
     wireDirtyTracking();
+    wireMasks();
+    applyStaffUi();
 
     if (mockMode()) {
       setGateStatus(
-        'Preview mode on — unlock with password "' + (cfg.MOCK_PASSWORD || "preview") + '".',
+        'Preview mode — guest "' +
+          (cfg.MOCK_PASSWORD || "preview") +
+          '", staff "' +
+          (cfg.MOCK_STAFF_PASSWORD || "staff") +
+          '".',
         "is-ok"
       );
     }
@@ -617,6 +930,7 @@
 
     const already = sessionStorage.getItem(SESSION_KEY) === "1" && sessionPassword;
     if (already) {
+      setStaffMode(sessionStorage.getItem(STAFF_KEY) === "1" || isStaffPassword(sessionPassword));
       unlockUi();
       const draft = new URLSearchParams(window.location.search).get("draft");
       if (draft) loadDraftById(draft);

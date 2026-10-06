@@ -4,6 +4,8 @@
 Do not use Excel Online for this project (blocked by admin approval).  
 Do not skip columns or “add later.” Finish each phase and test before the next.
 
+**Newer ops (staff mode / flatten / PDF):** see [power-automate/STAFF-PDF.md](power-automate/STAFF-PDF.md) and updated [power-automate/FIELD-MAP.md](power-automate/FIELD-MAP.md). Prefer **FormPayload** (multi-line), not the old 255-char Payload column. Password Condition should accept **FormPassword OR StaffPassword**.
+
 ---
 
 ## Your locked decisions
