@@ -196,11 +196,17 @@
   function normalizeDateToIso(value) {
     if (!value) return "";
     const s = String(value).trim();
+    let iso = "";
     if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
       const us = isoToUs(s);
-      return usToIso(us) || s.slice(0, 10);
+      iso = usToIso(us) || s.slice(0, 10);
+    } else {
+      iso = usToIso(s);
     }
-    return usToIso(s);
+    if (!iso) return "";
+    const year = Number(iso.slice(0, 4));
+    if (year < 2000 || year > 2100) return "";
+    return iso;
   }
 
   function isValidDateValue(value) {
@@ -603,7 +609,9 @@
     if (!el || el instanceof RadioNodeList) return;
 
     if (el.type === "date" || (el.hasAttribute && el.hasAttribute("data-date-field"))) {
-      el.value = normalizeDateToIso(value) || "";
+      const iso = normalizeDateToIso(value) || "";
+      if (el === els.completeBy) setCompleteByIso(iso);
+      else el.value = iso;
       return;
     }
     if (el.hasAttribute && el.hasAttribute("data-date-mask")) {
@@ -789,6 +797,15 @@
     els.beyond30.hidden = !(cutoff && compareIso(complete, cutoff) > 0);
   }
 
+  function setCompleteByIso(iso) {
+    if (!els.completeBy || !iso) return;
+    const wasReadOnly = els.completeBy.readOnly;
+    /* Chrome often ignores .value writes while type=date is readonly */
+    els.completeBy.readOnly = false;
+    els.completeBy.value = iso;
+    els.completeBy.readOnly = wasReadOnly;
+  }
+
   function maybeAutoCompleteBy() {
     if (!autoCompleteBy && els.completeBy.value.trim()) {
       updateBeyond30Warning();
@@ -800,7 +817,7 @@
       return;
     }
     if (!els.completeBy.value.trim() || autoCompleteBy) {
-      els.completeBy.value = addDaysIso(wedding, -30);
+      setCompleteByIso(addDaysIso(wedding, -30));
       autoCompleteBy = true;
     }
     updateBeyond30Warning();
@@ -1167,41 +1184,30 @@
       });
     });
 
-    document.querySelectorAll("input[type='date'], [data-date-field]").forEach((input) => {
-      input.addEventListener("change", () => {
+    document.querySelectorAll("input[type='date']").forEach((input) => {
+      if (!input.min) input.min = "2000-01-01";
+      if (!input.max) input.max = "2100-12-31";
+      const onDateEdit = () => {
+        const iso = normalizeDateToIso(input.value);
+        if (input.value && !iso) {
+          /* Clear Chromium garbage years (e.g. 275760) while typing */
+          input.value = "";
+          return;
+        }
         if (input === els.completeBy) {
           autoCompleteBy = false;
-          syncImportantDates();
+          if (iso) syncImportantDates();
           updateBeyond30Warning();
         } else if (input.id === "wedding_date") {
-          syncDerivedDates();
+          if (iso) syncDerivedDates();
+          else updateBeyond30Warning();
         } else {
           updateBeyond30Warning();
         }
         markDirty();
-      });
-    });
-
-    document.querySelectorAll("[data-date-mask]").forEach((input) => {
-      input.addEventListener("input", () => {
-        input.value = formatDateDisplay(input.value);
-        if (input === els.completeBy) autoCompleteBy = false;
-        if (input.id === "wedding_date") syncDerivedDates();
-        else updateBeyond30Warning();
-        markDirty();
-      });
-      input.addEventListener("blur", () => {
-        const iso = normalizeDateToIso(input.value);
-        if (input.value.trim() && !iso) {
-          input.classList.add("is-invalid");
-        } else if (iso) {
-          input.value = isoToUs(iso);
-          input.classList.remove("is-invalid");
-        } else {
-          input.classList.remove("is-invalid");
-        }
-        updateBeyond30Warning();
-      });
+      };
+      input.addEventListener("change", onDateEdit);
+      input.addEventListener("input", onDateEdit);
     });
 
     document.querySelectorAll("[data-numeric]").forEach((input) => {
