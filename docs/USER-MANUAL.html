@@ -145,6 +145,9 @@
     .figure--diagram img {
       max-width: 480px;
     }
+    .figure--fig1 img {
+      max-width: 340px;
+    }
     .figure figcaption {
       font-size: 0.85rem;
       color: var(--muted);
@@ -332,6 +335,18 @@
         max-height: 1.75in;
         object-fit: contain;
       }
+      /* Section 2: keep figure + table + happy path on one printed page */
+      .figure--fig1 {
+        margin: 0.25rem 0 0.35rem;
+      }
+      .figure--fig1 img {
+        max-width: 3.1in;
+        max-height: 1.15in;
+      }
+      #big-picture {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
 
       .steps > li {
         padding: 0.35rem 0.5rem 0.35rem 2.4rem;
@@ -454,7 +469,7 @@
       <h2>2. The big picture</h2>
       <p>Four pieces work together:</p>
 
-      <figure class="figure figure--diagram">
+      <figure class="figure figure--diagram figure--fig1">
         <img src="images/manual-overview.jpg" alt="Diagram: Form connects to Power Automate, then SharePoint List and Email" />
         <figcaption>Figure 1. Form → Power Automate → SharePoint list + email.</figcaption>
       </figure>
