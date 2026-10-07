@@ -8,7 +8,7 @@ Branded, password-gated form for The LaSalle Chicago wedding room-block logistic
 
 Customers get one shared link and an access code. They **Save progress** (list draft + resume email) or **Submit final** (your work email alert). Cloud autosave is off on purpose.
 
-**Live form:** [https://dhylinda88.github.io/wedding-room-block-form/](https://dhylinda88.github.io/wedding-room-block-form/)
+**Live form:** [https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/](https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/)
 
 Staff unlock (staff password in Power Automate) edits the list without emails; staff resubmit refreshes the PDF only. Details: [power-automate/STAFF-PDF.md](power-automate/STAFF-PDF.md).
 
