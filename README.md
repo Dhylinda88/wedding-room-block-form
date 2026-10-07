@@ -10,6 +10,8 @@ Customers get one shared link and an access code. They **Save progress** (list d
 
 **Live form:** [https://USERNAME.github.io/wedding-room-block-form/](https://USERNAME.github.io/wedding-room-block-form/)
 
+**User manual (plain language, printable):** [USER-MANUAL.html](USER-MANUAL.html) · [live](https://dhylinda88.github.io/wedding-room-block-form/USER-MANUAL.html) — open in a browser, then Print → Save as PDF for page numbers.
+
 Staff unlock (staff password in Power Automate) edits the list without emails; staff resubmit refreshes the PDF only. Details: [power-automate/STAFF-PDF.md](power-automate/STAFF-PDF.md).
 
 ## Invite / resume links
@@ -50,6 +52,7 @@ Append with `?` then `&` between params. No spaces.
 | [`config.js`](config.js) | `API_URL`, mock mode, intro copy |
 | [`assets/logo.png`](assets/logo.png) | Logo |
 | [`SETUP-ORDERED.md`](SETUP-ORDERED.md) | **Ordered** SharePoint List + flow + Pages guide |
+| [`USER-MANUAL.html`](USER-MANUAL.html) | Printable staff/coordinator user manual |
 | [`power-automate/`](power-automate/) | Short pointer to SETUP-ORDERED |
 | [`.nojekyll`](.nojekyll) | Lets GitHub Pages serve files as-is |
 
