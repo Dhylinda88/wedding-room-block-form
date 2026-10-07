@@ -8,7 +8,7 @@ Branded, password-gated form for The LaSalle Chicago wedding room-block logistic
 
 Customers get one shared link and an access code. They **Save progress** (list draft + resume email) or **Submit final** (your work email alert). Cloud autosave is off on purpose.
 
-**Live form:** [https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/](https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/)
+**Live form:** [https://USERNAME.github.io/wedding-room-block-form/](https://USERNAME.github.io/wedding-room-block-form/)
 
 Staff unlock (staff password in Power Automate) edits the list without emails; staff resubmit refreshes the PDF only. Details: [power-automate/STAFF-PDF.md](power-automate/STAFF-PDF.md).
 
@@ -17,19 +17,19 @@ Staff unlock (staff password in Power Automate) edits the list without emails; s
 Prefill dates for a new couple (coordinator sends this + guest access code):
 
 ```text
-https://dhylinda88.github.io/wedding-room-block-form/?wedding_date=2026-06-15&complete_by=2026-05-16
+https://USERNAME.github.io/wedding-room-block-form/?wedding_date=2026-06-15&complete_by=2026-05-16
 ```
 
 Open an existing draft:
 
 ```text
-https://dhylinda88.github.io/wedding-room-block-form/?draft=4ba53f80
+https://USERNAME.github.io/wedding-room-block-form/?draft=4ba53f80
 ```
 
 Draft + dates together:
 
 ```text
-https://dhylinda88.github.io/wedding-room-block-form/?draft=4ba53f80&wedding_date=2026-06-15&complete_by=2026-05-16
+https://USERNAME.github.io/wedding-room-block-form/?draft=4ba53f80&wedding_date=2026-06-15&complete_by=2026-05-16
 ```
 
 | Param | Example | Notes |
