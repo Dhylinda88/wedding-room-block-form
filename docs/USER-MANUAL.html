@@ -304,7 +304,8 @@
         <li><a href="#list-email">Where answers go (list &amp; email)</a></li>
         <li><a href="#passwords">Passwords (guest vs staff)</a></li>
         <li><a href="#edit">How to edit the system</a></li>
-        <li><a href="#troubleshoot">If something goes wrong</a></li>
+        <li><a href="#list-pa">Edit a SharePoint column &amp; reconnect Power Automate</a></li>
+        <li><a href="#troubleshoot">If something goes wrong (Power Automate)</a></li>
         <li><a href="#quick-ref">Quick reference</a></li>
       </ol>
       <div class="callout">
@@ -602,12 +603,8 @@
       </ol>
 
       <h3>D. Change list columns / mapping</h3>
-      <p>SharePoint list columns must match what Power Automate Create/Update sends. Technical map:</p>
-      <p><span class="mono">power-automate/FIELD-MAP.md</span> in the project.</p>
-      <div class="callout">
-        <strong>Empty date tip</strong>
-        Date and number fields that can be blank on a draft save must use “empty → null” expressions, or SharePoint will reject the save.
-      </div>
+      <p>Full walkthrough (with pictures): <a href="#list-pa">Section 9 — Edit a SharePoint column &amp; reconnect Power Automate</a>.</p>
+      <p>Technical field list: <span class="mono">power-automate/FIELD-MAP.md</span></p>
 
       <h3>E. Change the PDF look</h3>
       <p>Edit the HTML inside Compose actions <em>SubmitHTML</em> / <em>DraftHTML</em> (and staff copies). A starter template is in:</p>
@@ -619,53 +616,264 @@
     </section>
 
     <!-- 9 -->
-    <section class="chapter" id="troubleshoot">
-      <h2>9. If something goes wrong</h2>
+    <section class="chapter" id="list-pa">
+      <h2>9. Edit a SharePoint column &amp; reconnect Power Automate</h2>
+      <p class="lead">
+        The list stores answers. Power Automate is the bridge that writes into that list.
+        If you change a column in the list, you must also tell the flow about it — or Save will fail or leave the cell blank.
+      </p>
+
+      <figure class="figure">
+        <img src="images/manual-list-pa-flow.jpg" alt="Five steps: Open SharePoint, add or edit column, open Power Automate, refresh Create/Update, save and test" />
+        <figcaption>Figure 4. Always: List first → then Power Automate → then test the form.</figcaption>
+      </figure>
+
+      <h3>Why two places?</h3>
       <table class="simple">
         <thead>
-          <tr><th>What you see</th><th>What to try</th></tr>
+          <tr><th>Place</th><th>What it does</th><th>Example</th></tr>
         </thead>
         <tbody>
           <tr>
-            <td>“Upstream server” on Save/Submit, but flow is green</td>
-            <td>HTTP reply ran too late or was skipped. Move Response 200 to right after SharePoint Create/Update (outside the Create-only branch). Check run history: did GuestDraft200 / StaffDraft200 run?</td>
+            <td><strong>SharePoint list</strong><br /><em>Wedding Room Planner</em></td>
+            <td>Holds the columns (like spreadsheet headers) and the rows of wedding data</td>
+            <td>Add a column “Guest Rooms”</td>
           </tr>
           <tr>
-            <td>First save works, later saves error</td>
-            <td>Usually Update path had no Response. Staff/guest 200 steps must sit after ItemLength, not only under Create item.</td>
-          </tr>
-          <tr>
-            <td>Cannot unlock</td>
-            <td>Wrong code, or flow Off, or API_URL in config.js does not match the live flow.</td>
-          </tr>
-          <tr>
-            <td>Save fails in Power Automate on a date field</td>
-            <td>Empty date sent as blank text. Use null-if-empty on that SharePoint date column.</td>
-          </tr>
-          <tr>
-            <td>Choice field error with <code>int(...)</code></td>
-            <td>Choices are text like yes/no — do not convert them with int.</td>
-          </tr>
-          <tr>
-            <td>PDF looks like raw JSON</td>
-            <td>Replace SubmitHTML with the form-style template; remove any <code>&lt;pre&gt;</code> dump.</td>
-          </tr>
-          <tr>
-            <td>Staff does not see “Important dates”</td>
-            <td>Unlock with staff code (not guest code).</td>
+            <td><strong>Power Automate flow</strong><br /><em>Wedding Room Block Form - API</em></td>
+            <td>When someone Saves or Submits, writes each form answer into the matching list column</td>
+            <td>Map “guests” → Guest Rooms</td>
           </tr>
         </tbody>
       </table>
 
-      <div class="callout">
-        <strong>How to read a “successful” run</strong>
-        Power Automate → Run history → open the run → expand each step. Green overall can still mean Response was Skipped. Match the form’s tracking id to the run if shown.
+      <div class="callout warn">
+        <strong>Golden rule</strong>
+        Changing only the list is not enough. Changing only the flow is not enough. Do <em>both</em>, then test Save on the form.
       </div>
+
+      <h3>Step A — Open the list</h3>
+      <ol class="steps">
+        <li>Sign in to Microsoft 365 with your hotel account (same one that owns the list).</li>
+        <li>Go to <strong>SharePoint</strong> (or <strong>Microsoft Lists</strong>).</li>
+        <li>Open the list named <strong>Wedding Room Planner</strong>.</li>
+        <li>You should see one row per wedding (draft or submitted), with columns like Couple Name, Draft ID, Form URL, Status.</li>
+      </ol>
+
+      <h3>Step B — Add or edit a column</h3>
+      <ol class="steps">
+        <li>At the far right of the column headers, click <strong>+ Add column</strong> (or open an existing column’s menu → <strong>Column settings</strong> → <strong>Edit</strong>).</li>
+        <li>Choose the type carefully:
+          <ul>
+            <li><strong>Single line of text</strong> — names, times as text, Form URL</li>
+            <li><strong>Multiple lines of text</strong> — long notes, FormPayload</li>
+            <li><strong>Number</strong> — guests, vehicles, attendance</li>
+            <li><strong>Date and time</strong> — wedding date, arrival (prefer Date only when possible)</li>
+            <li><strong>Choice</strong> — yes/no or valet payment options (use the exact choice values the form sends)</li>
+          </ul>
+        </li>
+        <li>Give it a clear name (example: <em>Guest Rooms</em>). Click <strong>Save</strong>.</li>
+        <li>Optional: drag the column where you want it in the list view.</li>
+      </ol>
+
+      <div class="callout">
+        <strong>Rename tip</strong>
+        Renaming a column in SharePoint usually keeps the link in Power Automate, but always open Create/Update afterward and confirm the field still shows. If it vanished, re-map it.
+      </div>
+
+      <h3>Step C — Open the Power Automate flow</h3>
+      <ol class="steps">
+        <li>Go to <a href="https://make.powerautomate.com" target="_blank" rel="noopener">make.powerautomate.com</a> (or Power Automate in the Microsoft 365 app launcher).</li>
+        <li>Click <strong>My flows</strong> (or <strong>Solutions</strong> if your team keeps it there).</li>
+        <li>Open <strong>Wedding Room Block Form - API</strong>.</li>
+        <li>Click <strong>Edit</strong>.</li>
+      </ol>
+
+      <h3>Step D — Link the new column in Create item &amp; Update item</h3>
+      <p>The flow has SharePoint steps that write the list. You must update <strong>every</strong> Create and Update that should fill this column (usually Save draft <em>and</em> Submit final — both Create and Update branches).</p>
+      <ol class="steps">
+        <li>Find a <strong>Create item</strong> step for <em>Wedding Room Planner</em>. Click it.</li>
+        <li>If your new column is missing from the form, click <strong>Show all</strong> / refresh the fields (or delete and re-add the Create item action so SharePoint reloads the column list).</li>
+        <li>Find your new column. Click in the value box → open the dynamic content / expression picker.</li>
+        <li>Map it to the matching form field (examples from the field map):
+          <ul>
+            <li>Guests → <code>guests</code></li>
+            <li>Email → <code>email</code></li>
+            <li>Wedding Date → <code>wedding_date</code></li>
+          </ul>
+        </li>
+        <li>Repeat for the matching <strong>Update item</strong> step(s).</li>
+        <li>Repeat for Submit-path Create/Update if those are separate actions.</li>
+        <li>Click <strong>Save</strong> on the flow. Leave the flow <strong>On</strong>.</li>
+      </ol>
+
+      <div class="callout">
+        <strong>Dates &amp; numbers that can be blank</strong>
+        For optional date/number columns, do not leave a blank text value. Use an expression that sends <em>null</em> when empty, or SharePoint rejects the save. Example idea: if empty → null, else → the date. See <span class="mono">FIELD-MAP.md</span>.
+      </div>
+
+      <div class="callout warn">
+        <strong>Choice columns</strong>
+        Do <em>not</em> wrap yes/no choice values with <code>int(...)</code>. Choices are text (for example <code>yes</code> / <code>no</code>).
+      </div>
+
+      <h3>Step E — Test</h3>
+      <ol class="steps">
+        <li>Open the live form → unlock with the <strong>staff</strong> code.</li>
+        <li>Fill the related fields → click <strong>Save progress</strong>.</li>
+        <li>Open the SharePoint list → open that couple’s row → confirm the new column has the value.</li>
+        <li>If blank or Save errors: Power Automate → <strong>Run history</strong> → open the failed/latest run → expand the Create/Update step and read the red error.</li>
+      </ol>
+
+      <h3>Mini flow (remember this)</h3>
+      <div class="flow">
+        <span class="box">Open list</span><span class="arrow">→</span>
+        <span class="box">Add/edit column</span><span class="arrow">→</span>
+        <span class="box">Edit flow</span><span class="arrow">→</span>
+        <span class="box">Map Create + Update</span><span class="arrow">→</span>
+        <span class="box">Save flow</span><span class="arrow">→</span>
+        <span class="box">Test form Save</span>
+      </div>
+
+      <h3>Common “I only wanted to…” jobs</h3>
+      <table class="simple">
+        <thead>
+          <tr><th>Goal</th><th>List</th><th>Power Automate</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Add a new data column</td>
+            <td>Add column</td>
+            <td>Map it on every Create + Update</td>
+          </tr>
+          <tr>
+            <td>Rename a column label</td>
+            <td>Edit column name</td>
+            <td>Open Create/Update and confirm field still mapped</td>
+          </tr>
+          <tr>
+            <td>Stop collecting a field</td>
+            <td>Optional: hide column from view (don’t delete yet)</td>
+            <td>Clear the mapping; keep Response 200 where it is</td>
+          </tr>
+          <tr>
+            <td>Fix Form URL resume link</td>
+            <td>Column <em>Form URL</em> exists</td>
+            <td>Set Form URL expression on Create + Update (see FIELD-MAP)</td>
+          </tr>
+          <tr>
+            <td>Change password / email To</td>
+            <td>(none)</td>
+            <td>Compose FormPassword / StaffPassword, or Submit email To</td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
     <!-- 10 -->
+    <section class="chapter" id="troubleshoot">
+      <h2>10. If something goes wrong (Power Automate)</h2>
+      <p class="lead">Start here when Save/Submit fails, the list stays empty, or the form says “upstream server.”</p>
+
+      <h3>How to check a run (do this first)</h3>
+      <ol class="steps">
+        <li>Open Power Automate → flow <em>Wedding Room Block Form - API</em>.</li>
+        <li>Click <strong>Run history</strong> (28-day list of attempts).</li>
+        <li>Open the newest run (or match the time you clicked Save).</li>
+        <li>Green check = that step worked. Red X = that step failed (read the error text). Grey / “Skipped” = that branch did not run.</li>
+        <li>Expand <strong>Create item</strong> / <strong>Update item</strong> and any <strong>Response</strong> (200) steps.</li>
+      </ol>
+
+      <div class="callout">
+        <strong>Important</strong>
+        A run can look mostly green while the form still errors — often because the <em>Response 200</em> step was Skipped or ran too late (after PDF/email).
+      </div>
+
+      <h3>Simple decision guide</h3>
+      <div class="flow">
+        <span class="box">Form error?</span><span class="arrow">→</span>
+        <span class="box">Open Run history</span><span class="arrow">→</span>
+        <span class="box">Find red / skipped step</span><span class="arrow">→</span>
+        <span class="box">Fix that step</span><span class="arrow">→</span>
+        <span class="box">Save flow → retry form</span>
+      </div>
+
+      <h3>Symptom → what to do</h3>
+      <table class="simple">
+        <thead>
+          <tr><th>What you see</th><th>Likely cause</th><th>What to try</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Form: “Upstream server” / timeout, but flow is green</td>
+            <td>HTTP Response ran too late or was Skipped</td>
+            <td>Move <strong>Response 200</strong> to right after SharePoint Create/Update (before PDF convert / email). Place it after ItemLength so both Create <em>and</em> Update paths reply.</td>
+          </tr>
+          <tr>
+            <td>First Save works; later Saves fail the same way</td>
+            <td>Response only under Create, not Update</td>
+            <td>Guest/Staff 200 steps must sit outside the Create-only branch — after ItemLength.</td>
+          </tr>
+          <tr>
+            <td>Cannot unlock form</td>
+            <td>Wrong code, flow Off, or wrong API URL</td>
+            <td>Confirm flow is <strong>On</strong>. Check guest vs staff code. Confirm <code>config.js</code> API_URL matches this flow’s HTTP URL.</td>
+          </tr>
+          <tr>
+            <td>Create/Update fails mentioning a date column</td>
+            <td>Empty date sent as <code>""</code></td>
+            <td>Use null-if-empty expression on that date field (see Section 9).</td>
+          </tr>
+          <tr>
+            <td>Error with <code>int(...)</code> on a yes/no field</td>
+            <td>Choice treated as a number</td>
+            <td>Remove <code>int()</code>; map the choice as text.</td>
+          </tr>
+          <tr>
+            <td>New list column always blank</td>
+            <td>Column added in SharePoint but not mapped in the flow</td>
+            <td>Follow Section 9 Steps C–E. Refresh Create/Update fields.</td>
+          </tr>
+          <tr>
+            <td>PDF looks like raw JSON</td>
+            <td>SubmitHTML still dumping payload</td>
+            <td>Replace with the form-style template in <span class="mono">FORM-PDF-HTML.md</span>.</td>
+          </tr>
+          <tr>
+            <td>Staff does not see “Important dates”</td>
+            <td>Unlocked with guest code</td>
+            <td>Unlock with the <strong>staff</strong> code.</td>
+          </tr>
+          <tr>
+            <td>Couple got no resume email</td>
+            <td>Staff save (silent on purpose), or email step failed</td>
+            <td>Staff Saves do not email. Guest Saves should. Check Run history → Send email step.</td>
+          </tr>
+          <tr>
+            <td>Flow shows Failed on SharePoint</td>
+            <td>Column type mismatch or missing required field</td>
+            <td>Read the red error. Fix type (text vs number vs choice) or mapping. Re-test.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Where Response 200 should sit (sketch)</h3>
+      <div class="flow">
+        <span class="box">Create or Update item</span><span class="arrow">→</span>
+        <span class="box">Response 200 (form OK)</span><span class="arrow">→</span>
+        <span class="box">HTML / PDF / email (can be slower)</span>
+      </div>
+      <p>The form only needs the early “OK” reply. PDF and email can finish afterward.</p>
+
+      <div class="callout ok">
+        <strong>Still stuck?</strong>
+        Screenshot the failed step’s error message in Run history and send it to whoever maintains the flow. That one screenshot usually beats a long description.
+      </div>
+    </section>
+
+    <!-- 11 -->
     <section class="chapter" id="quick-ref">
-      <h2>10. Quick reference</h2>
+      <h2>11. Quick reference</h2>
       <table class="simple">
         <thead>
           <tr><th>Need</th><th>Do this</th></tr>
@@ -699,6 +907,14 @@
             <td>Change form text</td>
             <td>Edit GitHub files → push → refresh site</td>
           </tr>
+          <tr>
+            <td>Add/edit a list column</td>
+            <td>SharePoint list → add column → Power Automate Create+Update map → Save → test (Section 9)</td>
+          </tr>
+          <tr>
+            <td>Save fails / upstream error</td>
+            <td>Run history → find red/skipped step → often Response 200 placement (Section 10)</td>
+          </tr>
         </tbody>
       </table>
 
@@ -714,5 +930,4 @@
   </div>
 </body>
 </html>
-
 
