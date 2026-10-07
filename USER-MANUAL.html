@@ -302,9 +302,11 @@
         <li><a href="#for-staff">How staff use the form</a></li>
         <li><a href="#links">Links you will send</a></li>
         <li><a href="#list-email">Where answers go (list &amp; email)</a></li>
-        <li><a href="#passwords">Passwords (guest vs staff)</a></li>
+        <li><a href="#passwords">Passwords — what they are &amp; how to change them</a></li>
         <li><a href="#edit">How to edit the system</a></li>
         <li><a href="#list-pa">Edit a SharePoint column &amp; reconnect Power Automate</a></li>
+        <li><a href="#emails">Change emails &amp; add notification recipients</a></li>
+        <li><a href="#expressions">Safe expressions (dates, numbers, empty values)</a></li>
         <li><a href="#troubleshoot">If something goes wrong (Power Automate)</a></li>
         <li><a href="#quick-ref">Quick reference</a></li>
       </ol>
@@ -552,34 +554,85 @@
 
     <!-- 7 -->
     <section class="chapter" id="passwords">
-      <h2>7. Passwords</h2>
+      <h2>7. Passwords — what they are &amp; how to change them</h2>
+      <p class="lead">There are two codes. Both live inside Power Automate — not on the public website.</p>
+
       <table class="simple">
         <thead>
-          <tr><th>Code</th><th>Who uses it</th><th>Where it lives</th></tr>
+          <tr><th>Code</th><th>Who uses it</th><th>Compose name in the flow</th></tr>
         </thead>
         <tbody>
           <tr>
             <td><strong>Guest access code</strong></td>
-            <td>Couples</td>
-            <td>Power Automate Compose named something like <em>FormPassword</em></td>
+            <td>Couples (and anyone you invite as a guest)</td>
+            <td><em>FormPassword</em></td>
           </tr>
           <tr>
             <td><strong>Staff code</strong></td>
-            <td>Hotel employees</td>
-            <td>Power Automate Compose <em>StaffPassword</em> only — not in the public website files</td>
+            <td>Hotel employees only</td>
+            <td><em>StaffPassword</em></td>
           </tr>
         </tbody>
       </table>
+
+      <h3>How to change a password</h3>
+      <ol class="steps">
+        <li>Open <a href="https://make.powerautomate.com" target="_blank" rel="noopener">make.powerautomate.com</a> and sign in with the hotel Microsoft account.</li>
+        <li>Open <strong>My flows</strong> → <strong>Wedding Room Block Form - API</strong> → <strong>Edit</strong>.</li>
+        <li>Near the top of the flow, find the Compose step named <strong>FormPassword</strong> (guest) or <strong>StaffPassword</strong> (staff).</li>
+        <li>Click that Compose. In the Inputs box, delete the old code and type the new one (plain text — no quotes needed).</li>
+        <li>Click <strong>Save</strong> (top right). Confirm the flow stays <strong>On</strong>.</li>
+        <li>Tell the people who need it the new code. Old codes stop working immediately.</li>
+        <li>Test: open the live form and unlock with the new code.</li>
+      </ol>
+
       <div class="callout warn">
         <strong>Do not put live passwords in GitHub</strong>
-        The public site can be viewed by anyone. Change codes in Power Automate, then tell staff/couples the new code.
+        Anyone can view the public site files. Keep real codes only in Power Automate Compose steps.
+      </div>
+
+      <div class="callout">
+        <strong>Staff vs guest unlock</strong>
+        The flow’s password Condition should accept <em>either</em> FormPassword <em>or</em> StaffPassword. Staff unlock returns <code>staff: true</code> so the form shows staff-only fields and stays quiet on save/submit.
       </div>
     </section>
 
     <!-- 8 -->
     <section class="chapter" id="edit">
       <h2>8. How to edit the system</h2>
-      <p>Only change what you need. Ask IT if you are unsure.</p>
+      <p>Only change what you need. Ask IT if you are unsure. Use this as a map to the detailed chapters.</p>
+
+      <table class="simple">
+        <thead>
+          <tr><th>I want to…</th><th>Go to</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Change guest or staff password</td>
+            <td><a href="#passwords">Section 7</a></td>
+          </tr>
+          <tr>
+            <td>Change who gets submit emails / add more people</td>
+            <td><a href="#emails">Section 10</a></td>
+          </tr>
+          <tr>
+            <td>Add or fix a SharePoint list column</td>
+            <td><a href="#list-pa">Section 9</a></td>
+          </tr>
+          <tr>
+            <td>Stop empty dates/numbers from breaking Save</td>
+            <td><a href="#expressions">Section 11</a></td>
+          </tr>
+          <tr>
+            <td>Change form wording / look</td>
+            <td>Below (A)</td>
+          </tr>
+          <tr>
+            <td>Change PDF look</td>
+            <td>Below (B)</td>
+          </tr>
+        </tbody>
+      </table>
 
       <h3>A. Change wording or look of the form</h3>
       <ol class="steps">
@@ -589,30 +642,13 @@
       </ol>
       <p>In <code>config.js</code> you can change the title and the “Please complete by …” sentence. Leave <code>MOCK_MODE</code> as <code>false</code> for production.</p>
 
-      <h3>B. Change guest or staff password</h3>
-      <ol class="steps">
-        <li>Open Power Automate → flow <em>Wedding Room Block Form - API</em>.</li>
-        <li>Find Compose <em>FormPassword</em> or <em>StaffPassword</em>.</li>
-        <li>Change the value → Save → turn the flow On if needed.</li>
-      </ol>
-
-      <h3>C. Change who gets the submit email</h3>
-      <ol class="steps">
-        <li>In the same flow, open <em>Send an email (V2) Submit</em>.</li>
-        <li>Change the To address → Save.</li>
-      </ol>
-
-      <h3>D. Change list columns / mapping</h3>
-      <p>Full walkthrough (with pictures): <a href="#list-pa">Section 9 — Edit a SharePoint column &amp; reconnect Power Automate</a>.</p>
-      <p>Technical field list: <span class="mono">power-automate/FIELD-MAP.md</span></p>
-
-      <h3>E. Change the PDF look</h3>
+      <h3>B. Change the PDF look</h3>
       <p>Edit the HTML inside Compose actions <em>SubmitHTML</em> / <em>DraftHTML</em> (and staff copies). A starter template is in:</p>
       <p><span class="mono">power-automate/FORM-PDF-HTML.md</span></p>
       <p>Put the <strong>Response 200</strong> step right after Create/Update, before PDF convert/email, so the form does not time out.</p>
 
-      <h3>F. Full technical setup (first-time / rebuild)</h3>
-      <p>Follow <span class="mono">SETUP-ORDERED.md</span> in order. Do not skip phases.</p>
+      <h3>C. Full technical setup (first-time / rebuild)</h3>
+      <p>Follow <span class="mono">SETUP-ORDERED.md</span> in order. Do not skip phases. Field list: <span class="mono">power-automate/FIELD-MAP.md</span></p>
     </section>
 
     <!-- 9 -->
@@ -709,12 +745,12 @@
 
       <div class="callout">
         <strong>Dates &amp; numbers that can be blank</strong>
-        For optional date/number columns, do not leave a blank text value. Use an expression that sends <em>null</em> when empty, or SharePoint rejects the save. Example idea: if empty → null, else → the date. See <span class="mono">FIELD-MAP.md</span>.
+        Copy-paste formulas that send <em>null</em> when empty: <a href="#expressions">Section 11</a>.
       </div>
 
       <div class="callout warn">
         <strong>Choice columns</strong>
-        Do <em>not</em> wrap yes/no choice values with <code>int(...)</code>. Choices are text (for example <code>yes</code> / <code>no</code>).
+        Do <em>not</em> wrap yes/no choice values with <code>int(...)</code>. Choices are text (for example <code>yes</code> / <code>no</code>). Details in <a href="#expressions">Section 11</a>.
       </div>
 
       <h3>Step E — Test</h3>
@@ -771,8 +807,191 @@
     </section>
 
     <!-- 10 -->
+    <section class="chapter" id="emails">
+      <h2>10. Change emails &amp; add notification recipients</h2>
+      <p class="lead">
+        When a couple submits, hotel staff get an Outlook email (usually with the PDF).
+        You control who is on that list inside Power Automate — not on the website.
+      </p>
+
+      <h3>Which email steps exist?</h3>
+      <table class="simple">
+        <thead>
+          <tr><th>Email</th><th>Typical step name</th><th>Who it goes to</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Resume link (guest Save)</td>
+            <td><em>Send an email</em> on the guest draft path</td>
+            <td>The couple’s email from the form</td>
+          </tr>
+          <tr>
+            <td>Submit alert + PDF</td>
+            <td><em>Send an email (V2) Submit</em> (or similar)</td>
+            <td><strong>Hotel staff</strong> — this is the one you edit for notifications</td>
+          </tr>
+          <tr>
+            <td>Staff Save / Staff Submit</td>
+            <td>(none on purpose)</td>
+            <td>Nobody — silent by design</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Change the main notification address</h3>
+      <ol class="steps">
+        <li>Open Power Automate → <strong>Wedding Room Block Form - API</strong> → <strong>Edit</strong>.</li>
+        <li>Scroll to the submit path. Find <strong>Send an email (V2)</strong> used after the PDF is ready (often named with “Submit”).</li>
+        <li>Click that action.</li>
+        <li>In the <strong>To</strong> field, replace the address with the correct hotel mailbox (example: <span class="mono">Hongyu.Dai@thelasallechicago.com</span>).</li>
+        <li>Optional: edit <strong>Subject</strong> and body text (keep it professional; the PDF is usually an attachment).</li>
+        <li>Click <strong>Save</strong>. Keep the flow <strong>On</strong>.</li>
+        <li>Test with a staff unlock first if you only want a PDF refresh, or a guest submit if you need a real notification email.</li>
+      </ol>
+
+      <h3>Add more people to receive notifications</h3>
+      <p>Pick one approach. The first is simplest.</p>
+
+      <h4>Option A — Several addresses in To / Cc (easiest)</h4>
+      <ol class="steps">
+        <li>Open the same <strong>Send an email (V2) Submit</strong> action.</li>
+        <li>In <strong>To</strong>, enter multiple work emails separated by a semicolon:
+          <pre class="url">person1@thelasallechicago.com; person2@thelasallechicago.com</pre>
+        </li>
+        <li>Or put one primary in <strong>To</strong> and others in <strong>Cc</strong> or <strong>Bcc</strong> (click <em>Show advanced options</em> if Cc/Bcc are hidden).</li>
+        <li><strong>Save</strong> the flow.</li>
+      </ol>
+
+      <h4>Option B — Shared mailbox or distribution list (best for teams)</h4>
+      <ol class="steps">
+        <li>Ask IT to create a shared mailbox or Microsoft 365 Group (example: <span class="mono">weddingblocks@thelasallechicago.com</span>) and add the people who should see alerts.</li>
+        <li>Put <em>only that one address</em> in the flow’s <strong>To</strong> field.</li>
+        <li>Add/remove people later in Outlook / Microsoft 365 admin — no flow edit needed each time.</li>
+      </ol>
+
+      <div class="callout">
+        <strong>Tip</strong>
+        Prefer a shared mailbox or group when several coordinators need every PDF. Then you are not editing Power Automate every time someone joins or leaves.
+      </div>
+
+      <h3>Guest resume email (usually leave alone)</h3>
+      <p>The Save-progress email goes to whatever address the couple typed. You typically do not hard-code recipients there. If that step fails, check Run history → the Send email step for that run.</p>
+
+      <div class="callout warn">
+        <strong>Staff path stays silent</strong>
+        Do not add a staff notification email unless leadership asks for it. Staff Save/Submit were built to update the list/PDF without inbox noise.
+      </div>
+    </section>
+
+    <!-- 11 -->
+    <section class="chapter" id="expressions">
+      <h2>11. Safe expressions (dates, numbers, empty values)</h2>
+      <p class="lead">
+        SharePoint is picky. If a date or number field is empty on the form and Power Automate sends a blank text box (<code>""</code>), Save can fail.
+        The fix is a short <strong>expression</strong>: “if empty, send null; otherwise send the value.”
+      </p>
+
+      <h3>What is an expression?</h3>
+      <p>An expression is a small formula you paste into a field instead of picking a value from the dynamic content list. In Power Automate:</p>
+      <ol class="steps">
+        <li>Open a <strong>Create item</strong> or <strong>Update item</strong> action.</li>
+        <li>Click the box for the SharePoint column (example: Group Arrival).</li>
+        <li>Click the <strong>fx</strong> (Expression) button — usually next to the dynamic content panel.</li>
+        <li>Paste one of the formulas below → click <strong>OK</strong> / <strong>Add</strong>.</li>
+        <li><strong>Save</strong> the flow, then test a Save with that field left blank <em>and</em> with a value filled in.</li>
+      </ol>
+
+      <div class="callout">
+        <strong>Where form values live</strong>
+        Most answers sit under the trigger body payload. The pattern looks like:
+        <span class="mono">json(triggerBody())?['payload']?['field_name']</span>
+        Replace <span class="mono">field_name</span> with the real key (examples below).
+      </div>
+
+      <h3>Dates (and date/time) — null if empty</h3>
+      <p>Use this whenever a date can be blank on a draft Save (Group Arrival, Group Departure, Brunch Time, etc.).</p>
+      <p><strong>Group Arrival</strong> example — paste into the Group Arrival column:</p>
+      <pre class="url">if(empty(json(triggerBody())?['payload']?['group_arrival']), null, json(triggerBody())?['payload']?['group_arrival'])</pre>
+      <p><strong>Group Departure:</strong></p>
+      <pre class="url">if(empty(json(triggerBody())?['payload']?['group_departure']), null, json(triggerBody())?['payload']?['group_departure'])</pre>
+      <p><strong>Brunch date/time:</strong></p>
+      <pre class="url">if(empty(json(triggerBody())?['payload']?['brunch_datetime']), null, json(triggerBody())?['payload']?['brunch_datetime'])</pre>
+      <p>Plain English: <em>If the couple left it blank, write nothing (null). If they filled it, write that date.</em></p>
+
+      <h3>Numbers — null if empty (not int on blanks)</h3>
+      <p>For optional number columns (vehicles, brunch attendance, ready-room guests, etc.):</p>
+      <pre class="url">if(empty(json(triggerBody())?['payload']?['valet_vehicles']), null, int(json(triggerBody())?['payload']?['valet_vehicles']))</pre>
+      <p>Swap <code>valet_vehicles</code> for the field you need, for example:</p>
+      <ul>
+        <li><code>brunch_attendance</code></li>
+        <li><code>getting_ready_guests</code></li>
+        <li><code>guests</code> (room block count) — only if you allow it blank on draft</li>
+      </ul>
+      <div class="callout warn">
+        <strong>Do not use bare <code>int(...)</code> on an empty field</strong>
+        <code>int("")</code> fails. Always wrap with <code>if(empty(...), null, int(...))</code> when the field might be blank.
+      </div>
+
+      <h3>Yes/No and Choice fields — text, never int</h3>
+      <p>Choice columns (Gift Bags, Valet Needed, Brunch, payment type, etc.) expect text like <code>yes</code>, <code>no</code>, <code>hosted</code>.</p>
+      <p>Map them as dynamic content <em>or</em> with a simple expression — <strong>without</strong> <code>int()</code>:</p>
+      <pre class="url">json(triggerBody())?['payload']?['bags_providing']</pre>
+      <pre class="url">json(triggerBody())?['payload']?['valet_needed']</pre>
+      <pre class="url">json(triggerBody())?['payload']?['valet_payment']</pre>
+      <p>If the choice can be blank on draft and SharePoint complains, use null-if-empty (still no int):</p>
+      <pre class="url">if(empty(json(triggerBody())?['payload']?['valet_payment']), null, json(triggerBody())?['payload']?['valet_payment'])</pre>
+
+      <h3>Plain text — usually fine as-is</h3>
+      <p>Names, email, phone, venues, times-as-text can use dynamic content directly, for example:</p>
+      <pre class="url">json(triggerBody())?['payload']?['couple_name']</pre>
+      <pre class="url">json(triggerBody())?['payload']?['email']</pre>
+      <p>Empty text is normally OK for Single line of text columns.</p>
+
+      <h3>Form URL (resume link)</h3>
+      <p>On every Create/Update (Save and Submit), set <strong>Form URL</strong> to an expression like:</p>
+      <p><strong>Save draft</strong> (uses variable DraftIDFinal — rename if yours differs):</p>
+      <pre class="url">concat(json(triggerBody())?['form_url'], '?draft=', variables('DraftIDFinal'), '&amp;wedding_date=', coalesce(json(triggerBody())?['payload']?['wedding_date'], ''), '&amp;complete_by=', coalesce(json(triggerBody())?['payload']?['complete_by'], ''))</pre>
+      <p><strong>Submit</strong> (use your submit draft-id output name):</p>
+      <pre class="url">concat(json(triggerBody())?['form_url'], '?draft=', outputs('DraftID_Submit'), '&amp;wedding_date=', coalesce(json(triggerBody())?['payload']?['wedding_date'], ''), '&amp;complete_by=', coalesce(json(triggerBody())?['payload']?['complete_by'], ''))</pre>
+
+      <h3>Cheat sheet</h3>
+      <table class="simple">
+        <thead>
+          <tr><th>Column type</th><th>Empty-safe pattern</th><th>Never do this</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Date / DateTime</td>
+            <td><code>if(empty(...), null, ...)</code></td>
+            <td>Send <code>""</code> into a date column</td>
+          </tr>
+          <tr>
+            <td>Number</td>
+            <td><code>if(empty(...), null, int(...))</code></td>
+            <td><code>int(...)</code> alone on a blank</td>
+          </tr>
+          <tr>
+            <td>Choice (yes/no)</td>
+            <td>Text value; optional null-if-empty</td>
+            <td><code>int(yes/no)</code></td>
+          </tr>
+          <tr>
+            <td>Text</td>
+            <td>Direct map usually fine</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout ok">
+        <strong>After any expression change</strong>
+        Save the flow → open the form → Save once with the field blank → Save again with the field filled → confirm the SharePoint row looks right.
+      </div>
+    </section>
+
+    <!-- 12 -->
     <section class="chapter" id="troubleshoot">
-      <h2>10. If something goes wrong (Power Automate)</h2>
+      <h2>12. If something goes wrong (Power Automate)</h2>
       <p class="lead">Start here when Save/Submit fails, the list stays empty, or the form says “upstream server.”</p>
 
       <h3>How to check a run (do this first)</h3>
@@ -822,17 +1041,27 @@
           <tr>
             <td>Create/Update fails mentioning a date column</td>
             <td>Empty date sent as <code>""</code></td>
-            <td>Use null-if-empty expression on that date field (see Section 9).</td>
+            <td>Paste a null-if-empty date expression (Section 11).</td>
           </tr>
           <tr>
             <td>Error with <code>int(...)</code> on a yes/no field</td>
             <td>Choice treated as a number</td>
-            <td>Remove <code>int()</code>; map the choice as text.</td>
+            <td>Remove <code>int()</code>; map the choice as text (Section 11).</td>
           </tr>
           <tr>
             <td>New list column always blank</td>
             <td>Column added in SharePoint but not mapped in the flow</td>
             <td>Follow Section 9 Steps C–E. Refresh Create/Update fields.</td>
+          </tr>
+          <tr>
+            <td>Wrong people get (or miss) PDF emails</td>
+            <td>To / Cc on Submit email is outdated</td>
+            <td>Section 10 — update addresses or use a shared mailbox.</td>
+          </tr>
+          <tr>
+            <td>Old password still works / new one does not</td>
+            <td>Compose not saved, or wrong Compose edited</td>
+            <td>Section 7 — edit FormPassword / StaffPassword → Save → test unlock.</td>
           </tr>
           <tr>
             <td>PDF looks like raw JSON</td>
@@ -871,9 +1100,9 @@
       </div>
     </section>
 
-    <!-- 11 -->
+    <!-- 13 -->
     <section class="chapter" id="quick-ref">
-      <h2>11. Quick reference</h2>
+      <h2>13. Quick reference</h2>
       <table class="simple">
         <thead>
           <tr><th>Need</th><th>Do this</th></tr>
@@ -901,7 +1130,15 @@
           </tr>
           <tr>
             <td>Change passwords</td>
-            <td>Power Automate Composes (not the website files)</td>
+            <td>Section 7 — FormPassword / StaffPassword Compose → Save</td>
+          </tr>
+          <tr>
+            <td>Change / add notification emails</td>
+            <td>Section 10 — Submit email To / Cc, or a shared mailbox</td>
+          </tr>
+          <tr>
+            <td>Empty date/number breaks Save</td>
+            <td>Section 11 — null-if-empty (and int only inside that)</td>
           </tr>
           <tr>
             <td>Change form text</td>
@@ -909,11 +1146,11 @@
           </tr>
           <tr>
             <td>Add/edit a list column</td>
-            <td>SharePoint list → add column → Power Automate Create+Update map → Save → test (Section 9)</td>
+            <td>Section 9 — list first, then Create+Update map, then test</td>
           </tr>
           <tr>
             <td>Save fails / upstream error</td>
-            <td>Run history → find red/skipped step → often Response 200 placement (Section 10)</td>
+            <td>Section 12 — Run history; often Response 200 placement</td>
           </tr>
         </tbody>
       </table>
