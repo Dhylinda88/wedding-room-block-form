@@ -258,6 +258,45 @@
       a { color: inherit; text-decoration: none; border: none; }
       .cover { min-height: auto; height: 100vh; }
       .figure img { max-width: 100%; }
+
+      /* Section 2 only: scale up so the page is readable and filled */
+      #big-picture {
+        min-height: 9in;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+      }
+      #big-picture h2 { font-size: 18pt; margin-bottom: 0.35rem; }
+      #big-picture > p { font-size: 12pt; margin: 0; }
+      #big-picture .figure {
+        margin: 0;
+      }
+      #big-picture .figure img {
+        width: 100%;
+        max-width: 6.5in;
+      }
+      #big-picture .figure figcaption {
+        font-size: 11pt;
+        margin-top: 0.4rem;
+      }
+      #big-picture table.simple {
+        font-size: 11.5pt;
+        margin: 0;
+      }
+      #big-picture table.simple th,
+      #big-picture table.simple td {
+        padding: 0.55rem 0.7rem;
+      }
+      #big-picture h3 { font-size: 14pt; margin: 0 0 0.4rem; }
+      #big-picture .flow {
+        margin: 0;
+        gap: 0.45rem;
+      }
+      #big-picture .flow .box {
+        font-size: 11pt;
+        padding: 0.55rem 0.75rem;
+      }
+      #big-picture .flow .arrow { font-size: 14pt; }
     }
 
     @page {
