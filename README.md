@@ -121,6 +121,12 @@ Dates use the browser calendar; counts use +/- steppers. Important dates auto fr
 
 Shared password is checked in Power Automate on every call. Do not put the real password in `config.js` (`MOCK_PASSWORD` is preview-only). Treat the HTTP URL like a secret endpoint (anyone with URL + password can post).
 
+## License & disclaimer
+
+**Open source — [MIT License](LICENSE).** Free to use and modify.
+
+This project is **not sold** as a commercial product. It is provided **as is**, with **no warranty**. Hotel branding/logos are not licensed for third-party sale or marketing. Full wording: [DISCLAIMER.md](DISCLAIMER.md).
+
 ## Future (not in this build)
 
 - Admin UI (staff-only billing / concessions)  
