@@ -101,14 +101,16 @@
     p { margin: 0.45rem 0 0.65rem; }
     .lead { font-size: 1.05rem; color: var(--muted); margin-bottom: 0.75rem; }
 
-    /* Let chapters flow; only cover/TOC force page breaks (avoids half-empty pages). */
     section.chapter {
-      padding-top: 0.25rem;
-      margin-top: 1.75rem;
+      padding-top: 0.5rem;
+      margin-top: 0;
+      break-before: page;
+      page-break-before: always;
+    }
+    section.chapter:first-of-type {
       break-before: auto;
       page-break-before: auto;
     }
-    section.chapter:first-of-type { margin-top: 0; }
 
     .toc {
       page-break-after: always;
@@ -312,8 +314,12 @@
       .toc li { margin: 0.22rem 0; }
 
       section.chapter {
-        margin-top: 0.85rem;
+        margin-top: 0;
         padding-top: 0;
+        break-before: page;
+        page-break-before: always;
+      }
+      section.chapter:first-of-type {
         break-before: auto;
         page-break-before: auto;
       }
