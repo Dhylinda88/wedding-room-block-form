@@ -29,13 +29,13 @@ json(concat('{"ok":true,"staff":', if(equals(json(triggerBody())?['password'], o
 Live form (GitHub Pages):
 
 ```text
-https://dhylinda88.github.io/wedding-room-block-form/?wedding_date=2026-06-15&complete_by=2026-05-16
+https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/?wedding_date=2026-06-15&complete_by=2026-05-16
 ```
 
 Resume an existing draft (dates optional but useful for staff/invite links):
 
 ```text
-https://dhylinda88.github.io/wedding-room-block-form/?draft=4ba53f80&wedding_date=2026-06-15&complete_by=2026-05-16
+https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/?draft=4ba53f80&wedding_date=2026-06-15&complete_by=2026-05-16
 ```
 
 | Query param | Purpose |

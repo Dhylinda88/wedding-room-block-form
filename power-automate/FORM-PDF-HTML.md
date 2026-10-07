@@ -47,7 +47,7 @@ Put **Response 200** immediately after SharePoint Create/Update — **before** H
 <body>
 <div class="wrap">
   <div class="brand">
-    <img src="https://dhylinda88.github.io/wedding-room-block-form/assets/logo.png" alt="The LaSalle Chicago" />
+    <img src="https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/assets/logo.png" alt="The LaSalle Chicago" />
     <h1>Wedding Guest Room Block Details</h1>
     <p class="intro">Please complete by <strong>@{json(triggerBody())?['payload']?['complete_by']}</strong>. We’ll use this for your room block and weekend logistics.</p>
     <p class="ref">Reference: @{outputs('DraftID_Submit')} · Status: submitted</p>
