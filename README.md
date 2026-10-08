@@ -4,7 +4,7 @@ Branded, password-gated form for The LaSalle Chicago wedding room-block logistic
 
 **Stack:** static site on **GitHub Pages** + **Power Automate** + **SharePoint List** (work Microsoft 365) + Outlook email. No server you run.
 
-**Follow setup in order:** [SETUP-ORDERED.md](SETUP-ORDERED.md) (single source of truth). Do not use the old Excel path.
+**Follow setup in order:** [SETUP-ORDERED.md](SETUP-ORDERED.md) (single source of truth).
 
 Customers get one shared link and an access code. They **Save progress** (list draft + resume email) or **Submit final** (your work email alert). Cloud autosave is off on purpose.
 
@@ -19,19 +19,19 @@ Staff unlock (staff password in Power Automate) edits the list without emails; s
 Prefill dates for a new couple (coordinator sends this + guest access code):
 
 ```text
-https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/?wedding_date=2026-06-15&complete_by=2026-05-16
+https://PAGE.github.io/wedding-room-block-form/?wedding_date=2026-06-15&complete_by=2026-05-16
 ```
 
 Open an existing draft:
 
 ```text
-https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/?draft=4ba53f80
+https://PAGE.github.io/wedding-room-block-form/?draft=4ba53f80
 ```
 
 Draft + dates together:
 
 ```text
-https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/?draft=4ba53f80&wedding_date=2026-06-15&complete_by=2026-05-16
+https://PAGE.github.io/wedding-room-block-form/?draft=4ba53f80&wedding_date=2026-06-15&complete_by=2026-05-16
 ```
 
 | Param | Example | Notes |
@@ -68,11 +68,11 @@ npx --yes serve .
 
 ## Go live (ordered)
 
-Open **[SETUP-ORDERED.md](SETUP-ORDERED.md)** and complete Phases 0 → 5 in order. Do not skip ahead. Excel Online is not part of this build.
+Open **[SETUP-ORDERED.md](SETUP-ORDERED.md)** and complete Phases 0 → 5 in order. Do not skip ahead.
 
 ## Customer form sections
 
-1. Contact (required to save): couple/party name, wedding date, email, phone + intro **complete-by** date  
+1. Contact (required to save): couple, wedding date, email, phone + intro **complete-by** date  
 2. Wedding basics  
 3. Rooms & VIP  
 4. Transportation / shuttles  
