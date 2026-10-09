@@ -1,8 +1,28 @@
 # SharePoint ↔ form mapping (current list)
 
+**Canonical naming rule:** the form JSON payload, Power Automate expressions, SharePoint list column names, and exported HTML text must all use the same source-of-truth names. Keep the names in snake_case for payload keys and use the same human-readable naming in the list column label when practical.
+
 **Do not map from form (staff-only in list):** Staff Task List, Menu Due, Total Rooms Due, Vendor List Due, Gift Bag Due, Ready Room Access.
 
 Rename Staff Task List choice **Total Rooms** → **Guest Rooms** in SharePoint (optional, clearer).
+
+## Canonical schema contract
+
+These are the live field names to keep consistent across all layers:
+
+| Canonical name | Old / ambiguous name | Status |
+|----------------|---------------------|--------|
+| `catering_numbers` | `brunch_attendance` | Use `catering_numbers` only |
+| `brunch_hosting` | same | Keep |
+| `brunch_menu_submitted` | same | Keep |
+| `brunch_datetime` | same | Keep |
+| `guests` | same | Keep |
+| `anticipated_rooms` | `guest_notes` / `guest notes` | Use `anticipated_rooms` |
+| `couple_accommodations` | `accommodations` | Use `couple_accommodations` |
+| `getting_ready_guests` | same | Keep |
+| `valet_vehicles` | same | Keep |
+
+Important: if a SharePoint column was previously labeled **Brunch Attendance**, rename it to **Catering Numbers** in the list and update the Power Automate payload mapping to `catering_numbers`.
 
 ## Form → list
 
@@ -15,6 +35,7 @@ Rename Staff Task List choice **Total Rooms** → **Guest Rooms** in SharePoint 
 | Updated at | DateTime | `utcNow()` |
 | Submitted at | DateTime | Submit: `utcNow()` |
 | Couple Name | Text | `couple_name` |
+| **Form URL** | Text or Hyperlink | Resume link — see below |
 | Wedding Date | DateOnly | `wedding_date` |
 | Complete By | DateOnly | `complete_by` |
 | Email | Text | `email` |
@@ -37,7 +58,7 @@ Rename Staff Task List choice **Total Rooms** → **Guest Rooms** in SharePoint 
 | Brunch | Choice yes/no | `brunch_hosting` |
 | Menu Selected | Choice yes/no | `brunch_menu_submitted` |
 | Brunch Time | DateTime | `brunch_datetime` — null-if-empty; UI only requires when brunch = yes |
-| Brunch Attendance | Number | `brunch_attendance` |
+| Catering Numbers | Number | `catering_numbers` |
 | Brunch Requests | Note | `brunch_requests` |
 | Vendors | Note | `string(...vendors)` |
 | Ready Room | Choice yes/no | `getting_ready_needed` |
@@ -46,6 +67,25 @@ Rename Staff Task List choice **Total Rooms** → **Guest Rooms** in SharePoint 
 | Transport Block | Note | Compose TransportBlock |
 | Weekend Contact | Text | `weekend_contact_name` |
 | Weekend Phone | Text | `weekend_contact_phone` |
+
+### Form URL (resume link)
+
+1. In the list, add column **Form URL** (Single line of text is easiest; or Hyperlink).
+2. On **every** Create item / Update item (SaveDraft + SubmitFinal), set **Form URL** → Expression:
+
+**SaveDraft** (`DraftIDFinal`):
+```text
+concat(json(triggerBody())?['form_url'], '?draft=', variables('DraftIDFinal'), '&wedding_date=', coalesce(json(triggerBody())?['payload']?['wedding_date'], ''), '&complete_by=', coalesce(json(triggerBody())?['payload']?['complete_by'], ''))
+```
+
+**SubmitFinal** (use your submit draft id):
+```text
+concat(json(triggerBody())?['form_url'], '?draft=', outputs('DraftID_Submit'), '&wedding_date=', coalesce(json(triggerBody())?['payload']?['wedding_date'], ''), '&complete_by=', coalesce(json(triggerBody())?['payload']?['complete_by'], ''))
+```
+
+If Hyperlink column: put that same `concat(...)` in the **URL** part; Description can be `Resume form` or Couple Name.
+
+Staff open the list → click **Form URL** → unlock with staff password.
 
 ## Composes
 

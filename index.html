@@ -385,40 +385,40 @@
 
           <hr class="rule" />
 
-          <section class="section" aria-labelledby="sec-brunch">
-            <h2 id="sec-brunch">Post-wedding brunch</h2>
-            <div class="field" data-field="brunch_hosting">
-              <label>Will you host a post-wedding brunch at The LaSalle?</label>
+          <section class="section" aria-labelledby="sec-catering">
+            <h2 id="sec-catering">Catering details</h2>
+            <div class="field" data-field="catering_required">
+              <label>Will you require catering at The LaSalle?</label>
               <div class="choice-row">
-                <label><input type="radio" name="brunch_hosting" value="yes" /> Yes</label>
-                <label><input type="radio" name="brunch_hosting" value="no" /> No</label>
+                <label><input type="radio" name="catering_required" value="yes" /> Yes</label>
+                <label><input type="radio" name="catering_required" value="no" /> No</label>
               </div>
-              <div class="field-error" data-error-for="brunch_hosting"></div>
+              <div class="field-error" data-error-for="catering_required"></div>
             </div>
             <div id="brunch-details" class="conditional" hidden>
               <div class="field-grid two">
-                <div class="field" data-field="brunch_datetime">
-                  <label for="brunch_datetime">Event date / time</label>
-                  <input id="brunch_datetime" name="brunch_datetime" type="datetime-local" data-datetime-input />
-                  <div class="field-error" data-error-for="brunch_datetime"></div>
+                <div class="field" data-field="catering_datetime">
+                  <label for="catering_datetime">Event date / time</label>
+                  <input id="catering_datetime" name="catering_datetime" type="datetime-local" data-datetime-input />
+                  <div class="field-error" data-error-for="catering_datetime"></div>
                 </div>
-                <div class="field" data-field="brunch_attendance">
-                  <label for="brunch_attendance">Estimated attendance</label>
-                  <input id="brunch_attendance" name="brunch_attendance" type="number" min="0" step="1" inputmode="numeric" data-numeric />
-                  <div class="field-error" data-error-for="brunch_attendance"></div>
+                <div class="field" data-field="catering_numbers">
+                  <label for="catering_numbers">Catering numbers</label>
+                  <input id="catering_numbers" name="catering_numbers" type="number" min="0" step="1" inputmode="numeric" data-numeric />
+                  <div class="field-error" data-error-for="catering_numbers"></div>
                 </div>
-                <div class="field" data-field="brunch_menu_submitted">
+                <div class="field" data-field="menu_selected">
                   <label>Menu selection submitted?</label>
                   <div class="choice-row">
-                    <label><input type="radio" name="brunch_menu_submitted" value="yes" /> Yes</label>
-                    <label><input type="radio" name="brunch_menu_submitted" value="no" /> No</label>
+                    <label><input type="radio" name="menu_selected" value="yes" /> Yes</label>
+                    <label><input type="radio" name="menu_selected" value="no" /> No</label>
                   </div>
-                  <div class="field-error" data-error-for="brunch_menu_submitted"></div>
+                  <div class="field-error" data-error-for="menu_selected"></div>
                 </div>
-                <div class="field" data-field="brunch_requests" style="grid-column: 1 / -1">
-                  <label for="brunch_requests">Special requests</label>
-                  <textarea id="brunch_requests" name="brunch_requests"></textarea>
-                  <div class="field-error" data-error-for="brunch_requests"></div>
+                <div class="field" data-field="catering_dietary_restrictions" style="grid-column: 1 / -1">
+                  <label for="catering_dietary_restrictions">Catering dietary restrictions</label>
+                  <textarea id="catering_dietary_restrictions" name="catering_dietary_restrictions"></textarea>
+                  <div class="field-error" data-error-for="catering_dietary_restrictions"></div>
                 </div>
               </div>
             </div>

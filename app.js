@@ -419,16 +419,16 @@
       requireFilled(errors, "bags_distribution", "Enter distribution instructions.");
     }
 
-    requireRadio(errors, "brunch_hosting", "Select whether you will host a brunch.");
-    if (valueOf("brunch_hosting") === "yes") {
-      const brunch = normalizeDateTimeLocal(valueOf("brunch_datetime")) || valueOf("brunch_datetime");
-      if (!brunch || !isValidDateTimeLocal(brunch)) {
-        errors.brunch_datetime = "Enter brunch date and time.";
+    requireRadio(errors, "catering_required", "Select whether you will require catering.");
+    if (valueOf("catering_required") === "yes") {
+      const catering = normalizeDateTimeLocal(valueOf("catering_datetime")) || valueOf("catering_datetime");
+      if (!catering || !isValidDateTimeLocal(catering)) {
+        errors.catering_datetime = "Enter catering date and time.";
       }
-      const ba = valueOf("brunch_attendance");
-      if (ba === "" || !isValidNumeric(ba, false)) errors.brunch_attendance = "Enter estimated attendance.";
-      requireRadio(errors, "brunch_menu_submitted", "Select whether the brunch menu was submitted.");
-      requireFilled(errors, "brunch_requests", "Enter brunch special requests (or N/A).");
+      const ba = valueOf("catering_numbers");
+      if (ba === "" || !isValidNumeric(ba, false)) errors.catering_numbers = "Enter catering numbers.";
+      requireRadio(errors, "menu_selected", "Select whether the menu was submitted.");
+      requireFilled(errors, "catering_dietary_restrictions", "Enter catering dietary restrictions (or N/A).");
     }
 
     let vendorOk = false;
@@ -528,7 +528,7 @@
 
       [
         ["transport_first_pickup", "first hotel pickup"],
-        ["brunch_datetime", "brunch date and time"],
+        ["catering_datetime", "catering date and time"],
       ].forEach(([name, label]) => {
         const v = valueOf(name);
         if (v && !isValidDateTimeLocal(v) && !normalizeDateTimeLocal(v)) {
@@ -536,7 +536,7 @@
         }
       });
 
-      ["guests", "getting_ready_guests", "valet_vehicles", "bags_quantity", "brunch_attendance"].forEach((name) => {
+      ["guests", "getting_ready_guests", "valet_vehicles", "bags_quantity", "catering_numbers"].forEach((name) => {
         const v = valueOf(name);
         if (v && !isValidNumeric(v, true)) errors[name] = "Enter numbers only.";
       });
@@ -568,11 +568,11 @@
     if (data.wedding_date && departure && compareIso(departure, data.wedding_date) < 0) {
       errors.group_departure = "Departure is before the wedding date.";
     }
-    const brunchNorm = normalizeDateTimeLocal(valueOf("brunch_datetime"));
-    if (brunchNorm && data.wedding_date && valueOf("brunch_hosting") === "yes") {
-      const brunchIso = brunchNorm.slice(0, 10);
-      if (brunchIso && compareIso(brunchIso, data.wedding_date) < 0) {
-        errors.brunch_datetime = "Brunch date is before the wedding date.";
+    const cateringNorm = normalizeDateTimeLocal(valueOf("catering_datetime"));
+    if (cateringNorm && data.wedding_date && valueOf("catering_required") === "yes") {
+      const cateringIso = cateringNorm.slice(0, 10);
+      if (cateringIso && compareIso(cateringIso, data.wedding_date) < 0) {
+        errors.catering_datetime = "Catering date is before the wedding date.";
       }
     }
 
@@ -664,6 +664,9 @@
   }
 
   function collectPayload() {
+    // TODO: if SharePoint list columns are still missing in the rollout, create them before deploying:
+    // - catering_numbers
+    // - catering_dietary_restrictions
     const fields = [
       "couple_name",
       "email",
@@ -699,11 +702,11 @@
       "bags_delivery_time",
       "bags_deliverer",
       "bags_distribution",
-      "brunch_hosting",
-      "brunch_datetime",
-      "brunch_attendance",
-      "brunch_menu_submitted",
-      "brunch_requests",
+      "catering_required",
+      "catering_datetime",
+      "catering_numbers",
+      "menu_selected",
+      "catering_dietary_restrictions",
     ];
 
     const payload = {
@@ -725,7 +728,7 @@
         const d = digitsOnly(v, 10);
         v = d.length === 10 ? formatPhoneDisplay(d) : v;
       }
-      if (name === "brunch_datetime" || name === "transport_first_pickup") {
+      if (name === "catering_datetime" || name === "transport_first_pickup") {
         v = normalizeDateTimeLocal(v) || v;
       }
       if (
