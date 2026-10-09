@@ -88,10 +88,10 @@ Put **Response 200** immediately after SharePoint Create/Update — **before** H
   <div class="section">
     <h2>Rooms &amp; VIP</h2>
     <div class="pair">
-      <div class="field"><label>Guest rooms (room block count)</label><div class="box">@{json(triggerBody())?['payload']?['guests']}</div></div>
+      <div class="field"><label>Guest rooms (anticipated)</label><div class="box">@{json(triggerBody())?['payload']?['guests']}</div></div>
       <div class="field right"><label>Getting-ready room needed?</label><div class="box">@{json(triggerBody())?['payload']?['getting_ready_needed']}</div></div>
     </div>
-    <div class="field full"><label>Guest notes</label><div class="box">@{json(triggerBody())?['payload']?['anticipated_rooms']}</div></div>
+    <div class="field full"><label>Guest notes</label><div class="box">@{json(triggerBody())?['payload']?['guest_notes']}</div></div>
     <div class="field full"><label>Accommodations for the wedding couple</label><div class="box">@{json(triggerBody())?['payload']?['couple_accommodations']}</div></div>
     <div class="field full"><label>Ready room guests (estimated)</label><div class="box">@{json(triggerBody())?['payload']?['getting_ready_guests']}</div></div>
     <div class="field full"><label>VIP / family names</label><div class="box">@{json(triggerBody())?['payload']?['vip_names']}</div></div>
@@ -123,7 +123,6 @@ Put **Response 200** immediately after SharePoint Create/Update — **before** H
     </div>
     <div class="pair">
       <div class="field"><label>If other, describe</label><div class="box">@{json(triggerBody())?['payload']?['valet_other']}</div></div>
-      <div class="field right"><label>Estimated vehicles</label><div class="box">@{json(triggerBody())?['payload']?['valet_vehicles']}</div></div>
     </div>
     <div class="pair">
       <div class="field"><label>Billing contact</label><div class="box">@{json(triggerBody())?['payload']?['valet_billing_contact']}</div></div>
@@ -134,7 +133,7 @@ Put **Response 200** immediately after SharePoint Create/Update — **before** H
   <div class="section">
     <h2>Welcome / gift bags</h2>
     <div class="pair">
-      <div class="field"><label>Providing gift bags?</label><div class="box">@{json(triggerBody())?['payload']?['bags_providing']}</div></div>
+      <div class="field"><label>Providing gift bags?</label><div class="box">@{json(triggerBody())?['payload']?['giftbags_provided']}</div></div>
       <div class="field right"><label>Estimated quantity</label><div class="box">@{json(triggerBody())?['payload']?['bags_quantity']}</div></div>
     </div>
     <div class="pair">
@@ -151,16 +150,16 @@ Put **Response 200** immediately after SharePoint Create/Update — **before** H
   </div>
 
   <div class="section">
-    <h2>Post-wedding brunch</h2>
+    <h2>Catering</h2>
     <div class="pair">
-      <div class="field"><label>Hosting brunch?</label><div class="box">@{json(triggerBody())?['payload']?['brunch_hosting']}</div></div>
-      <div class="field right"><label>Event date / time</label><div class="box">@{json(triggerBody())?['payload']?['brunch_datetime']}</div></div>
+      <div class="field"><label>Catering needed?</label><div class="box">@{json(triggerBody())?['payload']?['catering_needed']}</div></div>
+      <div class="field right"><label>Event date / time</label><div class="box">@{json(triggerBody())?['payload']?['catering_datetime']}</div></div>
     </div>
     <div class="pair">
-      <div class="field"><label>Estimated attendance</label><div class="box">@{json(triggerBody())?['payload']?['brunch_attendance']}</div></div>
-      <div class="field right"><label>Menu selection submitted?</label><div class="box">@{json(triggerBody())?['payload']?['brunch_menu_submitted']}</div></div>
+      <div class="field"><label>Estimated attendance</label><div class="box">@{json(triggerBody())?['payload']?['catering_numbers']}</div></div>
+      <div class="field right"><label>Menu selection submitted?</label><div class="box">@{json(triggerBody())?['payload']?['menu_selected']}</div></div>
     </div>
-    <div class="field full"><label>Special requests</label><div class="box">@{json(triggerBody())?['payload']?['brunch_requests']}</div></div>
+    <div class="field full"><label>Dietary restrictions</label><div class="box">@{json(triggerBody())?['payload']?['catering_dietary_restrictions']}</div></div>
   </div>
 
   <div class="section">

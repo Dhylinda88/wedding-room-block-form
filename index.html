@@ -188,14 +188,24 @@
             <h2 id="sec-rooms">Rooms &amp; VIP</h2>
             <div class="field-grid">
               <div class="field" data-field="guests">
-                <label for="guests">Guest rooms (room block count)</label>
+                <label for="guests">Guest rooms (anticipated)</label>
                 <input id="guests" name="guests" type="number" min="0" step="1" inputmode="numeric" data-numeric />
                 <div class="field-error" data-error-for="guests"></div>
               </div>
-              <div class="field" data-field="anticipated_rooms">
-                <label for="anticipated_rooms">Guest notes (room needs / pickup notes)</label>
-                <textarea id="anticipated_rooms" name="anticipated_rooms"></textarea>
-                <div class="field-error" data-error-for="anticipated_rooms"></div>
+              <div class="field" data-field="guest_notes" data-staff-only hidden>
+                <label for="guest_notes">Guest notes</label>
+                <textarea id="guest_notes" name="guest_notes" placeholder="Room needs, pickup notes, accessibility issues, VIPs, or special requests"></textarea>
+                <div class="field-error" data-error-for="guest_notes"></div>
+              </div>
+              <div class="field" data-field="couple_parents">
+                <label for="couple_parents">Couple parents</label>
+                <select id="couple_parents" name="couple_parents">
+                  <option value="">Select…</option>
+                  <option value="Choice 1">Choice 1</option>
+                  <option value="Choice 2">Choice 2</option>
+                  <option value="Choice 3">Choice 3</option>
+                </select>
+                <div class="field-error" data-error-for="couple_parents"></div>
               </div>
               <div class="field" data-field="couple_accommodations">
                 <label for="couple_accommodations">Accommodations for the wedding couple</label>
@@ -236,6 +246,15 @@
 
           <section class="section" aria-labelledby="sec-transport">
             <h2 id="sec-transport">Transportation / shuttles</h2>
+            <div class="field" data-field="transport_required">
+              <label>Shuttle bus required? (temporary valet park)</label>
+              <div class="choice-row">
+                <label><input type="radio" name="transport_required" value="yes" /> Yes</label>
+                <label><input type="radio" name="transport_required" value="no" /> No</label>
+              </div>
+              <div class="field-error" data-error-for="transport_required"></div>
+            </div>
+            <div id="transport-details" class="conditional" hidden>
             <div class="field-grid two">
               <div class="field" data-field="transport_company">
                 <label for="transport_company">Transportation company</label>
@@ -280,6 +299,7 @@
                 <div class="field-error" data-error-for="transport_venue"></div>
               </div>
             </div>
+            </div>
           </section>
 
           <hr class="rule" />
@@ -311,11 +331,6 @@
                   <input id="valet_other" name="valet_other" type="text" />
                   <div class="field-error" data-error-for="valet_other"></div>
                 </div>
-                <div class="field" data-field="valet_vehicles">
-                  <label for="valet_vehicles">Estimated number of vehicles</label>
-                  <input id="valet_vehicles" name="valet_vehicles" type="number" min="0" step="1" inputmode="numeric" data-numeric />
-                  <div class="field-error" data-error-for="valet_vehicles"></div>
-                </div>
                 <div class="field" data-field="valet_billing_contact">
                   <label for="valet_billing_contact">Authorized billing contact</label>
                   <input id="valet_billing_contact" name="valet_billing_contact" type="text" />
@@ -334,13 +349,13 @@
 
           <section class="section" aria-labelledby="sec-bags">
             <h2 id="sec-bags">Welcome / gift bags</h2>
-            <div class="field" data-field="bags_providing">
+            <div class="field" data-field="giftbags_provided">
               <label>Will you provide welcome bags or gifts for guests?</label>
               <div class="choice-row">
-                <label><input type="radio" name="bags_providing" value="yes" /> Yes</label>
-                <label><input type="radio" name="bags_providing" value="no" /> No</label>
+                <label><input type="radio" name="giftbags_provided" value="yes" /> Yes</label>
+                <label><input type="radio" name="giftbags_provided" value="no" /> No</label>
               </div>
-              <div class="field-error" data-error-for="bags_providing"></div>
+              <div class="field-error" data-error-for="giftbags_provided"></div>
             </div>
             <div id="bags-details" class="conditional" hidden>
               <div class="field-grid two">
@@ -407,6 +422,16 @@
                   <input id="catering_numbers" name="catering_numbers" type="number" min="0" step="1" inputmode="numeric" data-numeric />
                   <div class="field-error" data-error-for="catering_numbers"></div>
                 </div>
+                <div class="field" data-field="catering_menu_choices">
+                  <label for="catering_menu_choices">Catering menu choices</label>
+                  <select id="catering_menu_choices" name="catering_menu_choices">
+                    <option value="">Select…</option>
+                    <option value="Brunch">Brunch</option>
+                    <option value="Dinner">Dinner</option>
+                    <option value="Ready Room">Ready Room</option>
+                  </select>
+                  <div class="field-error" data-error-for="catering_menu_choices"></div>
+                </div>
                 <div class="field" data-field="menu_selected">
                   <label>Menu selection submitted?</label>
                   <div class="choice-row">
@@ -417,7 +442,7 @@
                 </div>
                 <div class="field" data-field="catering_dietary_restrictions" style="grid-column: 1 / -1">
                   <label for="catering_dietary_restrictions">Catering dietary restrictions</label>
-                  <textarea id="catering_dietary_restrictions" name="catering_dietary_restrictions"></textarea>
+                  <textarea id="catering_dietary_restrictions" name="catering_dietary_restrictions" placeholder="Shellfish, Nuts, Gluten, Dairy, Eggs, or other"></textarea>
                   <div class="field-error" data-error-for="catering_dietary_restrictions"></div>
                 </div>
               </div>
