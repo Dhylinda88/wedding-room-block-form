@@ -419,8 +419,8 @@
       requireFilled(errors, "bags_distribution", "Enter distribution instructions.");
     }
 
-    requireRadio(errors, "catering_required", "Select whether you will require catering.");
-    if (valueOf("catering_required") === "yes") {
+    requireRadio(errors, "catering_needed", "Select whether you will require catering.");
+    if (valueOf("catering_needed") === "yes") {
       const catering = normalizeDateTimeLocal(valueOf("catering_datetime")) || valueOf("catering_datetime");
       if (!catering || !isValidDateTimeLocal(catering)) {
         errors.catering_datetime = "Enter catering date and time.";
@@ -569,7 +569,7 @@
       errors.group_departure = "Departure is before the wedding date.";
     }
     const cateringNorm = normalizeDateTimeLocal(valueOf("catering_datetime"));
-    if (cateringNorm && data.wedding_date && valueOf("catering_required") === "yes") {
+    if (cateringNorm && data.wedding_date && valueOf("catering_needed") === "yes") {
       const cateringIso = cateringNorm.slice(0, 10);
       if (cateringIso && compareIso(cateringIso, data.wedding_date) < 0) {
         errors.catering_datetime = "Catering date is before the wedding date.";
@@ -702,7 +702,7 @@
       "bags_delivery_time",
       "bags_deliverer",
       "bags_distribution",
-      "catering_required",
+      "catering_needed",
       "catering_datetime",
       "catering_numbers",
       "menu_selected",
@@ -772,7 +772,7 @@
     toggle("getting-ready-details", valueOf("getting_ready_needed") === "yes");
     toggle("valet-details", valueOf("valet_needed") === "yes");
     toggle("bags-details", valueOf("bags_providing") === "yes");
-    toggle("brunch-details", valueOf("brunch_hosting") === "yes");
+    toggle("catering-details", valueOf("catering_needed") === "yes");
   }
 
   function toggle(id, show) {
@@ -1261,7 +1261,7 @@
   }
 
   function wireConditionals() {
-    ["getting_ready_needed", "valet_needed", "bags_providing", "brunch_hosting"].forEach((name) => {
+    ["getting_ready_needed", "valet_needed", "bags_providing", "catering_needed"].forEach((name) => {
       els.form.querySelectorAll(`input[name="${name}"]`).forEach((input) => {
         input.addEventListener("change", () => {
           syncConditionals();
