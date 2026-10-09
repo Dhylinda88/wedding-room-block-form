@@ -365,7 +365,6 @@
       errors.guests = "Enter the guest room block count.";
     }
     requireFilled(errors, "couple_accommodations", "Describe accommodations for the couple.");
-    requireFilled(errors, "anticipated_rooms", "Enter guest notes (or N/A).");
     requireFilled(errors, "vip_names", "Enter VIP names (or N/A).");
     requireFilled(errors, "accessibility", "Enter accessibility notes (or N/A).");
 
@@ -401,14 +400,12 @@
       if (valueOf("valet_payment") === "other") {
         requireFilled(errors, "valet_other", "Describe the other parking arrangement.");
       }
-      const vv = valueOf("valet_vehicles");
-      if (vv === "" || !isValidNumeric(vv, false)) errors.valet_vehicles = "Enter estimated vehicles.";
       requireFilled(errors, "valet_billing_contact", "Enter the billing contact.");
       requireFilled(errors, "valet_billing_instructions", "Enter billing instructions.");
     }
 
-    requireRadio(errors, "bags_providing", "Select whether you will provide gift bags.");
-    if (valueOf("bags_providing") === "yes") {
+    requireRadio(errors, "giftbags_provided", "Select whether you will provide gift bags.");
+    if (valueOf("giftbags_provided") === "yes") {
       const bq = valueOf("bags_quantity");
       if (bq === "" || !isValidNumeric(bq, false)) errors.bags_quantity = "Enter estimated bag quantity.";
       if (!dateIsoOf("bags_delivery_date")) errors.bags_delivery_date = "Select gift bag delivery date.";
@@ -536,7 +533,7 @@
         }
       });
 
-      ["guests", "getting_ready_guests", "valet_vehicles", "bags_quantity", "catering_numbers"].forEach((name) => {
+      ["guests", "getting_ready_guests", "bags_quantity", "catering_numbers"].forEach((name) => {
         const v = valueOf(name);
         if (v && !isValidNumeric(v, true)) errors[name] = "Enter numbers only.";
       });
@@ -678,7 +675,7 @@
       "weekend_contact_name",
       "weekend_contact_phone",
       "guests",
-      "anticipated_rooms",
+      "guest_notes",
       "couple_accommodations",
       "getting_ready_needed",
       "getting_ready_guests",
@@ -694,10 +691,9 @@
       "valet_needed",
       "valet_payment",
       "valet_other",
-      "valet_vehicles",
       "valet_billing_contact",
       "valet_billing_instructions",
-      "bags_providing",
+      "giftbags_provided",
       "bags_quantity",
       "bags_delivery_time",
       "bags_deliverer",
@@ -742,12 +738,25 @@
       }
       payload[name] = v;
     });
+    payload.anticipated_rooms = payload.guest_notes;
+    payload.bags_providing = payload.giftbags_provided;
+    payload.brunch_hosting = payload.catering_needed;
+    payload.brunch_datetime = payload.catering_datetime;
+    payload.brunch_attendance = payload.catering_numbers;
+    payload.brunch_menu_submitted = payload.menu_selected;
+    payload.brunch_requests = payload.catering_dietary_restrictions;
     payload.vendors = collectVendors();
     return payload;
   }
 
   function applyPayload(payload) {
     if (!payload || typeof payload !== "object") return;
+    if (payload.guest_notes == null && payload.anticipated_rooms != null) {
+      payload = { ...payload, guest_notes: payload.anticipated_rooms };
+    }
+    if (payload.giftbags_provided == null && payload.bags_providing != null) {
+      payload = { ...payload, giftbags_provided: payload.bags_providing };
+    }
     autoCompleteBy = false;
     Object.keys(payload).forEach((key) => {
       if (key === "vendors") return;
@@ -771,7 +780,7 @@
   function syncConditionals() {
     toggle("getting-ready-details", valueOf("getting_ready_needed") === "yes");
     toggle("valet-details", valueOf("valet_needed") === "yes");
-    toggle("bags-details", valueOf("bags_providing") === "yes");
+    toggle("bags-details", valueOf("giftbags_provided") === "yes");
     toggle("catering-details", valueOf("catering_needed") === "yes");
   }
 
@@ -1261,7 +1270,7 @@
   }
 
   function wireConditionals() {
-    ["getting_ready_needed", "valet_needed", "bags_providing", "catering_needed"].forEach((name) => {
+    ["getting_ready_needed", "valet_needed", "giftbags_provided", "catering_needed"].forEach((name) => {
       els.form.querySelectorAll(`input[name="${name}"]`).forEach((input) => {
         input.addEventListener("change", () => {
           syncConditionals();

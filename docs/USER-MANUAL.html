@@ -523,7 +523,6 @@
         <li data-n="4.5">
           <strong>Null-safe expression</strong> (if blank on draft Save can break SharePoint)
           <pre class="url">if(empty(json(triggerBody())?['payload']?['group_arrival']), null, json(triggerBody())?['payload']?['group_arrival'])</pre>
-          <pre class="url">if(empty(json(triggerBody())?['payload']?['valet_vehicles']), null, int(json(triggerBody())?['payload']?['valet_vehicles']))</pre>
           <pre class="url">if(empty(json(triggerBody())?['payload']?['valet_needed']), null, json(triggerBody())?['payload']?['valet_needed'])</pre>
           <p>Choices are text — do not wrap with <code>int()</code>.</p>
         </li>

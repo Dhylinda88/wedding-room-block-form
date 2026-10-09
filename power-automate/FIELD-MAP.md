@@ -23,8 +23,8 @@ These are the live list headers we must match exactly or intentionally map to th
 | `Phone` | `phone` | Customer phone |
 | `Couple Name` | `couple_name` | Stored separately from title |
 | `Couple Parents` | `couple_parents` | Optional parent info |
-| `Guests` | `guests` | Room block count |
-| `Guest Notes` | `anticipated_rooms` | Room needs / pickup notes |
+| `Guests` | `guests` | Guest rooms (anticipated) count |
+| `Guest Notes` | `guest_notes` | Staff-only room needs / pickup notes |
 | `VIP Upgrade` | `vip_upgrade` | Optional VIP upgrade flag |
 | `Group Arrival` | `group_arrival` | Date only |
 | `Group Departure` | `group_departure` | Date only |
@@ -32,7 +32,7 @@ These are the live list headers we must match exactly or intentionally map to th
 | `Ceremony Time` | `ceremony_time` | Time |
 | `Reception Venue` | `reception_venue` | Venue name |
 | `Reception Time` | `reception_time` | Time |
-| `Gift Bags Needed` | `bags_providing` | Gift bag flag |
+| `Gift Bags Needed` | `giftbags_provided` | Gift bag flag |
 | `Gift Bag Payment Method` | `bags_payment_method` | Optional value |
 | `Vendor Valet Needed` | `valet_needed` | Valet flag |
 | `Vendor Name` | `vendors` | Vendor list data |
@@ -49,8 +49,8 @@ These are the live list headers we must match exactly or intentionally map to th
 | `Catering Dietary Restriction` | `catering_dietary_restrictions` | Dietary notes |
 | `Shuttle Bus Required` | `transport_required` | Shuttle flag |
 | `Shuttle/Trans Details` | `transport_block` | Combined transport details |
-| `In-House Contact Name` | `weekend_contact_name` | Contact name |
-| `In-House Contact Phone` | `weekend_contact_phone` | Contact phone |
+| `In-House Contact Name` | `weekend_contact_name` | Contact name; SharePoint internal name is `WeekendContact` |
+| `In-House Contact Phone` | `weekend_contact_phone` | Contact phone; SharePoint internal name is `WeekendPhone` |
 | `FormPayload` | `form_payload` | Raw JSON snapshot |
 | `Guest Rooms Due Date` | `date_room_cutoff` | Internal date |
 | `Menu Due Date` | `date_menu_due` | Internal date |
@@ -82,14 +82,14 @@ These are the live list headers we must match exactly or intentionally map to th
 | `Email` | Text | `email` |
 | `Phone` | Text | `phone` |
 | `Guests` | Number | `guests` |
-| `Guest Notes` | Note | `anticipated_rooms` |
+| `Guest Notes` | Text | `guest_notes` (staff-only form field) |
 | `Group Arrival` | DateOnly | `group_arrival` |
 | `Group Departure` | DateOnly | `group_departure` |
 | `Wedding Venue` | Text | `wedding_venue` |
 | `Ceremony Time` | Text | `ceremony_time` |
 | `Reception Venue` | Text | `reception_venue` |
 | `Reception Time` | Text | `reception_time` |
-| `Gift Bags Needed` | Choice yes/no | `bags_providing` |
+| `Gift Bags Needed` | Choice yes/no | `giftbags_provided` |
 | `Gift Bag Payment Method` | Choice | `bags_payment_method` |
 | `Vendor Valet Needed` | Choice yes/no | `valet_needed` |
 | `Valet Payment` | Choice | `valet_payment` |
