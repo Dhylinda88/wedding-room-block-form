@@ -10,7 +10,7 @@ Customers get one shared link and an access code. They **Save progress** (list d
 
 **Live form:** [https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/](https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/)
 
-**User manual (plain language, printable):** [USER-MANUAL.html](USER-MANUAL.html) · [live](https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/USER-MANUAL.html) — open in a browser, then Print → Save as PDF for page numbers.
+**User manual (plain language, printable):** [USER-MANUAL.html](USER-MANUAL.html) · [live](https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/USER-MANUAL.html) — open in a browser, then Print → Save as PDF for page numbers. Includes end-to-end field edits (`index.html` → `app.js` → SharePoint → Power Automate → PDF) and notes on `API_URL` vs access codes.
 
 Staff unlock (staff password in Power Automate) edits the list without emails; staff resubmit refreshes the PDF only. Details: [power-automate/STAFF-PDF.md](power-automate/STAFF-PDF.md).
 

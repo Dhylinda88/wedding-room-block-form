@@ -317,12 +317,12 @@
   <div class="page">
     <!-- COVER -->
     <header class="cover" id="cover">
-      <img class="logo" src="images/logo.png" alt="The LaSalle Chicago, Autograph Collection" />
+      <img class="logo" src="assets/manual/logo.png" alt="The LaSalle Chicago, Autograph Collection" />
       <div class="badge">Staff &amp; coordinator guide</div>
       <h1>Wedding Guest Room Block Form</h1>
       <p class="subtitle">
-        A simple guide to what this system does, how couples and staff use it,
-        and how to change basic settings.
+        A complete guide to what this system does, how couples and staff use it,
+        and how to edit it end-to-end (form files, SharePoint list, Power Automate, and PDF).
       </p>
       <p class="meta">
         Live form:<br />
@@ -341,11 +341,13 @@
         <li><a href="#for-staff">How staff use the form</a></li>
         <li><a href="#links">Links you will send</a></li>
         <li><a href="#list-email">Where answers go (list &amp; email)</a></li>
-        <li><a href="#passwords">Passwords — what they are &amp; how to change them</a></li>
-        <li><a href="#edit">How to edit the system</a></li>
-        <li><a href="#list-pa">Edit a SharePoint column &amp; reconnect Power Automate</a></li>
+        <li><a href="#passwords">Passwords &amp; security (codes + API URL)</a></li>
+        <li><a href="#edit">How to edit the system (map)</a></li>
+        <li><a href="#add-field">Add or change a field end-to-end</a></li>
+        <li><a href="#list-pa">SharePoint column details &amp; reconnect Power Automate</a></li>
         <li><a href="#emails">Change emails &amp; add notification recipients</a></li>
         <li><a href="#expressions">Safe expressions (dates, numbers, empty values)</a></li>
+        <li><a href="#github">Edit &amp; publish GitHub files</a></li>
         <li><a href="#troubleshoot">If something goes wrong (Power Automate)</a></li>
         <li><a href="#quick-ref">Quick reference</a></li>
         <li><a href="#license">License &amp; disclaimer</a></li>
@@ -386,7 +388,7 @@
       <p>Four pieces work together:</p>
 
       <figure class="figure">
-        <img src="images/manual-overview.jpg" alt="Diagram: Form connects to Power Automate, then SharePoint List and Email" />
+        <img src="assets/manual/manual-overview.jpg" alt="Diagram: Form connects to Power Automate, then SharePoint List and Email" />
         <figcaption>Figure 1. Form → Power Automate → SharePoint list + email.</figcaption>
       </figure>
 
@@ -439,7 +441,7 @@
       <p>Give the couple: <strong>(1)</strong> the form link, and <strong>(2)</strong> the guest access code.</p>
 
       <figure class="figure">
-        <img src="images/manual-guest-flow.jpg" alt="Five guest steps: open link, enter code, fill form, save, submit" />
+        <img src="assets/manual/manual-guest-flow.jpg" alt="Five guest steps: open link, enter code, fill form, save, submit" />
         <figcaption>Figure 2. Couple steps from open to submit.</figcaption>
       </figure>
 
@@ -483,7 +485,7 @@
       <p>Staff use a <strong>different password</strong> (staff code). After unlock you should see a gold banner: <em>Staff mode</em>.</p>
 
       <figure class="figure">
-        <img src="images/manual-staff-flow.jpg" alt="Staff workflow from invite through review of submission" />
+        <img src="assets/manual/manual-staff-flow.jpg" alt="Staff workflow from invite through review of submission" />
         <figcaption>Figure 3. Typical staff workflow.</figcaption>
       </figure>
 
@@ -594,8 +596,11 @@
 
     <!-- 7 -->
     <section class="chapter" id="passwords">
-      <h2>7. Passwords — what they are &amp; how to change them</h2>
-      <p class="lead">There are two codes. Both live inside Power Automate — not on the public website.</p>
+      <h2>7. Passwords &amp; security</h2>
+      <p class="lead">Two kinds of secrets matter: the <strong>access codes</strong> people type, and the <strong>API URL</strong> the form uses behind the scenes.</p>
+
+      <h3>Guest and staff access codes</h3>
+      <p>Both live inside Power Automate — not on the public website.</p>
 
       <table class="simple">
         <thead>
@@ -628,19 +633,56 @@
 
       <div class="callout warn">
         <strong>Do not put live passwords in GitHub</strong>
-        Anyone can view the public site files. Keep real codes only in Power Automate Compose steps.
+        Anyone can view the public site files. Keep real codes only in Power Automate Compose steps. <code>MOCK_PASSWORD</code> / <code>MOCK_STAFF_PASSWORD</code> in <code>config.js</code> are for local preview only (<code>MOCK_MODE: true</code>).
       </div>
 
       <div class="callout">
         <strong>Staff vs guest unlock</strong>
         The flow’s password Condition should accept <em>either</em> FormPassword <em>or</em> StaffPassword. Staff unlock returns <code>staff: true</code> so the form shows staff-only fields and stays quiet on save/submit.
       </div>
+
+      <h3>The API URL in <code>config.js</code> — is that a security problem?</h3>
+      <p>
+        The live form needs an address to talk to Power Automate. That address is stored as <code>API_URL</code> in
+        <span class="mono">config.js</span> and is visible on the public GitHub Pages site. That is <strong>normal</strong> for this design (browser → flow), not the same mistake as publishing the guest/staff codes.
+      </p>
+
+      <table class="simple">
+        <thead>
+          <tr><th>What</th><th>Public on GitHub?</th><th>What it allows</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>API_URL</code> (HTTP trigger link, includes a <code>sig=</code> token)</td>
+            <td>Yes — must be, or the form cannot save</td>
+            <td>Anyone who has the URL can <em>call</em> the flow. Unlock / save / submit still need a valid access code.</td>
+          </tr>
+          <tr>
+            <td>Guest / staff codes</td>
+            <td><strong>No</strong> — Power Automate only</td>
+            <td>Full use of the form once they also have the link</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <strong>Treat the API URL like a shared webhook</strong>
+        It is not a password, but it is sensitive. Real risks: junk traffic that burns Power Automate runs, or abuse if a weak code leaks. Use strong codes. If the URL is leaked or you suspect spam, regenerate the HTTP trigger URL in Power Automate, paste the new value into <code>API_URL</code>, push to GitHub, and hard-refresh the live form.
+      </div>
+
+      <h3>How to rotate the API URL</h3>
+      <ol class="steps">
+        <li>Power Automate → open the flow → click the HTTP trigger → copy the new POST URL (or recreate the trigger if your tenant requires it).</li>
+        <li>Edit <code>config.js</code> in GitHub → set <code>API_URL</code> to the new URL (keep quotes).</li>
+        <li>Commit / push to <code>main</code>. Wait for GitHub Pages to update → hard-refresh the form.</li>
+        <li>Test unlock + Save with the staff code.</li>
+      </ol>
     </section>
 
     <!-- 8 -->
     <section class="chapter" id="edit">
-      <h2>8. How to edit the system</h2>
-      <p>Only change what you need. Ask IT if you are unsure. Use this as a map to the detailed chapters.</p>
+      <h2>8. How to edit the system (map)</h2>
+      <p>Only change what you need. Ask IT if you are unsure. Use this table to jump to the right chapter.</p>
 
       <table class="simple">
         <thead>
@@ -652,57 +694,280 @@
             <td><a href="#passwords">Section 7</a></td>
           </tr>
           <tr>
-            <td>Change who gets submit emails / add more people</td>
-            <td><a href="#emails">Section 10</a></td>
+            <td>Rotate / understand the public API URL</td>
+            <td><a href="#passwords">Section 7</a> (API URL)</td>
           </tr>
           <tr>
-            <td>Add or fix a SharePoint list column</td>
-            <td><a href="#list-pa">Section 9</a></td>
+            <td><strong>Add a new question</strong> (form → list → flow → PDF)</td>
+            <td><a href="#add-field">Section 9</a> — follow every step</td>
+          </tr>
+          <tr>
+            <td><strong>Rename a list column</strong> or remap it</td>
+            <td><a href="#add-field">Section 9</a> (rename path) + <a href="#list-pa">Section 10</a></td>
+          </tr>
+          <tr>
+            <td>Change who gets submit emails</td>
+            <td><a href="#emails">Section 11</a></td>
           </tr>
           <tr>
             <td>Stop empty dates/numbers from breaking Save</td>
-            <td><a href="#expressions">Section 11</a></td>
+            <td><a href="#expressions">Section 12</a></td>
           </tr>
           <tr>
-            <td>Change form wording / look</td>
-            <td>Below (A)</td>
+            <td>Change wording / styling only (no new data)</td>
+            <td><a href="#github">Section 13</a></td>
           </tr>
           <tr>
-            <td>Change PDF look</td>
-            <td>Below (B)</td>
+            <td>Change PDF look / include a new field on the PDF</td>
+            <td><a href="#add-field">Section 9 Step F</a> + <span class="mono">FORM-PDF-HTML.md</span></td>
+          </tr>
+          <tr>
+            <td>Full rebuild from scratch</td>
+            <td><span class="mono">SETUP-ORDERED.md</span> + <span class="mono">FIELD-MAP.md</span></td>
           </tr>
         </tbody>
       </table>
 
-      <h3>A. Change wording or look of the form</h3>
-      <ol class="steps">
-        <li>Edit files in the GitHub project (<code>index.html</code>, <code>styles.css</code>, <code>config.js</code>).</li>
-        <li>Push to the <code>main</code> branch.</li>
-        <li>Wait a minute, then hard-refresh the live page (Ctrl+Shift+R).</li>
-      </ol>
-      <p>In <code>config.js</code> you can change the title and the “Please complete by …” sentence. Leave <code>MOCK_MODE</code> as <code>false</code> for production.</p>
-
-      <h3>B. Change the PDF look</h3>
-      <p>Edit the HTML inside Compose actions <em>SubmitHTML</em> / <em>DraftHTML</em> (and staff copies). A starter template is in:</p>
-      <p><span class="mono">power-automate/FORM-PDF-HTML.md</span></p>
-      <p>Put the <strong>Response 200</strong> step right after Create/Update, before PDF convert/email, so the form does not time out.</p>
-
-      <h3>C. Full technical setup (first-time / rebuild)</h3>
-      <p>Follow <span class="mono">SETUP-ORDERED.md</span> in order. Do not skip phases. Field list: <span class="mono">power-automate/FIELD-MAP.md</span></p>
+      <div class="callout warn">
+        <strong>Golden rule for data fields</strong>
+        A new answer is not “done” until it works in <em>all five</em> places: the form page, <code>app.js</code> (so it is sent), the SharePoint column, the Power Automate Create/Update maps, and the PDF HTML (if staff should see it on the PDF). Skipping any step breaks the chain.
+      </div>
     </section>
 
-    <!-- 9 -->
+    <!-- 9 NEW: end-to-end field -->
+    <section class="chapter" id="add-field">
+      <h2>9. Add or change a field end-to-end</h2>
+      <p class="lead">
+        This is the complete path to add a new question, rename a column, or remap an existing answer.
+        Do the steps in order. Do not stop after editing only the list or only GitHub.
+      </p>
+
+      <figure class="figure">
+        <img src="assets/manual/manual-list-pa-flow.jpg" alt="Form and GitHub files connect through Power Automate into the SharePoint list and PDF" />
+        <figcaption>Figure 4. End-to-end chain: GitHub form files → Power Automate → SharePoint list (+ PDF / email).</figcaption>
+      </figure>
+
+      <h3>The five links in the chain</h3>
+      <table class="simple">
+        <thead>
+          <tr><th>Step</th><th>Where</th><th>What you do</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>A</strong></td>
+            <td><code>index.html</code> (GitHub)</td>
+            <td>Add the visible question (label + input)</td>
+          </tr>
+          <tr>
+            <td><strong>B</strong></td>
+            <td><code>app.js</code> (GitHub)</td>
+            <td>Include the field name in <code>collectPayload()</code> so Save/Submit actually send it</td>
+          </tr>
+          <tr>
+            <td><strong>C</strong></td>
+            <td>SharePoint list</td>
+            <td>Add a column (or rename an existing one)</td>
+          </tr>
+          <tr>
+            <td><strong>D</strong></td>
+            <td>Power Automate</td>
+            <td>Map that column on every Create item + Update item (Save draft <em>and</em> Submit)</td>
+          </tr>
+          <tr>
+            <td><strong>E–F</strong></td>
+            <td>PDF Compose + publish</td>
+            <td>Show the answer on the PDF if needed; push GitHub; test</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="flow">
+        <span class="box">Field name</span><span class="arrow">→</span>
+        <span class="box">index.html</span><span class="arrow">→</span>
+        <span class="box">app.js</span><span class="arrow">→</span>
+        <span class="box">List column</span><span class="arrow">→</span>
+        <span class="box">Flow map</span><span class="arrow">→</span>
+        <span class="box">PDF</span><span class="arrow">→</span>
+        <span class="box">Test</span>
+      </div>
+
+      <h3>Before you start — pick one internal field name</h3>
+      <p>
+        Choose a short machine name used everywhere in code, for example <code>guest_rooms_notes</code>.
+        Rules: lowercase letters, numbers, underscores only. No spaces. This name must match:
+      </p>
+      <ul>
+        <li>the HTML <code>id</code> and <code>name</code> on the input</li>
+        <li>the <code>data-field="…"</code> and <code>data-error-for="…"</code> attributes</li>
+        <li>the string inside <code>collectPayload()</code> in <code>app.js</code></li>
+        <li>the Power Automate expression: <span class="mono">json(triggerBody())?['payload']?['your_field_name']</span></li>
+        <li>the placeholder inside PDF HTML (same payload path)</li>
+      </ul>
+      <p>The <strong>SharePoint column display name</strong> can be human-friendly (example: “Guest room notes”). That label does not have to match the machine name — the flow mapping connects them.</p>
+
+      <div class="callout">
+        <strong>Copy the field map</strong>
+        Keep <span class="mono">power-automate/FIELD-MAP.md</span> updated when you add or rename fields so the next person knows the payload key ↔ list column.
+      </div>
+
+      <!-- A -->
+      <h3>Step A — Add the question on the form (<code>index.html</code>)</h3>
+      <ol class="steps">
+        <li>Open the GitHub repo → file <code>index.html</code> → Edit.</li>
+        <li>Find the section where the question belongs (Contact, Wedding basics, Rooms &amp; VIP, etc.).</li>
+        <li>Copy an existing field block of the same type (text, date, number, or yes/no radios) and paste it nearby.</li>
+        <li>Change <code>id</code>, <code>name</code>, <code>data-field</code>, <code>for</code>, and <code>data-error-for</code> to your machine name. Change the visible label text.</li>
+        <li>Example (single line of text):
+          <pre class="url">&lt;div class="field" data-field="guest_rooms_notes"&gt;
+  &lt;label for="guest_rooms_notes"&gt;Guest room notes&lt;/label&gt;
+  &lt;input id="guest_rooms_notes" name="guest_rooms_notes" type="text" /&gt;
+  &lt;div class="field-error" data-error-for="guest_rooms_notes"&gt;&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </li>
+        <li>For <strong>dates</strong>, use <code>type="date"</code> and keep <code>data-date-field</code> (like <code>group_arrival</code>). For <strong>yes/no</strong>, copy a radio pair (<code>value="yes"</code> / <code>value="no"</code>) with the same <code>name</code>.</li>
+      </ol>
+
+      <div class="callout warn">
+        <strong>Label-only edits are not enough</strong>
+        Changing only the visible label does not create a new answer. If you need a <em>new</em> piece of data, you must still do Steps B–F.
+      </div>
+
+      <!-- B -->
+      <h3>Step B — Wire the field so Save sends it (<code>app.js</code>)</h3>
+      <p>This is the step that was easy to miss. The form only uploads fields that <code>collectPayload()</code> knows about.</p>
+      <ol class="steps">
+        <li>Open <code>app.js</code> → find the function <code>collectPayload()</code>.</li>
+        <li>For normal text / number / time / yes-no fields: add your machine name to the <code>fields</code> array near the top of that function (same list as <code>couple_name</code>, <code>email</code>, <code>guests</code>, …).</li>
+        <li>For <strong>date</strong> fields that should save as <code>YYYY-MM-DD</code>: do <em>not</em> only add them to that array — also add a line like the other dates:
+          <pre class="url">your_date_field: dateIsoOf("your_date_field"),</pre>
+          inside the <code>payload = { … }</code> object (next to <code>wedding_date</code>, <code>group_arrival</code>, etc.).
+        </li>
+        <li>Resume / load already uses <code>applyPayload()</code>, which fills any matching <code>name</code> on the form. If your HTML <code>name</code> matches, loaded drafts will restore the value automatically.</li>
+        <li>Optional: if the field must be required on Save or Submit, add a check in the validation function that builds the <code>errors</code> object (same pattern as <code>couple_name</code> / ceremony time).</li>
+      </ol>
+
+      <div class="callout warn">
+        <strong>If you skip <code>app.js</code></strong>
+        The box appears on the page, but Save/Submit never send the value. The list column and PDF stay blank forever.
+      </div>
+
+      <!-- C -->
+      <h3>Step C — Add or rename the SharePoint column</h3>
+      <ol class="steps">
+        <li>Sign in to Microsoft 365 → open <strong>Microsoft Lists</strong> (or SharePoint) → list <strong>Wedding Room Planner</strong>.</li>
+        <li><strong>Add a column:</strong> far right of the headers → <strong>+ Add column</strong> → pick the type (see table below) → name it clearly → Save.</li>
+        <li><strong>Rename a column:</strong> column header menu → <strong>Column settings</strong> → <strong>Edit</strong> → change the display name → Save. Renaming usually keeps the flow link, but always re-open Create/Update afterward and confirm the field still appears (Step D).</li>
+        <li>Write down: display name + internal name (List settings → click the column → URL shows <code>Field=Something</code>). You need the internal name only for Filter Queries; Create/Update usually show the display name.</li>
+      </ol>
+
+      <table class="simple">
+        <thead>
+          <tr><th>Form type</th><th>SharePoint column type</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Short text</td><td>Single line of text</td><td>Names, times as text, Form URL</td></tr>
+          <tr><td>Long notes</td><td>Multiple lines of text</td><td>Also used for FormPayload JSON</td></tr>
+          <tr><td>Whole numbers</td><td>Number</td><td>Guests, vehicles — use null-if-empty expressions</td></tr>
+          <tr><td>Calendar date</td><td>Date and time (Date only)</td><td>Empty drafts need null-if-empty — <a href="#expressions">Section 12</a></td></tr>
+          <tr><td>Yes / No radios</td><td>Choice</td><td>Choices must match form values exactly (<code>yes</code> / <code>no</code>)</td></tr>
+        </tbody>
+      </table>
+
+      <!-- D -->
+      <h3>Step D — Map / remap in Power Automate</h3>
+      <p>The flow writes the list. New columns do not fill themselves.</p>
+      <ol class="steps">
+        <li>Open <a href="https://make.powerautomate.com" target="_blank" rel="noopener">make.powerautomate.com</a> → <strong>Wedding Room Block Form - API</strong> → <strong>Edit</strong>.</li>
+        <li>Find <strong>every</strong> SharePoint <strong>Create item</strong> and <strong>Update item</strong> for <em>Wedding Room Planner</em> on both the <strong>saveDraft</strong> and <strong>submitFinal</strong> paths (often four places).</li>
+        <li>Open each action. If the new column is missing, use <strong>Show all</strong> / refresh fields, or delete and re-add the action so SharePoint reloads the schema.</li>
+        <li>Click the column’s value box → <strong>Expression</strong> tab → paste (replace the name):
+          <pre class="url">json(triggerBody())?['payload']?['guest_rooms_notes']</pre>
+        </li>
+        <li>For dates/numbers that can be blank on draft Save, use the null-if-empty formulas in <a href="#expressions">Section 12</a> instead of a bare value.</li>
+        <li>For Choice columns, map the text value — do <strong>not</strong> wrap with <code>int(...)</code>.</li>
+        <li>Click <strong>Save</strong> on the flow. Leave it <strong>On</strong>.</li>
+      </ol>
+
+      <div class="callout">
+        <strong>Remap only (no new form field)</strong>
+        If the form and <code>app.js</code> already send the value, skip Steps A–B. Add/rename the list column (C), then fix Create/Update maps (D). Update FIELD-MAP.md.
+      </div>
+
+      <!-- E -->
+      <h3>Step E — Update FIELD-MAP.md (documentation)</h3>
+      <ol class="steps">
+        <li>Open <span class="mono">power-automate/FIELD-MAP.md</span> in the repo.</li>
+        <li>Add a row: list column display name → type → payload key / expression.</li>
+        <li>Commit with your other GitHub changes so the next editor is not guessing.</li>
+      </ol>
+
+      <!-- F -->
+      <h3>Step F — Show it on the PDF (if staff need it)</h3>
+      <ol class="steps">
+        <li>In the flow, open Compose <strong>SubmitHTML</strong> and <strong>DraftHTML</strong> (and any staff copies).</li>
+        <li>Add a labeled box like the other fields, using the same payload path, for example:
+          <pre class="url">&lt;div class="field full"&gt;&lt;label&gt;Guest room notes&lt;/label&gt;
+  &lt;div class="box"&gt;@{json(triggerBody())?['payload']?['guest_rooms_notes']}&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </li>
+        <li>Full starter layout: <span class="mono">power-automate/FORM-PDF-HTML.md</span>.</li>
+        <li>Keep <strong>Response 200</strong> right after SharePoint Create/Update (before Convert/email) so the browser does not time out.</li>
+      </ol>
+
+      <!-- G -->
+      <h3>Step G — Publish the form files &amp; test</h3>
+      <ol class="steps">
+        <li>Commit and push <code>index.html</code>, <code>app.js</code>, and FIELD-MAP changes to <code>main</code> (see <a href="#github">Section 13</a>).</li>
+        <li>Wait 1–2 minutes. Hard-refresh the live form (Ctrl+Shift+R).</li>
+        <li>Unlock with the <strong>staff</strong> code.</li>
+        <li>Fill the new field with a test value → <strong>Save progress</strong>.</li>
+        <li>Open the SharePoint list → that couple’s row → confirm the column shows the value.</li>
+        <li>Optional: <strong>Submit final</strong> (staff path) and open the PDF — confirm the new line appears.</li>
+        <li>If Save fails or the cell is blank: Power Automate → <strong>Run history</strong> → open the run → expand Create/Update and read the error. Common causes: column not mapped, wrong payload key, Choice mismatch, empty date sent as <code>""</code> instead of null.</li>
+      </ol>
+
+      <h3>Rename-only checklist (list label change)</h3>
+      <ol class="steps">
+        <li>SharePoint → Column settings → Edit → new display name → Save.</li>
+        <li>Power Automate → open each Create/Update → confirm the column still shows and stays mapped.</li>
+        <li>Update FIELD-MAP.md display name.</li>
+        <li>If the <em>form</em> label should change too, edit the <code>&lt;label&gt;</code> text in <code>index.html</code> (and PDF label) — machine name in <code>app.js</code> can stay the same.</li>
+        <li>Test Save.</li>
+      </ol>
+
+      <h3>Stop collecting a field</h3>
+      <ol class="steps">
+        <li>Remove or hide the input in <code>index.html</code>.</li>
+        <li>Remove the name from <code>collectPayload()</code> in <code>app.js</code>.</li>
+        <li>In Power Automate, clear the Create/Update mapping (do not leave a broken expression).</li>
+        <li>Remove the line from PDF HTML if present.</li>
+        <li>In the list, prefer <strong>hiding</strong> the column from the view first — only delete later when you are sure old rows are not needed.</li>
+        <li>Push GitHub + test.</li>
+      </ol>
+
+      <div class="callout ok">
+        <strong>Mini flow to remember</strong>
+        Pick machine name → <code>index.html</code> → <code>app.js</code> → list column → map Create+Update (save &amp; submit) → PDF → push → test Save.
+      </div>
+    </section>
+
+    <!-- 10 (was 9) -->
     <section class="chapter" id="list-pa">
-      <h2>9. Edit a SharePoint column &amp; reconnect Power Automate</h2>
+      <h2>10. SharePoint column details &amp; reconnect Power Automate</h2>
       <p class="lead">
         The list stores answers. Power Automate is the bridge that writes into that list.
         If you change a column in the list, you must also tell the flow about it — or Save will fail or leave the cell blank.
       </p>
 
       <figure class="figure">
-        <img src="images/manual-list-pa-flow.jpg" alt="Five steps: Open SharePoint, add or edit column, open Power Automate, refresh Create/Update, save and test" />
-        <figcaption>Figure 4. Always: List first → then Power Automate → then test the form.</figcaption>
+        <img src="assets/manual/manual-list-pa-flow.jpg" alt="Five steps: Open SharePoint, add or edit column, open Power Automate, refresh Create/Update, save and test" />
+        <figcaption>Figure 5. Detail view: List first → then Power Automate → then test. For a brand-new question, also do Section 9 Steps A–B (form + app.js) first.</figcaption>
       </figure>
+
+      <div class="callout">
+        <strong>Use with Section 9</strong>
+        This chapter is the deeper SharePoint / flow walkthrough. If you are adding a <em>new</em> question, complete <a href="#add-field">Section 9</a> (including <code>index.html</code> and <code>app.js</code>) — this section alone is not enough.
+      </div>
 
       <h3>Why two places?</h3>
       <table class="simple">
@@ -785,12 +1050,12 @@
 
       <div class="callout">
         <strong>Dates &amp; numbers that can be blank</strong>
-        Copy-paste formulas that send <em>null</em> when empty: <a href="#expressions">Section 11</a>.
+        Copy-paste formulas that send <em>null</em> when empty: <a href="#expressions">Section 12</a>.
       </div>
 
       <div class="callout warn">
         <strong>Choice columns</strong>
-        Do <em>not</em> wrap yes/no choice values with <code>int(...)</code>. Choices are text (for example <code>yes</code> / <code>no</code>). Details in <a href="#expressions">Section 11</a>.
+        Do <em>not</em> wrap yes/no choice values with <code>int(...)</code>. Choices are text (for example <code>yes</code> / <code>no</code>). Details in <a href="#expressions">Section 12</a>.
       </div>
 
       <h3>Step E — Test</h3>
@@ -848,7 +1113,7 @@
 
     <!-- 10 -->
     <section class="chapter" id="emails">
-      <h2>10. Change emails &amp; add notification recipients</h2>
+      <h2>11. Change emails &amp; add notification recipients</h2>
       <p class="lead">
         When a couple submits, hotel staff get an Outlook email (usually with the PDF).
         You control who is on that list inside Power Automate — not on the website.
@@ -925,7 +1190,7 @@
 
     <!-- 11 -->
     <section class="chapter" id="expressions">
-      <h2>11. Safe expressions (dates, numbers, empty values)</h2>
+      <h2>12. Safe expressions (dates, numbers, empty values)</h2>
       <p class="lead">
         SharePoint is picky. If a date or number field is empty on the form and Power Automate sends a blank text box (<code>""</code>), Save can fail.
         The fix is a short <strong>expression</strong>: “if empty, send null; otherwise send the value.”
@@ -1030,8 +1295,82 @@
     </section>
 
     <!-- 12 -->
+    <!-- 13 -->
+    <section class="chapter" id="github">
+      <h2>13. Edit &amp; publish GitHub files</h2>
+      <p class="lead">The live form is a static website on GitHub Pages. Changing files on your computer does nothing until they are on the <code>main</code> branch.</p>
+
+      <h3>Files you will touch</h3>
+      <table class="simple">
+        <thead>
+          <tr><th>File</th><th>Change this when…</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>index.html</code></td>
+            <td>Add/remove questions, change labels, section order</td>
+          </tr>
+          <tr>
+            <td><code>app.js</code></td>
+            <td>New field must be saved/loaded; validation rules; Save/Submit behavior</td>
+          </tr>
+          <tr>
+            <td><code>styles.css</code></td>
+            <td>Colors, spacing, print/layout of the form page</td>
+          </tr>
+          <tr>
+            <td><code>config.js</code></td>
+            <td>Title, intro sentence, <code>API_URL</code>, mock mode (keep <code>MOCK_MODE: false</code> live)</td>
+          </tr>
+          <tr>
+            <td><code>assets/logo.png</code></td>
+            <td>Replace the logo image (keep the same filename unless you update HTML)</td>
+          </tr>
+          <tr>
+            <td><code>power-automate/FIELD-MAP.md</code></td>
+            <td>Document payload key ↔ list column after any mapping change</td>
+          </tr>
+          <tr>
+            <td><code>USER-MANUAL.html</code></td>
+            <td>This guide</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Edit on GitHub.com (no local tools)</h3>
+      <ol class="steps">
+        <li>Open the repo:
+          <pre class="url">https://github.com/TheLasalleChicago-hydai/wedding-room-block-form</pre>
+        </li>
+        <li>Click the file → pencil <strong>Edit</strong>.</li>
+        <li>Make changes → <strong>Commit changes</strong> to <code>main</code> with a short message (example: “Add guest room notes field”).</li>
+        <li>Wait 1–2 minutes for GitHub Pages.</li>
+        <li>Open the live form → hard-refresh (Ctrl+Shift+R) so the browser does not keep an old <code>app.js</code>.</li>
+      </ol>
+
+      <h3>Wording / look only (no new data)</h3>
+      <ol class="steps">
+        <li>Edit <code>index.html</code> labels or <code>styles.css</code> / <code>config.js</code> intro text.</li>
+        <li>Push → hard-refresh.</li>
+        <li>You do <strong>not</strong> need SharePoint or Power Automate changes if no new answers are collected.</li>
+      </ol>
+
+      <div class="callout warn">
+        <strong>New data always needs Section 9</strong>
+        If couples will type something new that must land in the list or PDF, follow <a href="#add-field">Section 9</a> completely — not this chapter alone.
+      </div>
+
+      <h3>Local preview (optional)</h3>
+      <ol class="steps">
+        <li>In <code>config.js</code>, set <code>MOCK_MODE: true</code> temporarily.</li>
+        <li>Unlock with <code>MOCK_PASSWORD</code> (default <code>preview</code>) or staff mock (<code>staff</code>).</li>
+        <li>Saves stay in the browser only — they do not hit SharePoint.</li>
+        <li>Set <code>MOCK_MODE: false</code> again before you push for production.</li>
+      </ol>
+    </section>
+
     <section class="chapter" id="troubleshoot">
-      <h2>12. If something goes wrong (Power Automate)</h2>
+      <h2>14. If something goes wrong (Power Automate)</h2>
       <p class="lead">Start here when Save/Submit fails, the list stays empty, or the form says “upstream server.”</p>
 
       <h3>How to check a run (do this first)</h3>
@@ -1081,22 +1420,32 @@
           <tr>
             <td>Create/Update fails mentioning a date column</td>
             <td>Empty date sent as <code>""</code></td>
-            <td>Paste a null-if-empty date expression (Section 11).</td>
+            <td>Paste a null-if-empty date expression (Section 12).</td>
           </tr>
           <tr>
             <td>Error with <code>int(...)</code> on a yes/no field</td>
             <td>Choice treated as a number</td>
-            <td>Remove <code>int()</code>; map the choice as text (Section 11).</td>
+            <td>Remove <code>int()</code>; map the choice as text (Section 12).</td>
           </tr>
           <tr>
             <td>New list column always blank</td>
-            <td>Column added in SharePoint but not mapped in the flow</td>
-            <td>Follow Section 9 Steps C–E. Refresh Create/Update fields.</td>
+            <td>Missing <code>app.js</code> collectPayload entry, and/or Create/Update not mapped</td>
+            <td>Section 9 end-to-end: confirm the field is in <code>collectPayload()</code>, then map every Create+Update. Refresh connector fields if the column is missing.</td>
+          </tr>
+          <tr>
+            <td>Box on the form, but Save never stores it</td>
+            <td>HTML added without wiring <code>app.js</code></td>
+            <td>Section 9 Step B — add the machine name to <code>collectPayload()</code> (and dateIsoOf for dates). Push + hard-refresh.</td>
+          </tr>
+          <tr>
+            <td>List has the value; PDF does not</td>
+            <td>SubmitHTML / DraftHTML not updated</td>
+            <td>Section 9 Step F — add the payload box to both HTML Composes.</td>
           </tr>
           <tr>
             <td>Wrong people get (or miss) PDF emails</td>
             <td>To / Cc on Submit email is outdated</td>
-            <td>Section 10 — update addresses or use a shared mailbox.</td>
+            <td>Section 11 — update addresses or use a shared mailbox.</td>
           </tr>
           <tr>
             <td>Old password still works / new one does not</td>
@@ -1142,7 +1491,7 @@
 
     <!-- 13 -->
     <section class="chapter" id="quick-ref">
-      <h2>13. Quick reference</h2>
+      <h2>15. Quick reference</h2>
       <table class="simple">
         <thead>
           <tr><th>Need</th><th>Do this</th></tr>
@@ -1173,24 +1522,36 @@
             <td>Section 7 — FormPassword / StaffPassword Compose → Save</td>
           </tr>
           <tr>
+            <td>API URL / webhook concerns</td>
+            <td>Section 7 — rotate URL in flow, update <code>config.js</code>, push</td>
+          </tr>
+          <tr>
+            <td><strong>Add a new question end-to-end</strong></td>
+            <td>Section 9 — <code>index.html</code> → <code>app.js</code> → list column → Create+Update map → PDF → push → test</td>
+          </tr>
+          <tr>
+            <td>Rename a list column</td>
+            <td>Section 9 rename checklist + Section 10 confirm Create/Update</td>
+          </tr>
+          <tr>
             <td>Change / add notification emails</td>
-            <td>Section 10 — Submit email To / Cc, or a shared mailbox</td>
+            <td>Section 11 — Submit email To / Cc, or a shared mailbox</td>
           </tr>
           <tr>
             <td>Empty date/number breaks Save</td>
-            <td>Section 11 — null-if-empty (and int only inside that)</td>
+            <td>Section 12 — null-if-empty (and int only inside that)</td>
           </tr>
           <tr>
-            <td>Change form text</td>
-            <td>Edit GitHub files → push → refresh site</td>
+            <td>Change form text / logo only</td>
+            <td>Section 13 — edit GitHub → push → hard-refresh</td>
           </tr>
           <tr>
-            <td>Add/edit a list column</td>
-            <td>Section 9 — list first, then Create+Update map, then test</td>
+            <td>List column blank after Save</td>
+            <td>Check <code>app.js</code> collectPayload + flow Create/Update map (Section 9)</td>
           </tr>
           <tr>
             <td>Save fails / upstream error</td>
-            <td>Section 12 — Run history; often Response 200 placement</td>
+            <td>Section 14 — Run history; often Response 200 placement</td>
           </tr>
         </tbody>
       </table>
@@ -1203,7 +1564,7 @@
 
     <!-- 14 -->
     <section class="chapter" id="license">
-      <h2>14. License &amp; disclaimer</h2>
+      <h2>16. License &amp; disclaimer</h2>
       <p class="lead">This project is open source under the MIT License. It is free — not a paid product.</p>
 
       <ul>
