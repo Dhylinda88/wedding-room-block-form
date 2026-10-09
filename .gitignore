@@ -4,5 +4,6 @@ Thumbs.db
 node_modules/
 .vscode/
 .idea/
+backups/
 
 .Rhistory

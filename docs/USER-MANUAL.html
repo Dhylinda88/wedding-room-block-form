@@ -47,7 +47,7 @@
       font-size: 2rem;
       margin: 0 0 0.75rem;
     }
-    .cover .subtitle { color: var(--muted); margin: 0 0 1.5rem; max-width: 30em; }
+    .cover .subtitle { color: var(--muted); margin: 0 0 1.5rem; max-width: 32em; }
     .cover .meta { margin-top: 1.5rem; font-size: 0.95rem; color: var(--muted); }
     .badge {
       display: inline-block;
@@ -70,8 +70,8 @@
     h3 {
       font-family: var(--serif);
       font-weight: 400;
-      font-size: 1.15rem;
-      margin: 1.4rem 0 0.5rem;
+      font-size: 1.12rem;
+      margin: 1.35rem 0 0.45rem;
       page-break-after: avoid;
     }
     p, li { max-width: 44em; }
@@ -86,7 +86,7 @@
       border-bottom: 1px dotted var(--gold);
     }
     .toc li { margin: 0.45rem 0; }
-    .figure { margin: 1rem 0 1.25rem; page-break-inside: avoid; }
+    .figure { margin: 1rem 0 1.15rem; page-break-inside: avoid; }
     .figure img {
       display: block;
       width: 100%;
@@ -100,14 +100,13 @@
       border-left: 3px solid var(--gold);
       background: #fff;
       padding: 0.7rem 0.9rem;
-      margin: 0.9rem 0;
+      margin: 0.85rem 0;
       page-break-inside: avoid;
     }
     .callout.warn { border-left-color: var(--warn); background: #fdf6f4; }
     .callout.ok { border-left-color: var(--ok); background: #f3f8f5; }
     .callout strong { display: block; margin-bottom: 0.2rem; }
     .steps {
-      counter-reset: step;
       list-style: none;
       padding: 0;
       margin: 0.75rem 0;
@@ -121,28 +120,28 @@
       page-break-inside: avoid;
     }
     .steps > li::before {
-      counter-increment: step;
-      content: counter(step);
+      content: attr(data-n);
       position: absolute;
-      left: 0.65rem;
+      left: 0.55rem;
       top: 0.75rem;
-      min-width: 1.7rem;
+      min-width: 1.85rem;
       height: 1.7rem;
-      padding: 0 0.3rem;
+      padding: 0 0.35rem;
       border-radius: 999px;
       background: var(--navy);
       color: #fff;
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.72rem;
       display: flex;
       align-items: center;
       justify-content: center;
       line-height: 1;
     }
-    .steps-labeled > li::before {
-      counter-increment: none;
-      content: attr(data-n);
-      font-size: 0.75rem;
+    .steps.auto { counter-reset: step; }
+    .steps.auto > li::before {
+      counter-increment: step;
+      content: counter(step);
+      font-size: 0.85rem;
     }
     .done {
       background: #f3f8f5;
@@ -157,13 +156,13 @@
       width: 100%;
       border-collapse: collapse;
       background: #fff;
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       margin: 0.75rem 0 1.1rem;
       page-break-inside: avoid;
     }
     table.simple th, table.simple td {
       border: 1px solid #e0d8c8;
-      padding: 0.5rem 0.65rem;
+      padding: 0.45rem 0.6rem;
       text-align: left;
       vertical-align: top;
     }
@@ -182,9 +181,9 @@
       border: 1px solid #e6dfd2;
       padding: 0.7rem 0.85rem;
       font-family: Consolas, "Courier New", monospace;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       page-break-inside: avoid;
-      margin: 0.5rem 0;
+      margin: 0.45rem 0;
     }
     .print-hint {
       position: fixed;
@@ -223,18 +222,21 @@
 
   <div class="page">
     <header class="cover" id="cover">
-      <img class="logo" src="assets/manual/logo.png" alt="The LaSalle Chicago, Autograph Collection" />
+      <img class="logo" src="../assets/manual/logo.png" alt="The LaSalle Chicago, Autograph Collection" />
       <div class="badge">Staff &amp; coordinator guide</div>
       <h1>Wedding Guest Room Block Form</h1>
       <p class="subtitle">
-        Short recipes: how to use the form, and how to add or change a field end-to-end
-        (app.js → list → Power Automate → HTML → dry-run → then push).
+        How to use the form, and how to add or change a field end-to-end.
+        Dry-run before you commit or push.
       </p>
       <p class="meta">
         Live form:<br />
         <span class="mono">https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/</span>
       </p>
-      <p class="meta">Print → Save as PDF for page numbers</p>
+      <p class="meta">
+        Repo:<br />
+        <span class="mono">https://github.com/TheLasalleChicago-hydai/wedding-room-block-form</span>
+      </p>
     </header>
 
     <nav class="toc" id="toc" aria-label="Table of contents">
@@ -242,286 +244,305 @@
       <ol>
         <li><a href="#what-it-is">What this is</a></li>
         <li><a href="#big-picture">Big picture</a></li>
-        <li><a href="#for-couples">Couples: use the form</a></li>
-        <li><a href="#for-staff">Staff: use the form</a></li>
-        <li><a href="#links">Links cheat sheet</a></li>
+        <li><a href="#for-couples">Use the form — couples</a></li>
+        <li><a href="#for-staff">Use the form — staff</a></li>
+        <li><a href="#links">Links</a></li>
         <li><a href="#list-email">Where data lands</a></li>
-        <li><a href="#passwords">Passwords &amp; API URL</a></li>
+        <li><a href="#passwords">Passwords and API URL</a></li>
         <li><a href="#edit">Task map</a></li>
-        <li><a href="#add-field">HOW-TO: Add or change a field</a></li>
-        <li><a href="#emails">HOW-TO: Change notification emails</a></li>
+        <li><a href="#add-field">Add or change a field</a></li>
+        <li><a href="#emails">Change notification emails</a></li>
         <li><a href="#troubleshoot">Troubleshoot</a></li>
         <li><a href="#quick-ref">Quick reference</a></li>
         <li><a href="#license">License</a></li>
       </ol>
     </nav>
 
-    <!-- 1 -->
     <section class="chapter" id="what-it-is">
       <h2>1. What this is</h2>
       <p class="lead">Online form for The LaSalle Chicago wedding room-block logistics. No server you run.</p>
       <ul>
-        <li>Password gate (guest code or staff code)</li>
+        <li>Password gate (guest or staff code)</li>
         <li>Save progress / resume later</li>
-        <li>Answers stored in SharePoint list <strong>Wedding Room Planner</strong></li>
+        <li>Answers in SharePoint list <strong>Wedding Room Planner</strong></li>
         <li>Guest save → resume email; guest submit → staff PDF email</li>
-        <li>Staff edits stay quiet (list/PDF only)</li>
+        <li>Staff edits stay quiet (list / PDF only)</li>
       </ul>
     </section>
 
-    <!-- 2 -->
     <section class="chapter" id="big-picture">
       <h2>2. Big picture</h2>
       <figure class="figure">
-        <img src="assets/manual/manual-overview.jpg" alt="Form to Power Automate to SharePoint list to Email" />
-        <figcaption>Figure 1. Form (GitHub Pages) → Power Automate → SharePoint list → Email / OneDrive.</figcaption>
+        <img src="../assets/manual/manual-overview.jpg" alt="Form to Power Automate to SharePoint list to Email" width="1400" height="400" />
+        <figcaption>Figure 1. Form → Power Automate → SharePoint list → Email / OneDrive.</figcaption>
       </figure>
       <table class="simple">
         <thead><tr><th>Piece</th><th>What it does</th></tr></thead>
         <tbody>
           <tr><td>Form</td><td><code>index.html</code>, <code>app.js</code>, <code>config.js</code> on GitHub Pages</td></tr>
-          <tr><td>Power Automate</td><td>Flow <em>Wedding Room Block Form - API</em> — unlock, save, submit, PDF</td></tr>
+          <tr><td>Power Automate</td><td>Flow <em>Wedding Room Block Form - API</em></td></tr>
           <tr><td>SharePoint list</td><td><em>Wedding Room Planner</em> — one row per wedding</td></tr>
-          <tr><td>Email / OneDrive</td><td>Resume links, staff PDF alerts, file copies</td></tr>
+          <tr><td>Email / OneDrive</td><td>Resume links, staff PDF, file copies</td></tr>
         </tbody>
       </table>
     </section>
 
-    <!-- 3 -->
     <section class="chapter" id="for-couples">
-      <h2>3. Couples: use the form</h2>
+      <h2>3. Use the form — couples</h2>
       <p class="lead">Give them: (1) the form link, (2) the guest access code.</p>
       <figure class="figure">
-        <img src="assets/manual/manual-guest-flow.jpg" alt="Five couple steps" />
+        <img src="../assets/manual/manual-guest-flow.jpg" alt="Five couple steps" width="1400" height="380" />
         <figcaption>Figure 2. Open → unlock → fill → save → submit.</figcaption>
       </figure>
-      <ol class="steps">
+      <ol class="steps auto">
         <li><strong>Open the link</strong> in Chrome, Edge, or Safari.</li>
         <li><strong>Enter the guest access code</strong> → Unlock.</li>
-        <li><strong>Fill contact</strong> (couple/party name, wedding date, email) then the rest.</li>
-        <li><strong>Save progress</strong> anytime — they get a resume email. Not final yet.</li>
-        <li><strong>Submit final</strong> when complete — thank-you screen; hotel gets the PDF.</li>
+        <li><strong>Fill contact</strong> (couple/party name, wedding date, email), then the rest.</li>
+        <li><strong>Save progress</strong> anytime — resume email. Not final yet.</li>
+        <li><strong>Submit final</strong> when complete — hotel gets the PDF.</li>
       </ol>
       <div class="done">
         <strong>Done when</strong>
         <ul>
-          <li>Before Save: name, wedding date, email filled</li>
+          <li>Before Save: name, wedding date, email</li>
           <li>Before Submit: full form (No on valet/bags/brunch/ready-room skips those details)</li>
         </ul>
       </div>
     </section>
 
-    <!-- 4 -->
     <section class="chapter" id="for-staff">
-      <h2>4. Staff: use the form</h2>
-      <p class="lead">Use the <strong>staff code</strong>. After unlock you should see a gold <em>Staff mode</em> banner.</p>
+      <h2>4. Use the form — staff</h2>
+      <p class="lead">Use the <strong>staff code</strong>. You should see a gold <em>Staff mode</em> banner after unlock.</p>
       <figure class="figure">
-        <img src="assets/manual/manual-staff-flow.jpg" alt="Five staff steps" />
+        <img src="../assets/manual/manual-staff-flow.jpg" alt="Five staff steps" width="1400" height="380" />
         <figcaption>Figure 3. Unlock → start draft → silent save → send link → review.</figcaption>
       </figure>
-      <ol class="steps">
+      <ol class="steps auto">
         <li><strong>Unlock with the staff code.</strong></li>
         <li><strong>Enter couple name + wedding date</strong> (minimum).</li>
         <li><strong>Save progress</strong> — no customer email on staff save.</li>
-        <li><strong>Copy Form URL</strong> from the address bar or the SharePoint list → send link + <strong>guest</strong> code to the couple.</li>
+        <li><strong>Copy Form URL</strong> (address bar or list) → send link + <strong>guest</strong> code.</li>
         <li><strong>Review later:</strong> List → Form URL → staff code → edit → Save. After guest submit, staff re-submit refreshes PDF without another email.</li>
       </ol>
       <div class="callout">
         <strong>Staff-only block</strong>
-        “Important dates at a glance” is hidden from guests (<code>data-staff-only</code>).
+        “Important dates at a glance” uses <code>data-staff-only</code> in <code>index.html</code> (about lines 427–432). Hidden for guests.
       </div>
     </section>
 
-    <!-- 5 -->
     <section class="chapter" id="links">
-      <h2>5. Links cheat sheet</h2>
-      <p>Base:</p>
+      <h2>5. Links</h2>
       <pre class="url">https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/</pre>
-      <p>New couple (prefill dates):</p>
       <pre class="url">https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/?wedding_date=2026-06-15&amp;complete_by=2026-05-16</pre>
-      <p>Existing draft:</p>
       <pre class="url">https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/?draft=4ba53f80</pre>
       <table class="simple">
         <thead><tr><th>Param</th><th>Meaning</th></tr></thead>
         <tbody>
           <tr><td><code>wedding_date</code></td><td>Prefills wedding date (<code>YYYY-MM-DD</code>)</td></tr>
-          <tr><td><code>complete_by</code></td><td>Prefills complete-by; if omitted with wedding_date → wedding − 30 days</td></tr>
+          <tr><td><code>complete_by</code></td><td>Prefills complete-by; omit with wedding_date → wedding − 30 days</td></tr>
           <tr><td><code>draft</code></td><td>Loads that list row after unlock</td></tr>
         </tbody>
       </table>
     </section>
 
-    <!-- 6 -->
     <section class="chapter" id="list-email">
       <h2>6. Where data lands</h2>
       <table class="simple">
         <thead><tr><th>When</th><th>What happens</th></tr></thead>
         <tbody>
-          <tr><td>Any Save / Submit</td><td>SharePoint row updated (Draft ID, Form URL, Status, mapped columns, FormPayload JSON)</td></tr>
-          <tr><td>Guest Save</td><td>Couple gets resume email</td></tr>
+          <tr><td>Any Save / Submit</td><td>SharePoint row updated</td></tr>
+          <tr><td>Guest Save</td><td>Couple resume email</td></tr>
           <tr><td>Staff Save</td><td>List only (no email)</td></tr>
-          <tr><td>Guest Submit</td><td>Staff Outlook alert + PDF; status = submitted</td></tr>
-          <tr><td>Staff Submit</td><td>PDF/file refresh only (no email)</td></tr>
+          <tr><td>Guest Submit</td><td>Staff email + PDF; status = submitted</td></tr>
+          <tr><td>Staff Submit</td><td>PDF refresh only (no email)</td></tr>
         </tbody>
       </table>
     </section>
 
-    <!-- 7 -->
     <section class="chapter" id="passwords">
-      <h2>7. Passwords &amp; API URL</h2>
-      <p class="lead">Guest/staff codes live in Power Automate only. The public <code>API_URL</code> is required for the form to talk to the flow.</p>
-
-      <h3>Change a code</h3>
-      <ol class="steps">
-        <li>Open <a href="https://make.powerautomate.com">make.powerautomate.com</a> → <strong>Wedding Room Block Form - API</strong> → Edit.</li>
+      <h2>7. Passwords and API URL</h2>
+      <p class="lead">Codes live in Power Automate. <code>API_URL</code> is public on purpose (browser needs it).</p>
+      <ol class="steps auto">
+        <li>Open <a href="https://make.powerautomate.com">make.powerautomate.com</a> → <em>Wedding Room Block Form - API</em> → Edit.</li>
         <li>Edit Compose <strong>FormPassword</strong> (guest) or <strong>StaffPassword</strong> (staff).</li>
-        <li>Save → keep flow On → test unlock on the live form.</li>
+        <li>Save → keep flow On → test unlock.</li>
       </ol>
-
       <table class="simple">
-        <thead><tr><th>Secret</th><th>Public?</th><th>Notes</th></tr></thead>
+        <thead><tr><th>Item</th><th>Public?</th><th>Where</th></tr></thead>
         <tbody>
           <tr><td>Guest / staff codes</td><td>No</td><td>Power Automate Compose only</td></tr>
-          <tr><td><code>API_URL</code> in <code>config.js</code></td><td>Yes</td><td>Needed by the browser. Includes a <code>sig=</code> token. Anyone with the URL can call the flow; unlock still needs a code. Rotate if leaked/spam.</td></tr>
+          <tr><td><code>API_URL</code></td><td>Yes</td><td><code>config.js</code> lines 14–17 (<code>FORM_CONFIG.API_URL</code>). Rotate if leaked/spam.</td></tr>
         </tbody>
       </table>
-
-      <h3>Rotate API URL</h3>
-      <ol class="steps">
-        <li>Copy new HTTP POST URL from the flow trigger.</li>
-        <li>Paste into <code>config.js</code> → <code>API_URL</code>.</li>
-        <li>Commit/push → hard-refresh form → test unlock.</li>
-      </ol>
       <div class="callout warn">
-        <strong>Never put live codes in GitHub</strong>
-        <code>MOCK_PASSWORD</code> / <code>MOCK_STAFF_PASSWORD</code> are for <code>MOCK_MODE: true</code> only.
+        <strong>Do not put live codes in GitHub</strong>
+        <code>MOCK_PASSWORD</code> / <code>MOCK_STAFF_PASSWORD</code> in <code>config.js</code> (lines 8–12) are for <code>MOCK_MODE: true</code> only.
       </div>
     </section>
 
-    <!-- 8 -->
     <section class="chapter" id="edit">
       <h2>8. Task map</h2>
       <table class="simple">
         <thead><tr><th>I want to…</th><th>Go to</th></tr></thead>
         <tbody>
-          <tr><td>Add / change a collected field</td><td><a href="#add-field">§9</a> — full chain</td></tr>
-          <tr><td>Rename a column / stop collecting</td><td><a href="#add-field">§9</a> short recipes</td></tr>
+          <tr><td>Add or change a collected field</td><td><a href="#add-field">§9</a></td></tr>
+          <tr><td>Rename / stop collecting</td><td><a href="#add-field">§9</a> short recipes</td></tr>
           <tr><td>Change passwords / API URL</td><td><a href="#passwords">§7</a></td></tr>
-          <tr><td>Change who gets PDF emails</td><td><a href="#emails">§10</a></td></tr>
+          <tr><td>Change PDF email recipients</td><td><a href="#emails">§10</a></td></tr>
           <tr><td>Something broke</td><td><a href="#troubleshoot">§11</a></td></tr>
-          <tr><td>Wording / CSS only (no new data)</td><td><a href="#add-field">§9</a> “Wording only”</td></tr>
         </tbody>
       </table>
       <div class="callout warn">
         <strong>Standing rule</strong>
-        Dry-run (step 8) before commit/push. Never push untested field changes.
+        Finish §9 step 8 (dry-run) before commit/push.
       </div>
     </section>
 
-    <!-- 9 -->
     <section class="chapter" id="add-field">
-      <h2>9. HOW-TO: Add or change a field</h2>
+      <h2>9. Add or change a field</h2>
       <p class="lead">
         Contract first: type + JSON key → list → Power Automate → HTML → dry-run → then push.
-        A list column with no <code>app.js</code> key stays empty forever.
+        A list column with no <code>app.js</code> key stays empty.
       </p>
 
+      <h3>Code map (GitHub repo)</h3>
+      <p>Repo root: <span class="mono">https://github.com/TheLasalleChicago-hydai/wedding-room-block-form</span>. Line numbers are from the current tree — if they drift, search the function name.</p>
+      <table class="simple">
+        <thead><tr><th>What</th><th>File</th><th>Block / lines</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Payload keys (text / number / choice)</td>
+            <td><code>app.js</code></td>
+            <td><code>collectPayload()</code> → <code>fields</code> array — lines <strong>666–707</strong></td>
+          </tr>
+          <tr>
+            <td>Date keys</td>
+            <td><code>app.js</code></td>
+            <td><code>collectPayload()</code> → <code>payload = { dateIsoOf… }</code> — lines <strong>709–720</strong></td>
+          </tr>
+          <tr>
+            <td>Staff-only visibility</td>
+            <td><code>app.js</code></td>
+            <td><code>applyStaffUi()</code> — lines <strong>861–866</strong></td>
+          </tr>
+          <tr>
+            <td>Form sections / inputs</td>
+            <td><code>index.html</code></td>
+            <td>Sections from line <strong>~95</strong> (<code>sec-contact</code>, <code>sec-basics</code>, <code>sec-rooms</code>, …). Staff dates: lines <strong>427–432</strong></td>
+          </tr>
+          <tr>
+            <td>API URL / title / mock</td>
+            <td><code>config.js</code></td>
+            <td><code>FORM_CONFIG</code> — lines <strong>4–29</strong> (<code>API_URL</code> 14–17)</td>
+          </tr>
+          <tr>
+            <td>List ↔ payload docs</td>
+            <td><code>power-automate/FIELD-MAP.md</code></td>
+            <td>Mapping table at top of file</td>
+          </tr>
+          <tr>
+            <td>PDF HTML templates</td>
+            <td><code>power-automate/FORM-PDF-HTML.md</code></td>
+            <td>SubmitHTML / DraftHTML sections</td>
+          </tr>
+        </tbody>
+      </table>
+
       <figure class="figure">
-        <img src="assets/manual/manual-list-pa-flow.jpg" alt="Steps 0 through 8 for adding a field" />
-        <figcaption>Figure 4. Steps 0–8. Caption matches the steps below.</figcaption>
+        <img src="../assets/manual/manual-field-flow-a.jpg" alt="Steps 0 through 4.5" width="1400" height="520" />
+        <figcaption>Figure 4a. Steps 0–4.5 (backup through null-safe mapping).</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="../assets/manual/manual-field-flow-b.jpg" alt="Steps 5 through 8" width="1400" height="420" />
+        <figcaption>Figure 4b. Steps 5–8 (verify → HTML → layout → dry-run → push).</figcaption>
       </figure>
 
       <div class="callout">
         <strong>Rare exception</strong>
-        A staff-only list column filled by hand (no form, no flow map) is allowed. Everything couples type needs the full chain.
+        Staff-only list column filled by hand (no form, no flow map) is OK. Anything couples type needs the full chain.
       </div>
 
-      <ol class="steps steps-labeled">
+      <ol class="steps">
         <li data-n="0">
-          <strong>BACKUP before edits</strong>
+          <strong>Backup before edits</strong>
           <ul>
-            <li>Git: create a branch, or download a ZIP of the repo.</li>
-            <li>Power Automate: ⋯ on the flow → <strong>Save as</strong> (keep a copy before changing Create/Update).</li>
+            <li><strong>Git:</strong> create a branch, or download a ZIP of the repo. Local Excel/flow copies can go in the ignored <code>backups/</code> folder.</li>
+            <li><strong>Power Automate:</strong> ⋯ on the flow → <strong>Save as</strong> (keep a working copy).</li>
+            <li><strong>SharePoint list:</strong> open <em>Wedding Room Planner</em> → Export → <strong>Export to Excel</strong> (or CSV). Save dated copy under <code>backups/</code>.</li>
           </ul>
         </li>
 
         <li data-n="1">
-          <strong>Choose data type + machine name</strong>
-          <p>Machine name: lowercase + underscores only (example <code>guest_rooms_notes</code>). Same string everywhere.</p>
+          <strong>Choose type + machine name</strong>
+          <p>Name: lowercase + underscores only (example <code>guest_rooms_notes</code>). Same string in HTML, <code>app.js</code>, and PA.</p>
           <table class="simple">
-            <thead><tr><th>Form need</th><th>SharePoint type</th><th>Payload tip</th></tr></thead>
+            <thead><tr><th>Need</th><th>SharePoint type</th><th>Where in app.js</th></tr></thead>
             <tbody>
-              <tr><td>Short text</td><td>Single line of text</td><td>Add to <code>fields</code> array in <code>collectPayload()</code></td></tr>
-              <tr><td>Long notes</td><td>Multiple lines of text</td><td>Same</td></tr>
-              <tr><td>Whole number</td><td>Number</td><td>Same + null-safe if optional (4.5)</td></tr>
-              <tr><td>Calendar date</td><td>Date and time (Date only)</td><td>Use <code>dateIsoOf("name")</code> + null-safe (4.5)</td></tr>
-              <tr><td>Yes / No</td><td>Choice (<code>yes</code> / <code>no</code>)</td><td>Radios; never <code>int()</code> in PA</td></tr>
+              <tr><td>Short text</td><td>Single line of text</td><td><code>fields</code> array (666–707)</td></tr>
+              <tr><td>Long notes</td><td>Multiple lines of text</td><td><code>fields</code> array</td></tr>
+              <tr><td>Whole number</td><td>Number</td><td><code>fields</code> + step 4.5 if optional</td></tr>
+              <tr><td>Calendar date</td><td>Date only</td><td><code>dateIsoOf</code> block (709–720) + step 4.5</td></tr>
+              <tr><td>Yes / No</td><td>Choice <code>yes</code>/<code>no</code></td><td><code>fields</code>; never <code>int()</code> in PA</td></tr>
             </tbody>
           </table>
         </li>
 
         <li data-n="2">
-          <strong>Edit <code>app.js</code> (JSON payload)</strong>
-          <ol>
-            <li>Open <code>app.js</code> → function <code>collectPayload()</code>.</li>
-            <li>Text / number / time / yes-no: add the machine name to the <code>fields</code> array.</li>
-            <li>Dates: also add <code>your_field: dateIsoOf("your_field"),</code> in the <code>payload = { … }</code> object.</li>
-            <li>Staff-only UI: wrap the HTML later in <code>data-staff-only</code> (step 6). <code>applyStaffUi()</code> already hides those until staff unlock.</li>
-            <li>Optional required: add validation in the same file’s error object (pattern like <code>couple_name</code>).</li>
-          </ol>
+          <strong>Edit <code>app.js</code> — JSON payload</strong>
+          <ul>
+            <li>Open <code>app.js</code> → <code>collectPayload()</code> (starts ~line <strong>666</strong>).</li>
+            <li>Text / number / time / yes-no: add the machine name inside the <code>fields</code> array (lines <strong>667–707</strong>).</li>
+            <li>Dates: add <code>your_field: dateIsoOf("your_field"),</code> in the <code>payload = { … }</code> object (lines <strong>709–720</strong>).</li>
+            <li>Staff-only UI: wrap HTML later with <code>data-staff-only</code>. Visibility is toggled in <code>applyStaffUi()</code> (lines <strong>861–866</strong>).</li>
+          </ul>
           <div class="callout warn">
             <strong>Skip this → blank forever</strong>
-            HTML alone does not send data. Power Automate cannot invent a missing payload key.
+            HTML alone does not send data.
           </div>
         </li>
 
         <li data-n="3">
           <strong>Create the SharePoint column</strong>
-          <ol>
-            <li>Microsoft Lists → <strong>Wedding Room Planner</strong>.</li>
-            <li>+ Add column → type from the table above → clear display name → Save.</li>
-            <li>Rename later: Column settings → Edit. Then re-check Create/Update in the flow (step 4).</li>
-          </ol>
+          <ul>
+            <li>Lists → <em>Wedding Room Planner</em> → + Add column → type from the table → Save.</li>
+            <li>Rename: Column settings → Edit, then re-check Create/Update in the flow (step 4).</li>
+          </ul>
         </li>
 
         <li data-n="4">
-          <strong>Map the column in Power Automate</strong>
-          <ol>
-            <li>Edit flow <em>Wedding Room Block Form - API</em>.</li>
-            <li>Update <strong>every</strong> Create item + Update item for this list on <strong>saveDraft</strong> and <strong>submitFinal</strong> (often four places).</li>
-            <li>If the column is missing: Show all / refresh, or re-add the action.</li>
-            <li>Expression (replace name):
-              <pre class="url">json(triggerBody())?['payload']?['guest_rooms_notes']</pre>
-            </li>
-            <li>Save the flow. Leave it On.</li>
-            <li>Document the row in <code>power-automate/FIELD-MAP.md</code>.</li>
-            <li>PDF: if staff need it on the PDF, add a box in Compose SubmitHTML / DraftHTML (same payload path). Template: <code>power-automate/FORM-PDF-HTML.md</code>.</li>
-          </ol>
+          <strong>Map in Power Automate</strong>
+          <ul>
+            <li>Edit <em>Wedding Room Block Form - API</em>.</li>
+            <li>Every <strong>Create item</strong> + <strong>Update item</strong> on <strong>saveDraft</strong> and <strong>submitFinal</strong>.</li>
+            <li>Expression: <code>json(triggerBody())?['payload']?['guest_rooms_notes']</code></li>
+            <li>Document in <code>power-automate/FIELD-MAP.md</code> (top mapping table).</li>
+            <li>PDF: add a box in Compose SubmitHTML / DraftHTML; templates in <code>power-automate/FORM-PDF-HTML.md</code>.</li>
+          </ul>
         </li>
 
         <li data-n="4.5">
-          <strong>Null-safe expression (if the field can be blank on draft Save)</strong>
-          <p>Empty date/number sent as <code>""</code> often fails SharePoint. Paste Expression (not text):</p>
-          <p>Date example:</p>
+          <strong>Null-safe expression</strong> (if blank on draft Save can break SharePoint)
           <pre class="url">if(empty(json(triggerBody())?['payload']?['group_arrival']), null, json(triggerBody())?['payload']?['group_arrival'])</pre>
-          <p>Number example:</p>
           <pre class="url">if(empty(json(triggerBody())?['payload']?['valet_vehicles']), null, int(json(triggerBody())?['payload']?['valet_vehicles']))</pre>
-          <p>Choice (yes/no) — text only, no <code>int()</code>:</p>
           <pre class="url">if(empty(json(triggerBody())?['payload']?['valet_needed']), null, json(triggerBody())?['payload']?['valet_needed'])</pre>
+          <p>Choices are text — do not wrap with <code>int()</code>.</p>
         </li>
 
         <li data-n="5">
           <strong>Verify mapping</strong>
-          <ol>
-            <li>Confirm the new column appears on Create/Update after refresh.</li>
-            <li>Optional: Flow <strong>Test</strong> with a sample body that includes your payload key.</li>
-            <li>After HTML exists (step 6+), confirm run history Create/Update shows the value (no red error).</li>
-          </ol>
+          <ul>
+            <li>Column appears on Create/Update after refresh.</li>
+            <li>Optional: Flow Test with a body that includes your payload key.</li>
+            <li>After HTML exists: Run history → Create/Update shows the value.</li>
+          </ul>
         </li>
 
         <li data-n="6">
-          <strong>Add HTML (<code>index.html</code>)</strong>
-          <p>Copy a same-type field block. Machine name must match step 1–2.</p>
+          <strong>Add HTML — <code>index.html</code></strong>
+          <ul>
+            <li>Open <code>index.html</code>. Sections start ~line <strong>95</strong>. Paste next to similar fields (e.g. Rooms &amp; VIP ~line <strong>187</strong>).</li>
+            <li><code>id</code>, <code>name</code>, <code>data-field</code>, and <code>data-error-for</code> must match the machine name from step 1.</li>
+          </ul>
           <pre class="url">&lt;div class="field" data-field="guest_rooms_notes"&gt;
   &lt;label for="guest_rooms_notes"&gt;Guest room notes&lt;/label&gt;
   &lt;input id="guest_rooms_notes" name="guest_rooms_notes" type="text" /&gt;
@@ -531,108 +552,94 @@
             <thead><tr><th>Layout</th><th>How</th></tr></thead>
             <tbody>
               <tr><td>New section</td><td><code>&lt;section class="section"&gt;</code> + <code>&lt;h2&gt;</code> + <code>field-grid</code> or <code>field-grid two</code></td></tr>
-              <tr><td>Two columns</td><td>Parent <code>class="field-grid two"</code></td></tr>
               <tr><td>Date</td><td><code>type="date"</code> + <code>data-date-field</code></td></tr>
               <tr><td>Yes/No</td><td>Two radios, same <code>name</code>, values <code>yes</code> / <code>no</code></td></tr>
-              <tr><td>Staff only</td><td>Wrap block with <code>data-staff-only</code> (hidden for guests)</td></tr>
+              <tr><td>Staff only</td><td>Add <code>data-staff-only</code> (see lines 427–432)</td></tr>
             </tbody>
           </table>
         </li>
 
         <li data-n="7">
-          <strong>Check layout</strong>
-          <ol>
-            <li>Local: <code>npx --yes serve .</code> with <code>MOCK_MODE: true</code> for UI-only, or <code>false</code> + live <code>API_URL</code> to hit the real flow.</li>
-            <li>Confirm label, spacing, conditionals look right. Hard-refresh (Ctrl+Shift+R) after JS/HTML edits.</li>
-          </ol>
+          <strong>Layout check</strong>
+          <ul>
+            <li>Local: <code>npx --yes serve .</code> — use <code>config.js</code> <code>MOCK_MODE</code> (line 8) for UI-only.</li>
+            <li>Hard-refresh (Ctrl+Shift+R) after JS/HTML edits.</li>
+          </ul>
         </li>
 
         <li data-n="8">
-          <strong>Full dry-run (required before push)</strong>
-          <ol>
-            <li>Staff unlock → fill the <strong>new</strong> field with a known test value.</li>
-            <li>Save progress → open SharePoint row → value present.</li>
-            <li>Submit final → status submitted; PDF shows the field (if you added it).</li>
-            <li>Optional: guest path once (save email + submit email) if the field is customer-facing.</li>
-            <li><strong>Only then</strong> commit/push <code>index.html</code>, <code>app.js</code>, FIELD-MAP, manual as needed to <code>main</code>.</li>
-          </ol>
+          <strong>Full dry-run, then commit / push</strong>
+          <ul>
+            <li>Staff unlock → fill the <strong>new</strong> field → Save → confirm SharePoint cell.</li>
+            <li>Submit → confirm PDF if you added it.</li>
+            <li><strong>Only then</strong> commit/push <code>index.html</code>, <code>app.js</code>, <code>FIELD-MAP.md</code> as needed to <code>main</code>.</li>
+          </ul>
         </li>
       </ol>
 
       <div class="done">
         <strong>Done when</strong>
         <ul>
-          <li>Payload key in <code>collectPayload()</code></li>
-          <li>List column filled after Save</li>
-          <li>Create+Update mapped on save + submit</li>
-          <li>HTML visible (and staff-only rules work)</li>
-          <li>Dry-run passed <em>before</em> push</li>
+          <li>Key in <code>collectPayload()</code> (app.js ~666+)</li>
+          <li>List column fills after Save</li>
+          <li>Create+Update mapped on save and submit</li>
+          <li>HTML visible; dry-run passed before push</li>
         </ul>
       </div>
 
-      <h3>Wording / look only (no new data)</h3>
-      <ol class="steps">
-        <li>Edit labels in <code>index.html</code> or styles in <code>styles.css</code> / intro in <code>config.js</code>.</li>
-        <li>Preview → push. Skip list/PA if nothing new is collected.</li>
+      <h3>Wording / look only</h3>
+      <ol class="steps auto">
+        <li>Edit labels in <code>index.html</code> (~95+), styles in <code>styles.css</code>, or intro in <code>config.js</code> (lines 19–23).</li>
+        <li>Preview → push. Skip list/PA if no new data.</li>
       </ol>
 
       <h3>Rename a column</h3>
-      <ol class="steps">
+      <ol class="steps auto">
         <li>List → Column settings → Edit display name.</li>
-        <li>PA → confirm Create/Update still show the field.</li>
-        <li>Update form/PDF label if customers see it. Machine name in <code>app.js</code> can stay.</li>
-        <li>Update FIELD-MAP → dry-run Save.</li>
+        <li>PA → confirm Create/Update still mapped.</li>
+        <li>Update form/PDF label if needed. Machine name in <code>app.js</code> can stay.</li>
+        <li>Update <code>FIELD-MAP.md</code> → dry-run Save.</li>
       </ol>
 
       <h3>Stop collecting a field</h3>
-      <ol class="steps">
-        <li>Remove HTML + remove from <code>collectPayload()</code>.</li>
+      <ol class="steps auto">
+        <li>Remove HTML in <code>index.html</code>; remove key from <code>collectPayload()</code> (<code>app.js</code> 666–720).</li>
         <li>Clear PA mappings; remove PDF line.</li>
-        <li>Hide list column from view first (delete later if safe).</li>
+        <li>Hide list column from view first.</li>
         <li>Dry-run → push.</li>
       </ol>
     </section>
 
-    <!-- 10 -->
     <section class="chapter" id="emails">
-      <h2>10. HOW-TO: Change notification emails</h2>
-      <p class="lead">Guest submit emails the hotel. Staff save/submit stay silent on purpose.</p>
-      <ol class="steps">
+      <h2>10. Change notification emails</h2>
+      <p class="lead">Guest submit emails the hotel. Staff save/submit stay silent.</p>
+      <ol class="steps auto">
         <li>Power Automate → <em>Wedding Room Block Form - API</em> → Edit.</li>
-        <li>Find <strong>Send an email (V2)</strong> on the guest submit path (after PDF).</li>
-        <li>Set <strong>To</strong> / <strong>Cc</strong> (prefer a shared mailbox so you don’t edit the flow for every hire).</li>
+        <li>Find <strong>Send an email (V2)</strong> on the guest submit path.</li>
+        <li>Set To / Cc (prefer a shared mailbox).</li>
         <li>Save → guest-submit dry-run → confirm inbox.</li>
       </ol>
-      <div class="done">
-        <strong>Done when</strong>
-        <ul><li>A guest Submit lands in the intended mailbox with PDF.</li></ul>
-      </div>
     </section>
 
-    <!-- 11 -->
     <section class="chapter" id="troubleshoot">
       <h2>11. Troubleshoot</h2>
-      <p class="lead">Form error or blank column → Run history first.</p>
-      <ol class="steps">
-        <li>Power Automate → flow → <strong>Run history</strong> → open the run that matches your Save time.</li>
-        <li>Red X = failed step (read the error). Skipped Response 200 = form often shows “upstream” even if later steps worked.</li>
+      <ol class="steps auto">
+        <li>Flow → <strong>Run history</strong> → open the run for your Save time.</li>
+        <li>Red X = failed step. Skipped Response 200 often causes form “upstream” errors.</li>
       </ol>
       <table class="simple">
-        <thead><tr><th>Symptom</th><th>Likely step</th><th>Fix</th></tr></thead>
+        <thead><tr><th>Symptom</th><th>Fix</th></tr></thead>
         <tbody>
-          <tr><td>Cannot unlock</td><td>§7</td><td>Flow On? Correct code? <code>API_URL</code> matches trigger?</td></tr>
-          <tr><td>Box on form, list blank</td><td>§9.2</td><td>Add key to <code>collectPayload()</code>; hard-refresh</td></tr>
-          <tr><td>Column always blank</td><td>§9.4</td><td>Map Create+Update on save <em>and</em> submit; refresh schema</td></tr>
-          <tr><td>Date/number Save fails</td><td>§9 4.5</td><td>Null-if-empty expression</td></tr>
-          <tr><td><code>int()</code> on yes/no</td><td>§9 4.5</td><td>Map choice as text</td></tr>
-          <tr><td>Timeout / upstream; flow green</td><td>PA layout</td><td>Response 200 right after Create/Update (before PDF/email)</td></tr>
-          <tr><td>List has value; PDF missing</td><td>§9.4 PDF</td><td>Add field to SubmitHTML / DraftHTML</td></tr>
-          <tr><td>No resume email</td><td>§4 / §6</td><td>Staff save is silent; guest Save should email</td></tr>
+          <tr><td>Cannot unlock</td><td>§7 — flow On, code, <code>config.js</code> API_URL (14–17)</td></tr>
+          <tr><td>Box on form, list blank</td><td>§9.2 — add key in <code>app.js</code> 667–707; hard-refresh</td></tr>
+          <tr><td>Column always blank</td><td>§9.4 — map Create+Update save and submit</td></tr>
+          <tr><td>Date/number Save fails</td><td>§9 4.5 — null-if-empty</td></tr>
+          <tr><td>Timeout; flow green</td><td>Response 200 right after Create/Update</td></tr>
+          <tr><td>List OK; PDF missing field</td><td>SubmitHTML / DraftHTML + <code>FORM-PDF-HTML.md</code></td></tr>
         </tbody>
       </table>
     </section>
 
-    <!-- 12 -->
     <section class="chapter" id="quick-ref">
       <h2>12. Quick reference</h2>
       <table class="simple">
@@ -640,25 +647,23 @@
         <tbody>
           <tr><td>Live form</td><td><span class="mono">https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/</span></td></tr>
           <tr><td>Start a wedding</td><td>Staff unlock → name + date → Save → send Form URL + guest code</td></tr>
-          <tr><td>Add a field</td><td>§9 steps 0–8 (dry-run before push)</td></tr>
+          <tr><td>Add a field</td><td>§9 steps 0–8</td></tr>
           <tr><td>Passwords / API URL</td><td>§7</td></tr>
-          <tr><td>Notification emails</td><td>§10</td></tr>
-          <tr><td>Break/fix</td><td>§11 Run history</td></tr>
-          <tr><td>Full rebuild</td><td><code>SETUP-ORDERED.md</code> + <code>FIELD-MAP.md</code></td></tr>
+          <tr><td>Emails</td><td>§10</td></tr>
+          <tr><td>Break/fix</td><td>§11</td></tr>
         </tbody>
       </table>
     </section>
 
-    <!-- 13 -->
     <section class="chapter" id="license">
       <h2>13. License</h2>
       <ul>
-        <li><strong>MIT</strong> — see <code>LICENSE</code>.</li>
+        <li><strong>MIT</strong> — see <code>LICENSE</code> in the repo.</li>
         <li>Not a paid product; no warranty.</li>
         <li>Hotel branding stays with its owners.</li>
       </ul>
-      <p class="mono">https://github.com/TheLasalleChicago-hydai/wedding-room-block-form</p>
     </section>
   </div>
 </body>
 </html>
+

@@ -10,7 +10,7 @@ Customers get one shared link and an access code. They **Save progress** (list d
 
 **Live form:** [https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/](https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/)
 
-**User manual (recipe-style, printable):** [USER-MANUAL.html](USER-MANUAL.html) · [live](https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/USER-MANUAL.html) — Print → Save as PDF for page numbers. **§9** is the full add-field recipe: backup → type/name → `app.js` → list → Power Automate (+ null-safe) → verify → HTML → layout check → dry-run → **then** commit/push. Also covers passwords vs public `API_URL`.
+**User manual (recipe-style, printable):** [USER-MANUAL.html](USER-MANUAL.html) · [live](https://TheLasalleChicago-hydai.github.io/wedding-room-block-form/USER-MANUAL.html) — Print → Save as PDF for page numbers. **§9** add-field recipe (0–8) with code map (file + line/block). Backup includes Git, flow Save As, and list Excel export. Local `backups/` is gitignored.
 
 Staff unlock (staff password in Power Automate) edits the list without emails; staff resubmit refreshes the PDF only. Details: [power-automate/STAFF-PDF.md](power-automate/STAFF-PDF.md).
 
