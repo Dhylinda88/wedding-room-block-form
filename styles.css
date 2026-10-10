@@ -366,6 +366,13 @@ textarea {
   gap: 0.35rem;
 }
 
+/* .field { display:flex } otherwise beats the HTML hidden attribute */
+[data-staff-only][hidden],
+.field[hidden],
+.section[hidden] {
+  display: none !important;
+}
+
 .field label {
   font-size: 0.875rem;
   font-weight: 600;
