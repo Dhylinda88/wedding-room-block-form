@@ -454,6 +454,65 @@ textarea {
   display: none;
 }
 
+.parent-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.5rem;
+}
+
+.parent-row {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--gold-soft);
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.parent-row .parent-include {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.parent-row input[type="text"] {
+  width: 100%;
+}
+
+.parent-row.is-off input[type="text"] {
+  opacity: 0.45;
+}
+
+.allergy-counts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.65rem 1rem;
+  margin-top: 0.5rem;
+}
+
+.allergy-count-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.allergy-count-row input {
+  width: 4rem;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .parent-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* —— Repeatable rows —— */
 .rows {
   display: flex;

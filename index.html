@@ -194,23 +194,28 @@
               </div>
               <div class="field" data-field="guest_notes" data-staff-only hidden>
                 <label for="guest_notes">Guest notes</label>
-                <textarea id="guest_notes" name="guest_notes" placeholder="Room needs, pickup notes, accessibility issues, VIPs, or special requests"></textarea>
+                <textarea id="guest_notes" name="guest_notes" placeholder="Room needs, pickup notes, special requests"></textarea>
                 <div class="field-error" data-error-for="guest_notes"></div>
               </div>
-              <div class="field" data-field="couple_parents">
-                <label for="couple_parents">Couple parents</label>
-                <select id="couple_parents" name="couple_parents">
-                  <option value="">Select…</option>
-                  <option value="Choice 1">Choice 1</option>
-                  <option value="Choice 2">Choice 2</option>
-                  <option value="Choice 3">Choice 3</option>
-                </select>
+              <div class="field" data-field="couple_parents" style="grid-column: 1 / -1">
+                <label>Couple parents</label>
+                <p class="hint">Check each parent to include, then enter their name and relation (mother, father, parent, step-parent, guardian, etc.).</p>
+                <div id="couple-parent-rows" class="parent-rows"></div>
                 <div class="field-error" data-error-for="couple_parents"></div>
               </div>
               <div class="field" data-field="couple_accommodations" data-staff-only hidden>
                 <label for="couple_accommodations">Accommodations for the wedding couple</label>
                 <textarea id="couple_accommodations" name="couple_accommodations"></textarea>
                 <div class="field-error" data-error-for="couple_accommodations"></div>
+              </div>
+              <div class="field" data-field="vip_names">
+                <label for="vip_names">VIP upgrades</label>
+                <textarea
+                  id="vip_names"
+                  name="vip_names"
+                  placeholder="Concession 1 — Guest name&#10;Concession 2 — Guest name"
+                ></textarea>
+                <div class="field-error" data-error-for="vip_names"></div>
               </div>
               <div class="field" data-field="getting_ready_needed">
                 <label>Getting-ready room or suite needed?</label>
@@ -228,16 +233,6 @@
                     <div class="field-error" data-error-for="getting_ready_guests"></div>
                   </div>
                 </div>
-              </div>
-              <div class="field" data-field="vip_names">
-                <label for="vip_names">VIP / family names for special attention</label>
-                <textarea id="vip_names" name="vip_names" placeholder="Names and any upgrade or attention notes"></textarea>
-                <div class="field-error" data-error-for="vip_names"></div>
-              </div>
-              <div class="field" data-field="accessibility">
-                <label for="accessibility">Accessibility needs or special guest requests</label>
-                <textarea id="accessibility" name="accessibility"></textarea>
-                <div class="field-error" data-error-for="accessibility"></div>
               </div>
             </div>
           </section>
@@ -440,10 +435,23 @@
                   </div>
                   <div class="field-error" data-error-for="menu_selected"></div>
                 </div>
-                <div class="field" data-field="catering_dietary_restrictions" style="grid-column: 1 / -1">
-                  <label for="catering_dietary_restrictions">Catering dietary restrictions</label>
-                  <textarea id="catering_dietary_restrictions" name="catering_dietary_restrictions" placeholder="Shellfish, Nuts, Gluten, Dairy, Eggs, or other"></textarea>
-                  <div class="field-error" data-error-for="catering_dietary_restrictions"></div>
+                <div class="field" data-field="catering_allergy_counts" style="grid-column: 1 / -1">
+                  <label>Allergy / dietary counts</label>
+                  <p class="hint">Enter how many guests for each allergy (kitchen totals). Leave at 0 if none.</p>
+                  <div class="allergy-counts" id="allergy-counts">
+                    <label class="allergy-count-row"><span>Shellfish</span><input type="number" min="0" step="1" inputmode="numeric" data-allergy="Shellfish" data-numeric value="0" /></label>
+                    <label class="allergy-count-row"><span>Nuts</span><input type="number" min="0" step="1" inputmode="numeric" data-allergy="Nuts" data-numeric value="0" /></label>
+                    <label class="allergy-count-row"><span>Gluten</span><input type="number" min="0" step="1" inputmode="numeric" data-allergy="Gluten" data-numeric value="0" /></label>
+                    <label class="allergy-count-row"><span>Dairy</span><input type="number" min="0" step="1" inputmode="numeric" data-allergy="Dairy" data-numeric value="0" /></label>
+                    <label class="allergy-count-row"><span>Eggs</span><input type="number" min="0" step="1" inputmode="numeric" data-allergy="Eggs" data-numeric value="0" /></label>
+                    <label class="allergy-count-row"><span>Other</span><input type="number" min="0" step="1" inputmode="numeric" data-allergy="Other" data-numeric value="0" /></label>
+                  </div>
+                  <div class="field-error" data-error-for="catering_allergy_counts"></div>
+                </div>
+                <div class="field" data-field="catering_allergy_names" style="grid-column: 1 / -1">
+                  <label for="catering_allergy_names">Guest names for dietary restrictions</label>
+                  <textarea id="catering_allergy_names" name="catering_allergy_names" placeholder="Optional — names ops should know (e.g. Jane Doe — Gluten)"></textarea>
+                  <div class="field-error" data-error-for="catering_allergy_names"></div>
                 </div>
               </div>
             </div>

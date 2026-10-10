@@ -42,6 +42,9 @@
   let staffMode = sessionStorage.getItem(STAFF_KEY) === "1";
   let autoCompleteBy = true;
 
+  const PARENT_SLOT_COUNT = 4;
+  const ALLERGY_TYPES = ["Shellfish", "Nuts", "Gluten", "Dairy", "Eggs", "Other"];
+
   function apiConfigured() {
     return (
       cfg.API_URL &&
@@ -367,8 +370,13 @@
     if (staffMode) {
       requireFilled(errors, "couple_accommodations", "Describe accommodations for the couple.");
     }
-    requireFilled(errors, "vip_names", "Enter VIP names (or N/A).");
-    requireFilled(errors, "accessibility", "Enter accessibility notes (or N/A).");
+    requireFilled(errors, "vip_names", "Enter VIP upgrades (or N/A).");
+
+    const parents = collectCoupleParents();
+    const badParent = parents.find((p) => p.included && (!p.name || !p.relation));
+    if (badParent) {
+      errors.couple_parents = "For each checked parent, enter both name and relation.";
+    }
 
     requireRadio(errors, "getting_ready_needed", "Select whether a getting-ready room is needed.");
     if (valueOf("getting_ready_needed") === "yes") {
@@ -429,7 +437,6 @@
       const ba = valueOf("catering_numbers");
       if (ba === "" || !isValidNumeric(ba, false)) errors.catering_numbers = "Enter catering numbers.";
       requireRadio(errors, "menu_selected", "Select whether the menu was submitted.");
-      requireFilled(errors, "catering_dietary_restrictions", "Enter catering dietary restrictions (or N/A).");
     }
 
     let vendorOk = false;
@@ -644,6 +651,105 @@
     });
   }
 
+  function renderCoupleParentRows(data) {
+    const wrap = document.getElementById("couple-parent-rows");
+    if (!wrap) return;
+    const rows = Array.isArray(data) ? data : [];
+    wrap.innerHTML = "";
+    for (let i = 0; i < PARENT_SLOT_COUNT; i++) {
+      const item = rows[i] || {};
+      const included = !!item.included;
+      const row = document.createElement("div");
+      row.className = "parent-row" + (included ? "" : " is-off");
+      row.setAttribute("data-parent-row", String(i + 1));
+      row.innerHTML =
+        '<label class="parent-include"><input type="checkbox" data-parent="include"' +
+        (included ? " checked" : "") +
+        " /> Parent " +
+        (i + 1) +
+        "</label>" +
+        '<input type="text" data-parent="name" placeholder="Name" value="' +
+        escapeAttr(item.name || "") +
+        '"' +
+        (included ? "" : " disabled") +
+        " />" +
+        '<input type="text" data-parent="relation" placeholder="Relation (mother, father, parent…)" value="' +
+        escapeAttr(item.relation || "") +
+        '"' +
+        (included ? "" : " disabled") +
+        " />";
+      const include = row.querySelector('[data-parent="include"]');
+      const nameEl = row.querySelector('[data-parent="name"]');
+      const relEl = row.querySelector('[data-parent="relation"]');
+      include.addEventListener("change", () => {
+        const on = include.checked;
+        row.classList.toggle("is-off", !on);
+        nameEl.disabled = !on;
+        relEl.disabled = !on;
+        if (!on) {
+          nameEl.value = "";
+          relEl.value = "";
+        }
+        markDirty();
+      });
+      nameEl.addEventListener("input", markDirty);
+      relEl.addEventListener("input", markDirty);
+      wrap.appendChild(row);
+    }
+  }
+
+  function escapeAttr(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;");
+  }
+
+  function collectCoupleParents() {
+    return Array.from(document.querySelectorAll("[data-parent-row]")).map((row) => {
+      const includeEl = row.querySelector('[data-parent="include"]');
+      const included = !!(includeEl && includeEl.checked);
+      return {
+        included: included,
+        name: included ? row.querySelector('[data-parent="name"]').value.trim() : "",
+        relation: included ? row.querySelector('[data-parent="relation"]').value.trim() : "",
+      };
+    });
+  }
+
+  function formatCoupleParentsText(parents) {
+    return (parents || [])
+      .filter((p) => p.included && p.name)
+      .map((p) => p.name + (p.relation ? " (" + p.relation + ")" : ""))
+      .join("; ");
+  }
+
+  function collectAllergyCounts() {
+    const counts = {};
+    ALLERGY_TYPES.forEach((type) => {
+      const input = document.querySelector('[data-allergy="' + type + '"]');
+      const n = input ? Number(String(input.value || "0").trim()) : 0;
+      counts[type] = Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+    });
+    return counts;
+  }
+
+  function applyAllergyCounts(counts) {
+    const src = counts && typeof counts === "object" ? counts : {};
+    ALLERGY_TYPES.forEach((type) => {
+      const input = document.querySelector('[data-allergy="' + type + '"]');
+      if (input) input.value = src[type] != null && src[type] !== "" ? String(src[type]) : "0";
+    });
+  }
+
+  function formatAllergySummary(counts, names) {
+    const parts = ALLERGY_TYPES.filter((t) => counts[t] > 0).map((t) => t + ": " + counts[t]);
+    const countLine = parts.length ? parts.join("; ") : "None";
+    const nameLine = String(names || "").trim();
+    if (nameLine && !isNaAnswer(nameLine)) return countLine + " | Names: " + nameLine;
+    return countLine;
+  }
+
   function addVendorRow(data) {
     const node = els.vendorTemplate.content.cloneNode(true);
     const row = node.querySelector("[data-vendor-row]");
@@ -677,12 +783,10 @@
       "weekend_contact_phone",
       "guests",
       "guest_notes",
-      "couple_parents",
       "couple_accommodations",
       "getting_ready_needed",
       "getting_ready_guests",
       "vip_names",
-      "accessibility",
       "transport_required",
       "transport_company",
       "transport_contact",
@@ -706,7 +810,7 @@
       "catering_datetime",
       "catering_numbers",
       "menu_selected",
-      "catering_dietary_restrictions",
+      "catering_allergy_names",
     ];
 
     const payload = {
@@ -742,6 +846,18 @@
       }
       payload[name] = v;
     });
+
+    const parents = collectCoupleParents();
+    payload.couple_parents_list = parents;
+    payload.couple_parents = formatCoupleParentsText(parents);
+
+    const allergyCounts = collectAllergyCounts();
+    payload.catering_allergy_counts = allergyCounts;
+    payload.catering_dietary_restrictions = formatAllergySummary(
+      allergyCounts,
+      payload.catering_allergy_names
+    );
+
     payload.anticipated_rooms = payload.guest_notes;
     payload.bags_providing = payload.giftbags_provided;
     payload.brunch_hosting = payload.catering_needed;
@@ -763,13 +879,23 @@
     }
     autoCompleteBy = false;
     Object.keys(payload).forEach((key) => {
-      if (key === "vendors") return;
+      if (
+        key === "vendors" ||
+        key === "couple_parents" ||
+        key === "couple_parents_list" ||
+        key === "catering_allergy_counts" ||
+        key === "catering_dietary_restrictions"
+      ) {
+        return;
+      }
       setValue(key, payload[key]);
     });
     els.vendorRows.innerHTML = "";
     const vendors = Array.isArray(payload.vendors) ? payload.vendors : [];
     if (vendors.length === 0) addVendorRow();
     else vendors.forEach((v) => addVendorRow(v));
+    renderCoupleParentRows(payload.couple_parents_list);
+    applyAllergyCounts(payload.catering_allergy_counts);
     syncConditionals();
     const wedding = dateIsoOf("wedding_date");
     const expectedComplete = wedding ? addDaysIso(wedding, -30) : "";
@@ -1307,6 +1433,8 @@
   function init() {
     applyConfigCopy();
     addVendorRow();
+    renderCoupleParentRows();
+    applyAllergyCounts();
     wireConditionals();
     wireDirtyTracking();
     wireMasks();
