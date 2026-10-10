@@ -299,49 +299,6 @@
 
           <hr class="rule" />
 
-          <section class="section" aria-labelledby="sec-valet">
-            <h2 id="sec-valet">Valet parking</h2>
-            <div class="field" data-field="valet_needed">
-              <label>Will valet parking be needed for wedding guests or visitors?</label>
-              <div class="choice-row">
-                <label><input type="radio" name="valet_needed" value="yes" /> Yes</label>
-                <label><input type="radio" name="valet_needed" value="no" /> No</label>
-              </div>
-              <div class="field-error" data-error-for="valet_needed"></div>
-            </div>
-            <div id="valet-details" class="conditional" hidden>
-              <div class="field" data-field="valet_payment">
-                <label>Parking arrangement</label>
-                <div class="choice-row">
-                  <label><input type="radio" name="valet_payment" value="individual" /> Individual guest payment</label>
-                  <label><input type="radio" name="valet_payment" value="hosted" /> Hosted by couple/family</label>
-                  <label><input type="radio" name="valet_payment" value="master" /> Master account</label>
-                  <label><input type="radio" name="valet_payment" value="other" /> Other</label>
-                </div>
-                <div class="field-error" data-error-for="valet_payment"></div>
-              </div>
-              <div class="field-grid two">
-                <div class="field" data-field="valet_other">
-                  <label for="valet_other">If other, describe</label>
-                  <input id="valet_other" name="valet_other" type="text" />
-                  <div class="field-error" data-error-for="valet_other"></div>
-                </div>
-                <div class="field" data-field="valet_billing_contact">
-                  <label for="valet_billing_contact">Authorized billing contact</label>
-                  <input id="valet_billing_contact" name="valet_billing_contact" type="text" />
-                  <div class="field-error" data-error-for="valet_billing_contact"></div>
-                </div>
-                <div class="field" data-field="valet_billing_instructions">
-                  <label for="valet_billing_instructions">Billing instructions</label>
-                  <input id="valet_billing_instructions" name="valet_billing_instructions" type="text" />
-                  <div class="field-error" data-error-for="valet_billing_instructions"></div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <hr class="rule" />
-
           <section class="section" aria-labelledby="sec-bags">
             <h2 id="sec-bags">Welcome / gift bags</h2>
             <div class="field" data-field="giftbags_provided">
@@ -386,11 +343,50 @@
           <hr class="rule" />
 
           <section class="section" aria-labelledby="sec-vendors">
-            <h2 id="sec-vendors">Vendor access</h2>
+            <h2 id="sec-vendors">Vendors &amp; valet</h2>
             <p class="section-lead">Add each vendor who needs hotel access. Enter N/A in company if none.</p>
             <div class="field" data-field="vendors"><div class="field-error" data-error-for="vendors"></div></div>
             <div id="vendor-rows" class="rows"></div>
             <button type="button" class="btn btn-secondary btn-add" id="add-vendor">Add vendor</button>
+
+            <div class="vendor-valet-block">
+              <div class="field" data-field="valet_needed">
+                <label>Will vendors need valet parking?</label>
+                <div class="choice-row">
+                  <label><input type="radio" name="valet_needed" value="yes" /> Yes</label>
+                  <label><input type="radio" name="valet_needed" value="no" /> No</label>
+                </div>
+                <div class="field-error" data-error-for="valet_needed"></div>
+              </div>
+              <div id="valet-details" class="conditional" hidden>
+                <div class="field" data-field="valet_payment">
+                  <label>How will vendor valet be billed?</label>
+                  <div class="choice-row">
+                    <label><input type="radio" name="valet_payment" value="master" /> Master account / room</label>
+                    <label><input type="radio" name="valet_payment" value="card_on_file" /> Card on file</label>
+                    <label><input type="radio" name="valet_payment" value="other" /> Other</label>
+                  </div>
+                  <div class="field-error" data-error-for="valet_payment"></div>
+                </div>
+                <div class="field-grid two">
+                  <div class="field" data-field="valet_other">
+                    <label for="valet_other">If other, describe</label>
+                    <input id="valet_other" name="valet_other" type="text" />
+                    <div class="field-error" data-error-for="valet_other"></div>
+                  </div>
+                  <div class="field" data-field="valet_billing_contact">
+                    <label for="valet_billing_contact">Authorized billing contact</label>
+                    <input id="valet_billing_contact" name="valet_billing_contact" type="text" />
+                    <div class="field-error" data-error-for="valet_billing_contact"></div>
+                  </div>
+                  <div class="field" data-field="valet_billing_instructions" style="grid-column: 1 / -1">
+                    <label for="valet_billing_instructions">Billing instructions</label>
+                    <input id="valet_billing_instructions" name="valet_billing_instructions" type="text" />
+                    <div class="field-error" data-error-for="valet_billing_instructions"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </section>
 
           <hr class="rule" />

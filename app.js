@@ -405,11 +405,11 @@
       requireFilled(errors, "transport_venue", "Enter the wedding venue for shuttle.");
     }
 
-    requireRadio(errors, "valet_needed", "Select whether valet is needed.");
+    requireRadio(errors, "valet_needed", "Select whether vendors need valet parking.");
     if (valueOf("valet_needed") === "yes") {
-      requireRadio(errors, "valet_payment", "Select a parking arrangement.");
+      requireRadio(errors, "valet_payment", "Select how vendor valet will be billed.");
       if (valueOf("valet_payment") === "other") {
-        requireFilled(errors, "valet_other", "Describe the other parking arrangement.");
+        requireFilled(errors, "valet_other", "Describe the other billing arrangement.");
       }
       requireFilled(errors, "valet_billing_contact", "Enter the billing contact.");
       requireFilled(errors, "valet_billing_instructions", "Enter billing instructions.");
