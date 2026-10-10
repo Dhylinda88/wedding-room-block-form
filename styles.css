@@ -527,6 +527,22 @@ textarea {
   border-top: 1px dashed var(--gold-soft);
 }
 
+.subsection-title {
+  margin: 1.5rem 0 0.35rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: var(--navy, #0a1e3c);
+}
+
+.staff-resume-actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
 @media (max-width: 640px) {
   .parent-row {
     grid-template-columns: 1fr;

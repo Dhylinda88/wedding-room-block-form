@@ -485,6 +485,30 @@
                 <div class="field-error" data-error-for="date_getting_ready"></div>
               </div>
             </div>
+
+            <h3 class="subsection-title">CI account (for resume)</h3>
+            <p class="section-lead">Pull these from CI after the group is booked, then generate the resume.</p>
+            <div class="field-grid two">
+              <div class="field" data-field="quote_number">
+                <label for="quote_number">Quote #</label>
+                <input id="quote_number" name="quote_number" type="text" placeholder="e.g. M-VBQVURP" autocomplete="off" />
+                <div class="field-error" data-error-for="quote_number"></div>
+              </div>
+              <div class="field" data-field="master_account">
+                <label for="master_account">Master Account #</label>
+                <input id="master_account" name="master_account" type="text" placeholder="e.g. 226687" autocomplete="off" />
+                <div class="field-error" data-error-for="master_account"></div>
+              </div>
+              <div class="field" data-field="market_code">
+                <label for="market_code">Market Code</label>
+                <input id="market_code" name="market_code" type="text" placeholder="e.g. KDZ" autocomplete="off" />
+                <div class="field-error" data-error-for="market_code"></div>
+              </div>
+            </div>
+            <div class="staff-resume-actions">
+              <button type="button" class="btn btn-secondary" id="generate-resume-btn">Generate resume</button>
+              <p class="hint" id="generate-resume-hint">Saves the draft first, then asks Power Automate to fill the Word resume template.</p>
+            </div>
           </section>
 
           <div class="footer-actions">

@@ -57,6 +57,11 @@ These are the live list headers we must match exactly or intentionally map to th
 | `Vendor List Due Date` | `date_vendor_list` | Internal date |
 | `Gift Bag Due Date` | `date_gift_bag` | Internal date |
 | `Staff Task List` | `staff_task_list` | Staff-only list reference |
+| `Quote Number` | `quote_number` | Staff-only; from CI after booking |
+| `Master Account` | `master_account` | Staff-only; from CI — not DraftID |
+| `Market Code` | `market_code` | Staff-only; from CI |
+
+See `RESUME-TEMPLATE.md` for Generate Resume + Word content-control map.
 
 ## Required alignment rule
 

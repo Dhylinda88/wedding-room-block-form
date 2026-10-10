@@ -34,6 +34,7 @@
     staffBadge: document.getElementById("staff-badge"),
     beyond30: document.getElementById("beyond-30-warning"),
     staffDatesSection: document.getElementById("staff-dates-section"),
+    generateResumeBtn: document.getElementById("generate-resume-btn"),
   };
 
   let dirty = false;
@@ -105,17 +106,25 @@
 
     const store = readMockStore();
 
-    if (action === "saveDraft" || action === "submitFinal") {
+    if (action === "saveDraft" || action === "submitFinal" || action === "generateResume") {
       const payload = body.payload || {};
       const draftId = body.draft_id || uuid();
       store[draftId] = {
         draft_id: draftId,
-        status: action === "submitFinal" ? "submitted" : "draft",
+        status: action === "submitFinal" ? "submitted" : store[draftId] && store[draftId].status === "submitted" ? "submitted" : "draft",
         payload: payload,
         email: payload.email,
         wedding_date: payload.wedding_date,
       };
       writeMockStore(store);
+      if (action === "generateResume") {
+        return {
+          ok: true,
+          draft_id: draftId,
+          resume_file: payload.couple_name + " - " + draftId + " - Resume.docx",
+          message: "Mock resume generated (no Word file in mock mode).",
+        };
+      }
       return { ok: true, draft_id: draftId };
     }
 
@@ -787,6 +796,9 @@
       "getting_ready_needed",
       "getting_ready_guests",
       "vip_names",
+      "quote_number",
+      "master_account",
+      "market_code",
       "transport_required",
       "transport_company",
       "transport_contact",
@@ -1279,6 +1291,54 @@
     }
   }
 
+  async function generateResume() {
+    if (!staffMode) {
+      setStatus("Generate resume is staff-only.", "is-error");
+      return;
+    }
+    if (saving) return;
+    clearFieldErrors();
+    const errors = {};
+    requireFilled(errors, "quote_number", "Enter the CI Quote #.");
+    requireFilled(errors, "master_account", "Enter the CI Master Account #.");
+    requireFilled(errors, "market_code", "Enter the CI Market Code.");
+    if (!els.draftId.value && !valueOf("couple_name")) {
+      errors.couple_name = "Load or save a draft first.";
+    }
+    if (Object.keys(errors).length) {
+      Object.keys(errors).forEach((k) => showFieldError(k, errors[k]));
+      setStatus("Enter Quote #, Master Account #, and Market Code before generating.", "is-error");
+      return;
+    }
+
+    setStatus("Saving, then generating resume…");
+    try {
+      const saved = await saveDraft();
+      if (!saved || !saved.draft_id) {
+        setStatus("Could not save before generating resume.", "is-error");
+        return;
+      }
+      if (saving) return;
+      saving = true;
+      setStatus("Generating resume…");
+      const payload = collectPayload();
+      const data = await api("generateResume", {
+        password: sessionPassword,
+        draft_id: saved.draft_id,
+        payload,
+        form_url: window.location.origin + window.location.pathname,
+        staff: true,
+      });
+      dirty = false;
+      const fileHint = data.resume_file ? ` File: ${data.resume_file}` : "";
+      setStatus((data.message || "Resume generated.") + fileHint, "is-ok");
+    } catch (err) {
+      setStatus(err.message, "is-error");
+    } finally {
+      saving = false;
+    }
+  }
+
   function enhanceNumberSteppers() {
     document.querySelectorAll("input[data-numeric]").forEach((input) => {
       if (input.closest(".number-stepper")) return;
@@ -1464,6 +1524,9 @@
     els.saveBtnFooter.addEventListener("click", () => saveDraft());
     els.submitBtn.addEventListener("click", submitFinal);
     els.submitBtnFooter.addEventListener("click", submitFinal);
+    if (els.generateResumeBtn) {
+      els.generateResumeBtn.addEventListener("click", () => generateResume());
+    }
 
     window.addEventListener("beforeunload", (e) => {
       if (dirty) {
