@@ -364,7 +364,9 @@
     if (guests === "" || !isValidNumeric(guests, false)) {
       errors.guests = "Enter the guest room block count.";
     }
-    requireFilled(errors, "couple_accommodations", "Describe accommodations for the couple.");
+    if (staffMode) {
+      requireFilled(errors, "couple_accommodations", "Describe accommodations for the couple.");
+    }
     requireFilled(errors, "vip_names", "Enter VIP names (or N/A).");
     requireFilled(errors, "accessibility", "Enter accessibility notes (or N/A).");
 
